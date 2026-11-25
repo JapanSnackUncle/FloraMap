@@ -79,31 +79,38 @@ About 9 weeks of build before the plum-season soft launch. Week 1 started 24 Nov
 ### Phase 0 – Decisions (week 1)
 
 - [x] Bloom stage scale, data schema, freshness rules, pin ranking, closures, illuminations (all in CLAUDE.md).
-- [x] Repo: https://github.com/JapanSnackUncle/FloraMap (empty; not yet initialised locally).
-- [ ] Working name and domain.
+- [x] Repo: https://github.com/JapanSnackUncle/FloraMap (private; set up 25 Nov).
+- [x] Working name and domain.
 
-### Phase 1 – Data (weeks 1–3)
+### Phase 1 – Data and core app (weeks 1–4)
+
+The numbered items are CLAUDE.md's "Phase 1: first tasks".
 
 - [x] Place list: 25 v1 places with coordinates, hours, fees, parking (staging sheet).
 - [x] Plantings with usual windows from official pages, marked provisional.
 - [x] Status sources for the official places.
 - [x] Festival editions for February–May 2027, plus 2026–27 illuminations.
-- [x] Import the sheet to YAML (`scripts/import-sheet.py`), including structured closures (25 Nov). The sheet is retired; `data/` is the master copy.
-- [ ] Work through `staging/import-report.md` in the YAML (source coverage, missing URLs and dates).
+- [x] Work through `staging/import-report.md` in the YAML (source coverage, missing URLs and dates). Remaining items wait on announcements or the season.
 - [ ] Photos: read the prefecture library's terms, inventory R's own shots, email 3–5 parks for permission.
+- [x] 1. Scaffold: Vite + React + TS, ESLint/Prettier, Vitest (25 Nov).
+- [x] 2. Import the sheet to YAML, including structured closures (25 Nov). The sheet is retired; `data/` is the master copy.
+- [x] 3. `build-data.ts`: validation, private fields stripped, `places.json` (25 Nov).
+- [x] 4. `status.ts`: stage, freshness, illumination, closures and pin rules, with tests (25 Nov).
+- [ ] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
 
-### Phase 2 – App (weeks 2–6)
+### Phase 2 – App complete (weeks 4–6)
 
-- [ ] Scaffold (Vite + React + TS, Vitest), build-data with validation, `status.ts` with tests.
-- [ ] Map with ring pins and festival badges; filters; list; place page with timeline, freshness label, source link, directions button, photo and Instagram embed.
+- [ ] Debug date bar in dev builds, showing why each pin was chosen.
+- [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
 - [ ] English/Japanese toggle; installable as a PWA.
-- [ ] Debug date bar in dev builds.
+- [ ] Connect the repo to Cloudflare Pages (settings in README.md).
 
 ### Phase 3 – Status pipeline (weeks 4–7)
 
 - [ ] Watcher for the official sources on a daily schedule, plus the morning digest.
-- [ ] Validation: stage in the scale, date within the bloom window, no going backwards within a season.
-- [ ] Automatic fallback when a status goes stale.
+- [ ] Watcher checks: flag a status dated outside its planting's season, or one that would go backwards.
+- [x] Validation that stages are in the scale (build-data) and display never goes backwards (status.ts).
+- [x] Automatic fallback when a status goes stale (status.ts).
 
 ### Phase 4 – Polish and field test (weeks 7–9)
 
