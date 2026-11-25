@@ -76,6 +76,100 @@ body,
   line-height: 1.4;
 }
 
+/* ---------- pins (CLAUDE.md, Map UI) */
+
+.pin-marker {
+  cursor: pointer;
+}
+
+.pin {
+  --pz: 44px; /* full pin size */
+  --rw: 4px; /* ring width */
+  position: relative;
+  width: var(--pz);
+  height: var(--pz);
+  padding: var(--rw);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s;
+}
+
+/* Estimate: same photo size, thinner ring, so the pin is smaller. */
+.pin.thin {
+  --rw: 1.5px;
+  width: calc(var(--pz) - 5px);
+  height: calc(var(--pz) - 5px);
+}
+
+.pin-marker:hover .pin {
+  transform: scale(1.18);
+}
+
+.pin img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 2px;
+  border-radius: 50%;
+  background: #fff;
+  object-fit: cover;
+}
+
+.photo-grey {
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+
+.photo-faded {
+  filter: grayscale(0.55);
+}
+
+.pin-fest {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f97316;
+  border: 2px solid #fff;
+}
+
+.pin-clock {
+  position: absolute;
+  right: -6px;
+  bottom: -5px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #b0245c;
+}
+
+.pin-label {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--ink);
+  text-shadow:
+    0 0 3px #fff,
+    0 0 3px #fff,
+    0 0 3px #fff;
+  pointer-events: none;
+}
+
+.pin-marker:hover .pin-label {
+  display: block;
+}
+
 /* ---------- debug mode (dev builds only) */
 
 .debug-bar {

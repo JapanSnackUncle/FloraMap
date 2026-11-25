@@ -43,7 +43,7 @@ export default function App() {
       )}
       {error && <p className="load-error">{t('loadError', lang)}</p>}
       <div className="main">
-        <MapView places={data?.places ?? null} focus={focus} />
+        <MapView statuses={statuses} lang={lang} focus={focus} />
         {DEBUG && panelOpen && data && (
           <DebugPanel
             statuses={statuses}

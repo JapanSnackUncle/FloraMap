@@ -15,8 +15,9 @@ import {
   TILE_BOUNDS,
   TILES_URL,
 } from '../config';
-import type { FeatureCollection, Point } from 'geojson';
-import type { PublicPlace } from '../lib/schema';
+import type { Lang } from '../i18n';
+import type { PlaceStatus } from '../lib/status';
+import { drawPin, pinLook } from '../pins';
 
 // MapLibre reads "pmtiles://..." URLs through this protocol handler. Register it once per page.
 let protocolRegistered = false;
@@ -47,44 +48,18 @@ const MAX_BOUNDS: [[number, number], [number, number]] = [
   [e + PAN_MARGIN, n + PAN_MARGIN],
 ];
 
-const PLACES_SOURCE = 'places';
-const PLACES_LAYER = 'places-dots';
-
-function placesGeoJson(places: PublicPlace[]): FeatureCollection<Point> {
-  return {
-    type: 'FeatureCollection',
-    features: places.map((p) => ({
-      type: 'Feature',
-      id: p.id,
-      geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
-      properties: {
-        id: p.id,
-        name_ja: p.name_ja,
-        name_en: p.name_en ?? '',
-        municipality: p.municipality,
-        lat: p.lat,
-        lng: p.lng,
-      },
-    })),
-  };
-}
-
-const escapeHtml = (s: string) =>
-  s.replace(
-    /[&<>"']/g,
-    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
-  );
-
 interface Props {
-  places: PublicPlace[] | null;
+  statuses: PlaceStatus[];
+  lang: Lang;
   /** Fly to this place; `n` changes on every request so the same place can be chosen twice. */
   focus?: { id: string; n: number } | null;
 }
 
-export default function MapView({ places, focus }: Props) {
+export default function MapView({ statuses, lang, focus }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const markers = useRef(new Map<string, maplibregl.Marker>());
 
   useEffect(() => {
     if (!container.current) return;
@@ -124,59 +99,48 @@ export default function MapView({ places, focus }: Props) {
     };
   }, []);
 
-  // Plain dots, one per place, with the name on hover (step 5.2; ring pins replace these in 5.4).
+  // One ring pin per place (HTML markers), redrawn whenever the date, data or language changes.
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !loaded || !places) return;
-    const data = placesGeoJson(places);
-    const existing = map.getSource<maplibregl.GeoJSONSource>(PLACES_SOURCE);
-    if (existing) {
-      existing.setData(data);
-      return;
+    if (!map || !loaded) return;
+    const seen = new Set<string>();
+    for (const ps of statuses) {
+      const look = pinLook(ps, lang);
+      if (!look) continue;
+      seen.add(ps.place.id);
+      let marker = markers.current.get(ps.place.id);
+      if (!marker) {
+        marker = new maplibregl.Marker({ element: document.createElement('div') })
+          .setLngLat([ps.place.lng, ps.place.lat])
+          .addTo(map);
+        markers.current.set(ps.place.id, marker);
+      }
+      marker.setLngLat([ps.place.lng, ps.place.lat]);
+      drawPin(marker.getElement(), look, (lang === 'en' && ps.place.name_en) || ps.place.name_ja);
     }
-    map.addSource(PLACES_SOURCE, { type: 'geojson', data });
-    map.addLayer({
-      id: PLACES_LAYER,
-      type: 'circle',
-      source: PLACES_SOURCE,
-      paint: {
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 5, 14, 8],
-        'circle-color': '#B0245C',
-        'circle-stroke-color': '#ffffff',
-        'circle-stroke-width': 2,
-      },
-    });
+    for (const [id, marker] of markers.current) {
+      if (!seen.has(id)) {
+        marker.remove();
+        markers.current.delete(id);
+      }
+    }
+  }, [loaded, statuses, lang]);
 
-    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
-    const show = (e: maplibregl.MapLayerMouseEvent) => {
-      const f = e.features?.[0];
-      if (!f) return;
-      const p = f.properties as Record<string, string | number>;
-      map.getCanvas().style.cursor = 'pointer';
-      popup
-        .setLngLat((f.geometry as Point).coordinates as [number, number])
-        .setHTML(
-          `<strong>${escapeHtml(String(p.name_ja))}</strong>` +
-            (p.name_en ? `<br>${escapeHtml(String(p.name_en))}` : '') +
-            `<br><small>${escapeHtml(String(p.municipality))} · ${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}</small>`,
-        )
-        .addTo(map);
+  // The map is recreated on remount (dev); drop the old markers with it.
+  useEffect(() => {
+    const all = markers.current;
+    return () => {
+      for (const m of all.values()) m.remove();
+      all.clear();
     };
-    const hide = () => {
-      map.getCanvas().style.cursor = '';
-      popup.remove();
-    };
-    map.on('mousemove', PLACES_LAYER, show);
-    map.on('click', PLACES_LAYER, show); // touch screens have no hover
-    map.on('mouseleave', PLACES_LAYER, hide);
-  }, [loaded, places]);
+  }, []);
 
   useEffect(() => {
     const map = mapRef.current;
-    const p = focus && places?.find((x) => x.id === focus.id);
+    const p = focus && statuses.find((x) => x.place.id === focus.id)?.place;
     if (!map || !p) return;
     map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 13) });
-  }, [focus, places]);
+  }, [focus, statuses]);
 
   return <div ref={container} className="map" />;
 }
