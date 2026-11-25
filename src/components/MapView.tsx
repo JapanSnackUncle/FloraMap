@@ -88,7 +88,14 @@ export default function MapView({ statuses, lang, focus }: Props) {
       attributionControl: { compact: true },
       // Keep the view in the address bar (#zoom/lat/lng) so a view can be bookmarked or shared.
       hash: true,
+      // North always up: no rotating or tilting the map.
+      dragRotate: false,
+      pitchWithRotate: false,
+      touchPitch: false,
+      maxPitch: 0,
     });
+    map.touchZoomRotate.disableRotation();
+    map.keyboard.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
     map.on('load', () => setLoaded(true));
     mapRef.current = map;
