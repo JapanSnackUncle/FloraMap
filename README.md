@@ -8,7 +8,7 @@ Needs Node 24 (see `.node-version`).
 
 ```
 npm install
-npm run dev        # local site with hot reload
+npm run dev        # local site with hot reload (rebuilds data on change)
 npm test           # unit tests (Vitest)
 npm run lint       # ESLint
 npm run format     # Prettier
@@ -17,7 +17,14 @@ npm run build      # type-check and build to dist/
 
 ## Data
 
-`data/` is the master copy: edit the YAML and CSV files directly. At build time they are validated and turned into JSON (`scripts/build-data.ts`, Phase 1 task 3). Open data to-dos are in `staging/import-report.md`.
+`data/` is the master copy: edit the YAML and CSV files directly. Open data to-dos are in `staging/import-report.md`.
+
+```
+npm run check-data   # validate data/ only; lists every problem with file and field
+npm run build-data   # validate and write public/data/places.json
+```
+
+`npm run dev` and `npm run build` run the data step first, and `npm run dev` re-runs it whenever a file in `data/` changes. Any data problem stops the build, so bad data never reaches the site. The schema is `src/lib/schema.ts`; fields like `editor_notes` and `checked_against` are private and never written to the JSON.
 
 ## Deploy (Cloudflare Pages)
 

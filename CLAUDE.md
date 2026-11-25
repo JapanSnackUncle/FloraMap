@@ -44,7 +44,7 @@ data/
   statuses.csv                # append-only status log
   closures.csv                # append-only one-off venue closures
 scripts/
-  build-data.ts               # YAML/CSV -> public/data/*.json, with validation
+  build-data.ts               # YAML/CSV -> public/data/places.json, with validation
   clean_sheet.py              # retired: load/save for the staging sheet
   build-clean-sheet.py        # retired one-off: reference/draft-list.xlsx -> staging sheet
   import-sheet.py             # retired one-off: staging sheet -> data/ (run 2026-11-25; locked)
@@ -53,6 +53,7 @@ staging/
   import-report.md            # data to-do list from the import: tick off items as data/ is fixed
 watcher/                      # Phase 3
 src/
+  lib/schema.ts               # zod schema for data/ + types for the app (one definition)
   lib/status.ts               # pure stage/visibility logic (tested)
   ...
 reference/                    # exports listed above
@@ -142,7 +143,7 @@ GLOSSARY.md                   # project terms
 
 1. **Done 2026-11-25.** Scaffold the repo (Vite + React + TS, ESLint/Prettier, Vitest). Cloudflare Pages settings are in `README.md`; connecting the repo in the dashboard is R's step.
 2. **Done 2026-11-25** (see `staging/import-report.md`). `scripts/import-sheet.py`: turn `staging/draft-list-clean.xlsx` into `data/places/ibaraki/<municipality>/*.yaml` (25 places, with closures), `festivals/ibaraki/*.yaml`, `sources.yaml`. Mark converted windows `provisional: true`. Skip sources with no URL (koga-kanko-momo, mito-kanko-sakura) until one is found. Report anything that didn't map cleanly instead of guessing.
-3. `scripts/build-data.ts` with schema validation (zod or JSON Schema): unknown species, bad dates, missing prefecture, folder/field mismatch, duplicate IDs → build fails.
+3. **Done 2026-11-25.** `scripts/build-data.ts` validates `data/` against the zod schema in `src/lib/schema.ts` (strict: unknown fields fail) and cross-checks IDs, references, folders and date ranges; any problem fails the build. Writes `public/data/places.json` without `PRIVATE_KEYS`. `npm run check-data` validates only; `npm run dev` rebuilds on every change in `data/`. Tests in `scripts/build-data.test.ts`.
 4. `src/lib/status.ts`: port the prototype's stage, visibility, freshness and ranking logic as pure functions, with tests covering lead window, season rollover, never-backwards, stale fallback, illumination countdowns, venue closures precedence, featured tie-break and badge rules.
 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images until real photos exist.
 
