@@ -97,6 +97,15 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] 3. `build-data.ts`: validation, private fields stripped, `places.json` (25 Nov).
 - [x] 4. `status.ts`: stage, freshness, illumination, closures and pin rules, with tests (25 Nov).
 - [ ] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
+  - [ ] 5.1 Map shell: MapLibre with the local Ibaraki basemap, Japanese labels, OpenStreetMap credit.
+  - [ ] 5.2 Plain markers: one dot per place at its coordinates, name on hover.
+  - [ ] 5.3 Status wiring and a basic debug bar: date picker, ±1/±7 days, season presets, each place's pin and `why`.
+  - [ ] 5.4 Ring pins: placeholder photo, stage colour, 咲き始め fill, full vs thin ring, gold lit, festival dot, clock badge.
+  - [ ] 5.5 Filters: the five chips, シーズン中 by default.
+  - [ ] 5.6 List: visible places with stage, source and age, 分咲き, dates, 本日休園, festival tags.
+  - [ ] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
+  - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle.
+  - [ ] 5.9 Phone pass: narrow layout, tested on a phone over Wi-Fi.
 
 ### Phase 2 – App complete (weeks 4–6)
 
