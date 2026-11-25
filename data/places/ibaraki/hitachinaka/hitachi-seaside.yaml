@@ -106,16 +106,6 @@ plantings:
     window_raw: "5月中旬から6月上旬まで、10月下旬から11月上旬まで"
     official_urls: ["https://www.hitachikaihin.jp/flower-plant/spring.html"]
     editor_notes: "windows from the official flower calendar (checked 2026-11-25): 常陸ローズガーデン, spring and autumn"
-  - id: hitachi-seaside-shibazakura
-    kind: bloom
-    species: shibazakura
-    windows:
-      - start: "04-2"
-        end: "05-1"
-    provisional: true
-    window_raw: "4月中旬〜5月上旬"
-    checked_against: ["https://www.fun-japan.jp/jp/articles/14025"]
-    editor_notes: "not on the park's official flower calendars (checked 2026-11-25); may no longer be planted"
   - id: hitachi-seaside-sunflower
     kind: bloom
     species: sunflower
