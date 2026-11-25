@@ -45,8 +45,7 @@ plantings:
     editor_notes: "window from the official flower calendar (checked 2026-11-25): みはらしの丘ふもと and 大草原フラワーガーデン"
   - id: hitachi-seaside-kochia-green
     kind: bloom
-    species: kochia
-    species_variety: "緑"
+    species: kochia-green
     windows:
       - start: "08-2"
         end: "09-3"
@@ -56,8 +55,7 @@ plantings:
     editor_notes: "window from the official flower calendar (checked 2026-11-25); was 07-1–09-2 from a 関東地方整備局 PDF"
   - id: hitachi-seaside-kochia-red
     kind: foliage
-    species: kochia
-    species_variety: "紅葉"
+    species: kochia-red
     windows:
       - start: "10-1"
         end: "10-3"

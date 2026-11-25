@@ -23,7 +23,8 @@ const COLORS: Record<string, string> = {
   hagi: '#BE62A2',
   cosmos: '#EC7FB0',
   hamanasu: '#D9437A',
-  kochia: '#6BA84F',
+  'kochia-green': '#6BA84F',
+  'kochia-red': '#C8323C',
   momiji: '#D2502A',
   ginkgo: '#E8C02A',
 };
@@ -108,10 +109,7 @@ export function placeholderPhoto(
   let body: string;
   if (feature.type === 'illumination') body = lights();
   else {
-    const c =
-      feature.species === 'kochia' && feature.kind === 'foliage'
-        ? '#C8323C'
-        : (COLORS[feature.species] ?? FALLBACK);
+    const c = COLORS[feature.species] ?? FALLBACK;
     body = feature.kind === 'foliage' ? leaves(c) : flowers(c);
   }
   const url = dataUrl(

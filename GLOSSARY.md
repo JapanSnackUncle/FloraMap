@@ -8,7 +8,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 |---|---|
 | **place** | A venue with one map point: a park, temple, valley, avenue. Owns its plantings, illuminations and closures. ID e.g. `kairakuen`. The older word **spot** (plan.md history, prototype, sheet tab names) means the same thing. |
 | **feature** | Anything at a place that has a stage: a planting or an illumination. Each has a `kind`. |
-| **feature kind** | `bloom` (flowers), `foliage` (autumn leaves, red kochia) or `illumination`. Not the same as *status kind*. |
+| **feature kind** | `bloom` (flowers), `foliage` (autumn leaves, `kochia-red`) or `illumination`. Not the same as *status kind*. |
 | **planting** | One flower or leaf display at one place, with its own usual window and status. ID e.g. `kairakuen-ume`. Species-varieties that bloom weeks apart are separate plantings (`amabiki-kannon-kawazu-zakura`, `amabiki-kannon-sakura`). |
 | **species** | The broad kind of plant from `species.yaml` (`ume`, `sakura`, `momiji`…). About 20, fixed. Not strictly botanical: `momiji` covers several maples. Field: `species`. Formerly *type*. |
 | **species-variety** | Optional free text under a species (`河津桜`, `ヤマザクラ`). Never used for logic. Field: `species_variety`. Formerly *variety*. |
@@ -47,7 +47,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **シーズン外 / Out of Season** (4) | Everything else. Hidden by default. Replaces the older 終了 / 落葉. |
 | **分咲き** | The fraction of flowers open, in tenths (`5分咲き` = half). 満開 = full bloom. |
 | **mapping rule** | How a source's wording becomes a level (CLAUDE.md, Bloom scale). |
-| **pin photo** | The image inside a pin: a species close-up (`pin_photo` in species.yaml), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
+| **pin photo** | The image inside a pin: a species close-up (`pin_photo` in species.yaml, files in `photos-pin/`), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
 | **starting days** | Per species (`starting_days` in species.yaml): how many days of 咲き始め to show before the usual window when there's no report. |
 | **lead window** | The `LEAD = 14` days before 咲き始め starts (or before an illumination starts). The only time まもなく shows. |
 | **in season** | A feature that isn't シーズン外. The default filter シーズン中 shows these. |

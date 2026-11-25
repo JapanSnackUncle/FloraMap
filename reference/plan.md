@@ -33,7 +33,7 @@ User reports and accounts, push notifications, a forecasting model, an AI auto-r
 
 **Five stage levels.** Most sources only use three words (咲き始め / 見頃 / 見頃後半), so more in-bloom levels couldn't be filled reliably; five read without a legend; the 見頃 boundary matches how parks and JMA define it (7分, about 80% open). The number of levels is the costly thing to change later, so it's fixed.
 
-**Leaves share the levels and ring colours.** The ring shows the stage, not the plant; the photo shows red or yellow leaves. Kochia counts twice: its green season (July–September) is a bloom planting, its red season (October) a foliage planting. Roses get two windows (spring, autumn).
+**Leaves share the levels and ring colours.** The ring shows the stage, not the plant; the photo shows red or yellow leaves. Kochia is two species: `kochia-green` (summer, bloom labels) and `kochia-red` (October, leaf labels). Roses get two windows (spring, autumn).
 
 **Short lead window (14 days).** Showing まもなく months ahead fills the map with grey pins that say nothing. Per-flower lead values can come later if one setting proves wrong.
 

@@ -193,8 +193,6 @@ export const species = z.strictObject({
   starting_days: z.number().int().min(0).max(60),
   /** Close-up used as the pin image for this species' plantings. */
   pin_photo: photo.optional(),
-  /** Pin image for the foliage kind, where a species has both (kochia: green vs red). */
-  pin_photo_foliage: photo.optional(),
   name_ja: text,
   name_en: text,
 });
