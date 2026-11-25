@@ -37,8 +37,8 @@ function parseView(hash: string): { zoom: number; center: [number, number] } | n
   return { zoom: z!, center: [lng!, lat!] };
 }
 
-/** Let the map pan a little past the tiles, but not off into empty space. */
-const PAN_MARGIN = 0.3;
+/** Let the map pan and zoom out past the tiles (grey beyond them) so all of Ibaraki fits any screen. */
+const PAN_MARGIN = 1.5;
 const [w, s, e, n] = TILE_BOUNDS;
 const MAX_BOUNDS: [[number, number], [number, number]] = [
   [w - PAN_MARGIN, s - PAN_MARGIN],
@@ -69,7 +69,7 @@ export default function MapView() {
       // Open on all of Ibaraki, unless the address bar already holds a view.
       ...(OPENED_WITH_VIEW ?? { bounds: IBARAKI_BOUNDS, fitBoundsOptions: { padding: 16 } }),
       maxBounds: MAX_BOUNDS,
-      minZoom: 7,
+      minZoom: 6,
       maxZoom: 18,
       localIdeographFontFamily: JAPANESE_FONTS,
       attributionControl: { compact: true },
