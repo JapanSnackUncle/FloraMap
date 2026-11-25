@@ -7,9 +7,9 @@ prefecture: ibaraki
 municipality: "水戸市"
 municipality_slug: mito
 address_ja: "常磐町1-3-3"
-lat: 36.376099
-lng: 140.450745
-geocode_precision: block
+lat: 36.374914
+lng: 140.453811
+geocode_precision: manual
 hours_ja: "6:00–19:00（10月–2月中旬は7:00–18:00）"
 closed_ja: "無休"
 fee_ja: "大人320円、小中学生・70歳以上160円（好文亭は別途）"

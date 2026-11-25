@@ -7,9 +7,9 @@ prefecture: ibaraki
 municipality: "土浦市"
 municipality_slug: tsuchiura
 address_ja: "大岩田145"
-lat: 36.064804
-lng: 140.219971
-geocode_precision: lot
+lat: 36.063432
+lng: 140.220667
+geocode_precision: manual
 hours_ja: "イルミ期間 17:00–21:00"
 fee_ja: "無料"
 parking_ja: "170台、無料"
