@@ -1,11 +1,11 @@
-"""One-off: staging/draft-list-clean.xlsx -> data/.
+"""One-off: reference/staging/draft-list-clean.xlsx -> data/.
 
 Writes:
   data/places/<prefecture>/<municipality>/<place-id>.yaml
   data/festivals/<prefecture>/<festival-id>.yaml
   data/sources.yaml, data/species.yaml
   data/statuses.csv, data/closures.csv   (headers only, if missing)
-  staging/import-report.md                (what didn't map cleanly)
+  reference/staging/import-report.md                (what didn't map cleanly)
 
 Only rows with in_v1 = yes are imported. Nothing is guessed: empty cells stay
 out of the YAML, and anything odd goes in the report.
@@ -25,7 +25,7 @@ import clean_sheet  # noqa: E402
 
 ROOT = clean_sheet.ROOT
 DATA = ROOT / "data"
-REPORT = ROOT / "staging" / "import-report.md"
+REPORT = ROOT / "reference" / "staging" / "import-report.md"
 SCHEMA_VERSION = 1
 
 report: dict[str, list[str]] = {}

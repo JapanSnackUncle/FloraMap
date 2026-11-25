@@ -17,7 +17,7 @@ Thumbs.db
 
 # Excel lock files and sheet backups
 ~$*
-staging/backups/
+reference/staging/backups/
 
 # Python
 __pycache__/

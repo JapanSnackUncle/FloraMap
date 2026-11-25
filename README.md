@@ -17,7 +17,7 @@ npm run build      # type-check and build to dist/
 
 ## Data
 
-`data/` is the master copy: edit the YAML and CSV files directly. Open data to-dos are in `staging/import-report.md`.
+`data/` is the master copy: edit the YAML and CSV files directly. Open data to-dos are in `reference/staging/import-report.md`.
 
 ```
 npm run check-data   # validate data/ only; lists every problem with file and field

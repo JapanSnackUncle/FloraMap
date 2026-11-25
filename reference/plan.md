@@ -90,7 +90,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] Plantings with usual windows from official pages, marked provisional.
 - [x] Status sources for the official places.
 - [x] Festival editions for February–May 2027, plus 2026–27 illuminations.
-- [x] Work through `staging/import-report.md` in the YAML (source coverage, missing URLs and dates). Remaining items wait on announcements or the season.
+- [x] Work through `reference/staging/import-report.md` in the YAML (source coverage, missing URLs and dates). Remaining items wait on announcements or the season.
 - [ ] Photos: read the prefecture library's terms, inventory R's own shots, email 3–5 parks for permission.
 - [x] 1. Scaffold: Vite + React + TS, ESLint/Prettier, Vitest (25 Nov).
 - [x] 2. Import the sheet to YAML, including structured closures (25 Nov). The sheet is retired; `data/` is the master copy.

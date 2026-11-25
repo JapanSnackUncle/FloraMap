@@ -107,7 +107,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 |---|---|
 | **v1 / v2** | v1: the scope in plan.md, for the 2027 plum and spring seasons. v2: anything deferred. |
 | **in_v1** | Staging-sheet column: whether a row was imported for v1. |
-| **staging sheet** | `staging/draft-list-clean.xlsx`. Used to clean the original data, imported to `data/` on 2026-11-25, now an archive only. |
+| **staging sheet** | `reference/staging/draft-list-clean.xlsx`. Used to clean the original data, imported to `data/` on 2026-11-25, now an archive only. |
 | **Issues tab** | The staging sheet's list of problems to resolve; a row's cell is highlighted until it's marked resolved. |
 | **reference** | The claude.ai exports in `reference/`. Read-only background. |
 | **soft launch** | Going live for the 2027 plum season (late Jan–Feb). |

@@ -1,4 +1,4 @@
-"""One-off: reference/draft-list.xlsx -> staging/draft-list-clean.xlsx.
+"""One-off: reference/staging/draft-list.xlsx -> reference/staging/draft-list-clean.xlsx.
 
 Restructures the draft sheet into one tab per record type (Places, Plantings,
 Illuminations, Illumination hours, Festivals, Sources, lookups) keyed by ID,
@@ -24,8 +24,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import clean_sheet  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-SRC = ROOT / "reference" / "draft-list.xlsx"
-OUT = ROOT / "staging" / "draft-list-clean.xlsx"
+SRC = ROOT / "reference" / "staging" / "draft-list.xlsx"
+OUT = ROOT / "reference" / "staging" / "draft-list-clean.xlsx"
 
 PREFECTURE = "ibaraki"
 
@@ -526,7 +526,7 @@ def main():
 
 README = """
 Ibaraki Flora Map: clean staging sheet
-Built by scripts/build-clean-sheet.py from reference/draft-list.xlsx. Fix the Issues tab, then the importer turns this into data/ YAML and the sheet is retired.
+Built by scripts/build-clean-sheet.py from reference/staging/draft-list.xlsx. Fix the Issues tab, then the importer turns this into data/ YAML and the sheet is retired.
 
 Tabs
   Places              one row per place. in_v1 = yes for the 25 places with details; 'no' rows are from the Spots tab only (no ID yet).

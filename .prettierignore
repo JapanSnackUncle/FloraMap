@@ -1,7 +1,6 @@
 dist
 node_modules
 reference
-staging
 data
 package-lock.json
 *.md

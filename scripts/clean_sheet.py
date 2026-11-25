@@ -1,4 +1,4 @@
-"""Read and rewrite staging/draft-list-clean.xlsx safely.
+"""Read and rewrite reference/staging/draft-list-clean.xlsx safely.
 
 Never patch the sheet in place with openpyxl: when Excel saves it, Excel moves
 cross-tab dropdowns and the issue highlights into its own extension format,
@@ -10,7 +10,7 @@ which openpyxl silently drops. Instead:
                                 # dropdowns and sort-safe issue highlights
 
 save() refuses while the file is open in Excel and keeps a timestamped backup
-in staging/backups/. Manual formatting (colours, widths) is not preserved.
+in reference/staging/backups/. Manual formatting (colours, widths) is not preserved.
 """
 
 import datetime as dt
@@ -24,7 +24,7 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.datavalidation import DataValidation
 
 ROOT = Path(__file__).resolve().parent.parent
-SHEET = ROOT / "staging" / "draft-list-clean.xlsx"
+SHEET = ROOT / "reference" / "staging" / "draft-list-clean.xlsx"
 MAX_ROW = 1000
 
 HEADER_FILL = PatternFill("solid", fgColor="E7E5E4")

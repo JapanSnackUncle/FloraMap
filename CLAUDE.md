@@ -16,7 +16,7 @@ The edge over existing listing sites is the live status and user-friendly map, n
 | File                        | What it is                                                                                                   | How to treat it                                                                                                                                                                                                                       |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `reference/plan.md`         | "Ibaraki Flora Map — Long-term plan": goals, roadmap, reasoning behind the rules, operations, parked ideas    | **Planning document.** Holds no rules. When a decision becomes a rule, it goes here in CLAUDE.md and plan.md keeps only the why.                                                                                                     |
-| `reference/draft-list.xlsx` | "Ibaraki flower spots — draft list": 79 place × flower rows, 25 places with details, Status sources, Festivals 2027 | Original export. Superseded by `staging/draft-list-clean.xlsx`; don't read either at runtime.                                                                                                                                        |
+| `reference/staging/draft-list.xlsx` | "Ibaraki flower spots — draft list": 79 place × flower rows, 25 places with details, Status sources, Festivals 2027 | Original export. Superseded by `reference/staging/draft-list-clean.xlsx`; don't read either at runtime.                                                                                                                                        |
 | `reference/prototype.html`  | Single-file prototype with a debug date bar                                                                  | **Reference for behaviour and look** (stage logic, pin rings, filters, illuminations). Its labels are older (まだ/終了, 点灯前/本日休み). Its bloom windows, statuses and photos are **made up**. Never copy its data into `data/`. |
 
 If a file is missing, ask R to export it rather than guessing at its contents.
@@ -46,24 +46,25 @@ data/
 scripts/
   build-data.ts               # YAML/CSV -> public/data/places.json, with validation
   clean_sheet.py              # retired: load/save for the staging sheet
-  build-clean-sheet.py        # retired one-off: reference/draft-list.xlsx -> staging sheet
+  build-clean-sheet.py        # retired one-off: original sheet -> staging sheet
   import-sheet.py             # retired one-off: staging sheet -> data/ (run 2026-11-25; locked)
-staging/
-  draft-list-clean.xlsx       # retired 2026-11-25: archive only, never edit or re-import
-  import-report.md            # data to-do list from the import: tick off items as data/ is fixed
 watcher/                      # Phase 3
 src/
   lib/schema.ts               # zod schema for data/ + types for the app (one definition)
   lib/status.ts               # pure stage/visibility logic (tested)
   ...
 reference/                    # exports listed above
+  staging/
+    draft-list.xlsx           # original claude.ai export
+    draft-list-clean.xlsx     # retired 2026-11-25: archive only, never edit or re-import
+    import-report.md          # data to-do list from the import: tick off items as data/ is fixed
 GLOSSARY.md                   # project terms
 ```
 
 ## Data rules
 
 - **IDs:** readable, permanent slugs, e.g. `kairakuen`, `kairakuen-ume`, `mito-ume-matsuri`. Never rename one once it's live.
-- **`data/` is the master copy** (since 2026-11-25). Edit the YAML/CSV directly; the staging sheet is an archive. Open data to-dos live in `staging/import-report.md`.
+- **`data/` is the master copy** (since 2026-11-25). Edit the YAML/CSV directly; the staging sheet is an archive. Open data to-dos live in `reference/staging/import-report.md`.
 - **Private fields:** `editor_notes`, `checked_against` and `window_raw` are for R and the build checks only; never show them in the app.
 - **Hierarchy:** a place file nests what belongs only to that place: plantings (with photos), illuminations (with editions) and closures. Festivals, sources and statuses are separate and link by ID: a festival lists `place_ids`, a source lists the plantings it covers, and status rows use `planting_id`.
 - **Folders:** prefecture and municipality folders use romaji slugs (`ibaraki/mito/`); the Japanese name lives in the file (`municipality: 水戸市`). The build fails if the folder and the file's `prefecture`/`municipality` disagree. The folder is not part of the ID: if a municipality merges or is renamed, move the file and keep the ID.
@@ -151,7 +152,7 @@ GLOSSARY.md                   # project terms
 ## Phase 1: first tasks
 
 1. **Done 2026-11-25.** Scaffold the repo (Vite + React + TS, ESLint/Prettier, Vitest). Cloudflare Pages settings are in `README.md`; connecting the repo in the dashboard is R's step.
-2. **Done 2026-11-25** (see `staging/import-report.md`). `scripts/import-sheet.py`: turn `staging/draft-list-clean.xlsx` into `data/places/ibaraki/<municipality>/*.yaml` (25 places, with closures), `festivals/ibaraki/*.yaml`, `sources.yaml`. Mark converted windows `provisional: true`. Skip sources with no URL (koga-kanko-momo, mito-kanko-sakura) until one is found. Report anything that didn't map cleanly instead of guessing.
+2. **Done 2026-11-25** (see `reference/staging/import-report.md`). `scripts/import-sheet.py`: turn `reference/staging/draft-list-clean.xlsx` into `data/places/ibaraki/<municipality>/*.yaml` (25 places, with closures), `festivals/ibaraki/*.yaml`, `sources.yaml`. Mark converted windows `provisional: true`. Skip sources with no URL (koga-kanko-momo, mito-kanko-sakura) until one is found. Report anything that didn't map cleanly instead of guessing.
 3. **Done 2026-11-25.** `scripts/build-data.ts` validates `data/` against the zod schema in `src/lib/schema.ts` (strict: unknown fields fail) and cross-checks IDs, references, folders and date ranges; any problem fails the build. Writes `public/data/places.json` without `PRIVATE_KEYS`. `npm run check-data` validates only; `npm run dev` rebuilds on every change in `data/`. Tests in `scripts/build-data.test.ts`.
 4. **Done 2026-11-25.** `src/lib/status.ts` (with `src/lib/dates.ts`): stage, freshness, illumination, closures, pin, filter and page-order rules as pure functions of `today`, each returning a `why` for debug mode. Tests in `src/lib/status.test.ts`, including real-date fixtures.
 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images until real photos exist.
