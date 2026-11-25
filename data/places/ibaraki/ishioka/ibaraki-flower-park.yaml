@@ -16,12 +16,13 @@ fee_ja: "季節・開花で変動：春は大人1,200–1,800円・小人400–6
 parking_ja: "1,200台、無料"
 official_urls: ["https://www.flowerpark.or.jp/time-price/"]
 checked_against: ["https://www.walkerplus.com/spot/ar0308s65321/map.html", "https://www.walkerplus.com/event/ar0308e304893/price.html"]
-editor_notes: "closed days moved from ibaraki-flower-park-illumination (2026-11-25): closures belong to the place"
+editor_notes: "closed days from the official 営業日カレンダー, Nov 2026–Mar 2027 (checked 2026-11-25). April–June 2027 show no closed days yet; re-check before valid_until."
 closures:
   source_url: "https://www.flowerpark.or.jp/time-price/"
+  valid_until: "2027-03-31"
   weekly: [tue]
-  dates_closed: ["2026-11-04", "2026-11-25", "2026-11-26", "2026-11-27", "2026-12-30", "2026-12-31", "2027-01-01"]
-  dates_open: ["2026-11-03", "2026-12-29"]
+  dates_closed: ["2026-11-04", "2026-11-25", "2026-11-26", "2026-11-27", "2026-12-30", "2026-12-31", "2027-01-01", "2027-01-25", "2027-01-27", "2027-01-28", "2027-01-29", "2027-02-24"]
+  dates_open: ["2026-11-03", "2026-12-29", "2027-02-23"]
 plantings:
   - id: ibaraki-flower-park-hydrangea
     kind: bloom

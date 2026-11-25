@@ -4,7 +4,12 @@ name_ja: "竜神峡紅葉まつり"
 place_ids: [ryujin-otsuribashi]
 planting_ids: [ryujin-otsuribashi-momiji]
 night_events_ja: "竜神大吊橋ライトアップ（毎週土曜、20:00まで営業）"
-official_urls: ["https://www.city.hitachiota.ibaraki.jp/miryoku/events/page000365.html"]
+official_urls: ["https://www.kanko-hitachiota.com/page/page002136.html", "https://www.city.hitachiota.ibaraki.jp/miryoku/events/page000365.html"]
+editor_notes: "2026 (第37回) dates from 常陸太田市観光物産協会 (checked 2026-11-25): 8:30–17:00, Saturdays to 20:00 for the bridge light-up"
 editions:
+  - id: ryujin-momiji-matsuri-2026
+    from: "2026-11-01"
+    to: "2026-11-30"
+    dates_announced: true
   - id: ryujin-momiji-matsuri-2027
     dates_announced: false

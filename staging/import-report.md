@@ -1,69 +1,34 @@
-# Import report
+# Data to-do list
 
-Generated 2026-11-25 17:23 by scripts/import-sheet.py.
+Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 45 plantings, 7 illuminations, 18 festivals, 12 sources, 23 species). Fix items in `data/` and tick them here.
 
-Imported: 25 places, 45 plantings, 7 illuminations, 18 festivals, 12 sources, 23 species.
+## Done 2026-11-25
 
-## Empty fields (fill when known)
+- [x] Source coverage trimmed: `mito-kanko-ume` → 梅 only; `itako-ayame-status` → 花菖蒲 only (it doesn't report アヤメ/カキツバタ separately); `sakuragawa-kanko-ajisai` → アジサイ only; `shimotsuma-kankou-kokaigawa` → ポピー, コスモス.
+- [x] `hitachi-seaside-forecast`: old URL was a 404; now the park's 現在の花情報 page.
+- [x] ひたち海浜公園 windows from the park's official flower calendars: 梅 01-3–03-2, ポピー 05-2–05-3, バラ 05-2–06-1 and 10-3–11-1, コキア緑 08-2–09-3, コキア紅葉 10-1–10-3, コスモス confirmed.
+- [x] Official URLs: 常陸風土記の丘 (hitachifudoki.jp), 弘道館 (kodokan-ibaraki.jp), きらくやま (つくばみらい市観光協会).
+- [x] 弘道館: hours corrected (16:30 closing runs to 2/19, not 2/10); closures 12/29–31.
+- [x] 常陸風土記の丘: hours and closed days added; they apply to paid areas only, so no closures block.
+- [x] きらくやま: closures source and holiday shifts to 2027-03-31.
+- [x] フラワーパーク: closed days from the official calendar to 2027-03-31.
+- [x] Festival dates: 福岡堰 2026 (4/3–4/7); 竜神峡 2026 (11/1–11/30, on now); 桜川の桜まつり 2026 confirmed (3/5–4/25) and linked to 雨引観音's cherries too; あじさい祭 (雨引観音) fee and light-up.
 
-- illumination `fukuroda-illumination` 2025-26: no nightly hours
-- place `hitachi-fudoki`: `official_url`
-- place `ibaraki-flower-park`: closures `valid_until`
-- place `kirakuyama`: `official_url`
-- place `kirakuyama`: closures `source_url`
-- place `kirakuyama`: closures `valid_until`
-- illumination `kirakuyama-illumination` 2026-27: dates not announced
-- place `kodokan`: `official_url`
-- festival `akeno-himawari-matsuri`: akeno-himawari-matsuri-2027 dates not announced
-- festival `flower-park-spring-rose`: flower-park-spring-rose-2027 dates not announced
-- festival `flower-park-spring-rose`: no dates at all (dates_raw: 2027: 未発表 / 2026: 2026年5月上旬〜6月上旬)
-- festival `fukuokazeki-sakura-matsuri`: fukuokazeki-sakura-matsuri-2027 dates not announced
-- festival `fukuokazeki-sakura-matsuri`: no dates at all (dates_raw: 2027: 未発表 / 2026: 2026年3月下旬〜4月上旬)
-- festival `hitachi-fudoki-sakura-matsuri`: hitachi-fudoki-sakura-matsuri-2027 dates not announced
-- festival `hitachi-sakura-matsuri`: hitachi-sakura-matsuri-2027 dates not announced
-- festival `hitachi-seaside-flowering`: hitachi-seaside-flowering-2027 dates not announced
-- festival `hitachi-seaside-flowering`: no dates at all (dates_raw: 2027: 未発表 / 2026: 未確認（2024年は04-01〜05-31）)
-- festival `itako-ayame-matsuri`: itako-ayame-matsuri-2027 dates not announced
-- festival `kasama-tsutsuji-matsuri`: kasama-tsutsuji-matsuri-2027 dates not announced
-- festival `koga-momo-matsuri`: koga-momo-matsuri-2027 dates not announced
-- festival `mito-sakura-matsuri`: mito-sakura-matsuri-2027 dates not announced
-- festival `shizumine-yaezakura-matsuri`: shizumine-yaezakura-matsuri-2027 dates not announced
-- festival `tsukubasan-ume-matsuri`: tsukubasan-ume-matsuri-2027 dates not announced
-- festival `amabiki-ajisai-matsuri`: amabiki-ajisai-matsuri-2027 dates not announced
-- festival `kitaibaraki-ajisai-matsuri`: kitaibaraki-ajisai-matsuri-2027 dates not announced
-- festival `kitaibaraki-ajisai-matsuri`: no dates at all (dates_raw: 2026: 6/6–7/5 と 6/13–7/6 で掲載が食い違い（公式で確認できず）)
-- festival `ryujin-momiji-matsuri`: ryujin-momiji-matsuri-2027 dates not announced
-- festival `ryujin-momiji-matsuri`: no dates at all (dates_raw: 2025（第36回）: 11/1–11/30。2026年の情報は未確認)
-- festival `hananuki-momiji-matsuri`: hananuki-momiji-matsuri-2027 dates not announced
-- festival `sakuragawa-sakura-matsuri`: sakuragawa-sakura-matsuri-2027 dates not announced
+## Needs R
 
-## Check
+- [ ] **Remove two sources?** `pref-syun` is a one-off 2026 article, not a running status page. `sakuragawa-kanko-ajisai` is a festival page with no dated status.
+- [ ] **Two candidate sources found** (new sources need R's OK): 弘道館's own 見頃情報 (kodokan-ibaraki.jp) for `kodokan-ume`; 桜川市観光協会's 桜の開花状況 page for 桜川's cherries.
+- [ ] **ひたち海浜公園 芝桜** isn't on the park's official flower calendars: keep, or drop the planting?
+- [ ] **Rename `hitachi-seaside-forecast`** to e.g. `hitachi-seaside-flower-info` now that its URL changed (IDs aren't live yet).
 
-- place `hitachi-civic`: no plantings (illumination only)
-- place `kasumigaura-park`: no plantings (illumination only)
-- place `kawachi-fureai`: no plantings (illumination only)
-- place `kirakuyama`: no plantings (illumination only)
-- festival `hitachi-seaside-flowering`: next edition is `hitachi-seaside-flowering-2027`, but a 2026 edition may be running now (dates_raw: 2027: 未発表 / 2026: 未確認（2024年は04-01〜05-31）)
-- festival `ryujin-momiji-matsuri`: next edition is `ryujin-momiji-matsuri-2027`, but a 2026 edition may be running now (dates_raw: 2025（第36回）: 11/1–11/30。2026年の情報は未確認)
-- source `pref-syun`: covers no v1 planting (place_ids: `None`)
+## Still open (fill when known)
 
-## Source coverage (trim to what each source actually reports)
-
-- `hitachi-seaside-forecast` (国営ひたち海浜公園（全花）): hitachi-seaside-cosmos, hitachi-seaside-kochia-green, hitachi-seaside-kochia-red, hitachi-seaside-narcissus, hitachi-seaside-nemophila, hitachi-seaside-poppy, hitachi-seaside-rose, hitachi-seaside-shibazakura, hitachi-seaside-sunflower, hitachi-seaside-tulip, hitachi-seaside-ume
-- `mito-kanko-ume` (水戸の梅まつり（偕楽園・弘道館）): kairakuen-azalea, kairakuen-hagi, kairakuen-momiji, kairakuen-sakura, kairakuen-ume, kodokan-ume
-- `flowerpark-news` (いばらきフラワーパーク): ibaraki-flower-park-hydrangea, ibaraki-flower-park-kawazu-zakura, ibaraki-flower-park-rose, ibaraki-flower-park-sunflower
-- `itako-ayame-status` (水郷潮来あやめまつり): itako-ayame-ayame, itako-ayame-hanashobu, itako-ayame-kakitsubata
-- `sakuragawa-kanko-ajisai` (雨引観音 あじさい祭): amabiki-kannon-hydrangea, amabiki-kannon-kawazu-zakura, amabiki-kannon-sakura
-- `shimotsuma-kankou-kokaigawa` (小貝川ふれあい公園（ポピー・コスモス）): kokaigawa-fureai-cosmos, kokaigawa-fureai-nanohana, kokaigawa-fureai-poppy
-
-## Skipped
-
-- source `koga-kanko-momo`: no URL
-- source `mito-kanko-sakura`: no URL
-
-## Open issues in the sheet
-
-- #61 Illuminations `kirakuyama-illumination` from: 2026–27 dates not announced. Last season's dates are in last_season_from/to; fill from/to when announced.
-- #78 Sources `koga-kanko-momo` url: Status page still to find.
-- #83 Sources `mito-kanko-sakura` url: Status page still to find.
-- #87 Festivals `sakuragawa-sakura-matsuri` dates_raw: New festival row: dates not found yet (check the official page).
+- [ ] きらくやま 2026–27 illumination dates (not announced).
+- [ ] きらくやま closures after 2027-03-31 (5/3 holiday → 5/4 is also a holiday; rule unclear).
+- [ ] フラワーパーク closures after 2027-03-31 (calendar shows none for April–June yet).
+- [ ] Status sources still to find: 古河桃まつり (`koga-kanko-momo`), 水戸の桜まつり (`mito-kanko-sakura`).
+- [ ] Status sources to check in season: フラワーパーク アジサイ/ヒマワリ/河津桜 posts; 下妻 site didn't load.
+- [ ] 2026 dates not found: 春バラ (フラワーパーク: bloom page only, no event range), フラワリング (ひたち海浜公園), あじさい祭り (北茨城: start 6/13, no end found).
+- [ ] 2027 festival dates: none announced yet except 水戸の梅まつり (2/11–3/22). Check from January.
+- [ ] ダイゴライト 2025-26 hours: not found (low priority; the 2026-27 edition has hours).
+- [ ] Illumination-only places (no plantings): hitachi-civic, kasumigaura-park, kawachi-fureai, kirakuyama. Fine as is; listed for awareness.

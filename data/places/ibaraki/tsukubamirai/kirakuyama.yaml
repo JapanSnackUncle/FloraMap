@@ -13,10 +13,15 @@ geocode_precision: lot
 hours_ja: "イルミ期間 16:30–20:30（月曜・雨天休み）"
 fee_ja: "無料"
 parking_ja: "300台、無料"
+official_urls: ["https://mirai-kankou.com/activity/34"]
 checked_against: ["https://weathernews.jp/illumi/spot/9009791/"]
-editor_notes: "closed days moved from kirakuyama-illumination (2026-11-25): closures belong to the place. R: Monday closure is the whole park. Whether it applies outside the illumination season is unconfirmed; 雨天休み stays a note."
+editor_notes: "closed days moved from kirakuyama-illumination (2026-11-25): closures belong to the place. R: Monday closure is the whole park. Whether it applies outside the illumination season is unconfirmed; 雨天休み stays a note. Source: つくばみらい市観光協会 page 「休日 月曜日（祝日の場合その翌日）」 (checked 2026-11-25); holiday shifts written out to 2027-03-31 (5/3→5/4 is itself a holiday, so May is left to re-check)."
 closures:
+  source_url: "https://mirai-kankou.com/activity/34"
+  valid_until: "2027-03-31"
   weekly: [mon]
+  dates_closed: ["2026-11-24", "2027-01-12", "2027-03-23"]
+  dates_open: ["2026-11-23", "2027-01-11", "2027-03-22"]
 illuminations:
   - id: kirakuyama-illumination
     kind: illumination

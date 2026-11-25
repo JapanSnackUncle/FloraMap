@@ -40,29 +40,31 @@ plantings:
       - start: "10-1"
         end: "10-3"
     provisional: true
-    window_raw: "10月"
-    official_urls: ["https://www.shanghai.pref.ibaraki.jp/wp-content/uploads/2017/04/97d05839043cfbdd1a916d9fa7212901.pdf"]
-    editor_notes: "window 10-1–10-3 is a whole-month placeholder"
+    window_raw: "10月上旬から10月下旬"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/autumn.html"]
+    editor_notes: "window from the official flower calendar (checked 2026-11-25): みはらしの丘ふもと and 大草原フラワーガーデン"
   - id: hitachi-seaside-kochia-green
     kind: bloom
     species: kochia
     species_variety: "緑"
     windows:
-      - start: "07-1"
-        end: "09-2"
+      - start: "08-2"
+        end: "09-3"
     provisional: true
-    window_raw: "7月上旬〜9月中旬"
-    official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000791839.pdf"]
+    window_raw: "緑葉：8月中旬から9月下旬"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/summer.html"]
+    editor_notes: "window from the official flower calendar (checked 2026-11-25); was 07-1–09-2 from a 関東地方整備局 PDF"
   - id: hitachi-seaside-kochia-red
     kind: foliage
     species: kochia
     species_variety: "紅葉"
     windows:
       - start: "10-1"
-        end: "10-2"
+        end: "10-3"
     provisional: true
-    window_raw: "10月上旬〜中旬"
-    official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000791839.pdf"]
+    window_raw: "グラデーション（緑・赤）：10月上旬／紅葉：10月中旬／グラデーション（赤・茶）：10月下旬"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/autumn.html"]
+    editor_notes: "window from the official flower calendar (checked 2026-11-25): red peak 10-2, gradations either side; 黄金 10月下旬–11月初旬 not included"
   - id: hitachi-seaside-narcissus
     kind: bloom
     species: narcissus
@@ -80,28 +82,30 @@ plantings:
         end: "05-1"
     provisional: true
     window_raw: "4月中旬〜5月上旬"
-    official_urls: ["https://hitachikaihin.jp/forecast/forecast-nemophila/"]
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/spring.html"]
     checked_against: ["https://www.enjoytokyo.jp/article/204615/"]
   - id: hitachi-seaside-poppy
     kind: bloom
     species: poppy
     windows:
-      - start: "05-1"
+      - start: "05-2"
         end: "05-3"
     provisional: true
-    window_raw: "5月"
-    official_urls: ["https://www.shanghai.pref.ibaraki.jp/wp-content/uploads/2017/04/97d05839043cfbdd1a916d9fa7212901.pdf"]
-    editor_notes: "window 05-1–05-3 is a whole-month placeholder"
+    window_raw: "5月中旬から5月下旬まで"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/spring.html"]
+    editor_notes: "window from the official flower calendar (checked 2026-11-25)"
   - id: hitachi-seaside-rose
     kind: bloom
     species: rose
     windows:
-      - start: "05-1"
-        end: "06-3"
+      - start: "05-2"
+        end: "06-1"
+      - start: "10-3"
+        end: "11-1"
     provisional: true
-    window_raw: "5月〜6月"
-    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/hibari/hibari-site/hibari202602/2tokusyu1.html"]
-    editor_notes: "window 05-1–06-3 is a whole-month placeholder"
+    window_raw: "5月中旬から6月上旬まで、10月下旬から11月上旬まで"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/spring.html"]
+    editor_notes: "windows from the official flower calendar (checked 2026-11-25): 常陸ローズガーデン, spring and autumn"
   - id: hitachi-seaside-shibazakura
     kind: bloom
     species: shibazakura
@@ -111,6 +115,7 @@ plantings:
     provisional: true
     window_raw: "4月中旬〜5月上旬"
     checked_against: ["https://www.fun-japan.jp/jp/articles/14025"]
+    editor_notes: "not on the park's official flower calendars (checked 2026-11-25); may no longer be planted"
   - id: hitachi-seaside-sunflower
     kind: bloom
     species: sunflower
@@ -133,9 +138,9 @@ plantings:
     kind: bloom
     species: ume
     windows:
-      - start: "02-1"
-        end: "02-3"
+      - start: "01-3"
+        end: "03-2"
     provisional: true
-    window_raw: "2月"
-    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/hibari/hibari-site/hibari202602/2tokusyu1.html"]
-    editor_notes: "window 02-1–02-3 is a whole-month placeholder"
+    window_raw: "1月下旬から3月中旬まで"
+    official_urls: ["https://www.hitachikaihin.jp/flower-plant/spring.html"]
+    editor_notes: "window from the official flower calendar (checked 2026-11-25): スイセンガーデン周辺"
