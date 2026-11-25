@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react';
 import DebugBar from './components/DebugBar';
 import DebugPanel from './components/DebugPanel';
+import FilterBar from './components/FilterBar';
 import MapView from './components/MapView';
 import { useData } from './data';
 import { DEBUG, useAppDate } from './debugDate';
 import { t, type Lang } from './i18n';
-import { placeStatus } from './lib/status';
+import { passesFilter, pinForFilter, placeStatus, type Filter } from './lib/status';
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('ja');
@@ -13,11 +14,21 @@ export default function App() {
   const { date, isOverride, setDate } = useAppDate();
   const [panelOpen, setPanelOpen] = useState(DEBUG);
   const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
+  const [filter, setFilter] = useState<Filter>('in-season');
 
   // Every place's status on `date`: the single source for pins, list and place page.
   const statuses = useMemo(
     () => (data ? data.places.map((p) => placeStatus(p, data.festivals, date)) : []),
     [data, date],
+  );
+
+  // What the map shows: places that pass the filter, each fronted by the filter's pin.
+  const visible = useMemo(
+    () =>
+      statuses
+        .filter((ps) => passesFilter(ps, filter))
+        .map((ps) => ({ ...ps, pin: pinForFilter(ps, filter) })),
+    [statuses, filter],
   );
 
   return (
@@ -42,8 +53,19 @@ export default function App() {
         />
       )}
       {error && <p className="load-error">{t('loadError', lang)}</p>}
+      <FilterBar filter={filter} setFilter={setFilter} lang={lang} />
       <div className="main">
-        <MapView statuses={statuses} lang={lang} focus={focus} />
+        <div className="map-area">
+          <MapView statuses={visible} lang={lang} focus={focus} />
+          {data && visible.length === 0 && (
+            <p className="map-notice">
+              {t('noMatches', lang)}{' '}
+              <button type="button" className="chip" onClick={() => setFilter('all')}>
+                {t('filterAll', lang)}
+              </button>
+            </p>
+          )}
+        </div>
         {DEBUG && panelOpen && data && (
           <DebugPanel
             statuses={statuses}

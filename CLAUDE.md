@@ -139,6 +139,7 @@ GLOSSARY.md                   # project terms
 - After 3 weeks of silence the last stage still shows (thin) with `noRecentInfo` set; the UI draws the "no recent info" style.
 - An unannounced illumination edition borrows last season's dates one year on (thin, no countdown). Festivals don't: no dates → no orange dot.
 - 見頃のみ shows places with any planting at 見頃, not only where 見頃 fronts the pin.
+- Under 見頃のみ the pin is that 見頃 planting, and under イルミネーション it's the illumination, using the same ranking among just those features (`pinForFilter`). Other filters use the normal pin.
 
 **Debug mode:** keep the prototype's date override in dev builds (date picker, ±1/±7 days, season presets, season offset, simulated scraper outage). It's how R checks behaviour across the year. Don't ship it enabled in production.
 

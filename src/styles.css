@@ -58,6 +58,13 @@ body,
   display: flex;
 }
 
+.map-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
 .map {
   flex: 1;
   min-width: 0;
@@ -74,6 +81,55 @@ body,
   font-family: inherit;
   font-size: 0.85rem;
   line-height: 1.4;
+}
+
+/* ---------- filters */
+
+.filter-bar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  overflow-x: auto;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  scrollbar-width: none;
+}
+
+.chip {
+  flex: none;
+  font: inherit;
+  font-size: 0.85rem;
+  height: 2rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+
+.map-notice {
+  position: absolute;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding: 0.4rem 0.5rem 0.4rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  font-size: 0.85rem;
 }
 
 /* ---------- pins (CLAUDE.md, Map UI) */

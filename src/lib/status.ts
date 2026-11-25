@@ -586,6 +586,24 @@ export function passesFilter(ps: PlaceStatus, filter: Filter): boolean {
   }
 }
 
+/** Features a filter is about; the others don't compete for the pin while it's on. */
+function filterCandidates(features: FeatureState[], filter: Filter): FeatureState[] {
+  if (filter === 'peak') return features.filter((s) => s.type === 'planting' && s.level === PEAK);
+  if (filter === 'illuminations')
+    return features.filter((s) => s.type === 'illumination' && s.state !== 'off');
+  return features;
+}
+
+/**
+ * The pin shown under a filter: the usual pin choice, made among the features the filter is
+ * about. 見頃のみ fronts a 見頃 planting even when a lit illumination would normally win;
+ * イルミネーション fronts the illumination even when a flower is at 見頃. Same ranking either way.
+ */
+export function pinForFilter(ps: PlaceStatus, filter: Filter): FeatureState | undefined {
+  const candidates = filterCandidates(ps.features, filter);
+  return candidates.length ? choosePin(candidates) : ps.pin;
+}
+
 /**
  * Place page: illuminations in their run first, then everything in a rolling year from today:
  * in season first (earliest start on top), then upcoming by start date (finished ones end up last).

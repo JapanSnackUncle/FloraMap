@@ -10,6 +10,7 @@ import {
   illuminationState,
   pageOrder,
   passesFilter,
+  pinForFilter,
   placeStatus,
   plantingState,
   type FeatureState,
@@ -574,6 +575,36 @@ describe('festivals and filters', () => {
     expect(passesFilter(peak, 'festivals')).toBe(true);
     expect(passesFilter(peak, 'illuminations')).toBe(false);
     expect(passesFilter(placeStatus(p, [fest], '2027-02-15'), 'peak')).toBe(false);
+  });
+});
+
+describe('pin under a filter', () => {
+  const lit = illumination([
+    { season: '2026-27', from: '2027-04-01', to: '2027-04-30', dates_announced: true },
+  ]);
+  const p = place({
+    plantings: [planting({ id: 'sakura', windows: [{ start: '04-1', end: '04-2' }] })],
+    illuminations: [lit],
+  });
+  const ps = placeStatus(p, [], '2027-04-05');
+
+  it('normally fronts the lit illumination', () => {
+    expect(ps.pin?.id).toBe('p-lights');
+    expect(pinForFilter(ps, 'in-season')?.id).toBe('p-lights');
+  });
+
+  it('見頃のみ fronts the 見頃 planting instead', () => {
+    expect(pinForFilter(ps, 'peak')?.id).toBe('sakura');
+  });
+
+  it('イルミネーション fronts the illumination even over a flower at 見頃', () => {
+    const noLights = placeStatus(
+      place({ plantings: [planting({ id: 'sakura', windows: [{ start: '04-1', end: '04-2' }] })] }),
+      [],
+      '2027-04-05',
+    );
+    expect(pinForFilter(noLights, 'illuminations')?.id).toBe('sakura'); // nothing to switch to
+    expect(pinForFilter(ps, 'illuminations')?.id).toBe('p-lights');
   });
 });
 
