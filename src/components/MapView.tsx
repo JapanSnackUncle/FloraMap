@@ -75,7 +75,13 @@ const escapeHtml = (s: string) =>
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
   );
 
-export default function MapView({ places }: { places: PublicPlace[] | null }) {
+interface Props {
+  places: PublicPlace[] | null;
+  /** Fly to this place; `n` changes on every request so the same place can be chosen twice. */
+  focus?: { id: string; n: number } | null;
+}
+
+export default function MapView({ places, focus }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -164,6 +170,13 @@ export default function MapView({ places }: { places: PublicPlace[] | null }) {
     map.on('click', PLACES_LAYER, show); // touch screens have no hover
     map.on('mouseleave', PLACES_LAYER, hide);
   }, [loaded, places]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const p = focus && places?.find((x) => x.id === focus.id);
+    if (!map || !p) return;
+    map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 13) });
+  }, [focus, places]);
 
   return <div ref={container} className="map" />;
 }
