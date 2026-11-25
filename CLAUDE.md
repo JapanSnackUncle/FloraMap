@@ -128,6 +128,15 @@ GLOSSARY.md                   # project terms
 - **No status text and no kanji on pins** (place names aside).
 - Source, age, 分咲き figure and dates go in the list and on the place page.
 
+**Details settled in `status.ts`** (2026-11-25; change here first if any is wrong):
+
+- "The following month" after a usual window = 30 days (`SEASON_TAIL_DAYS`); "first third of a month after" = 10 days.
+- A forecast row's `date` is the day it applies to; "newer than the last report" compares that date. Future-dated rows don't count yet.
+- Clock badge on a planting: the latest report is `official` and fresh or aging, below 見頃, and a forecast row with a `source_id` puts 見頃 within 5 days. No forecast rows → no badge.
+- After 3 weeks of silence the last stage still shows (thin) with `noRecentInfo` set; the UI draws the "no recent info" style.
+- An unannounced illumination edition borrows last season's dates one year on (thin, no countdown). Festivals don't: no dates → no orange dot.
+- 見頃のみ shows places with any planting at 見頃, not only where 見頃 fronts the pin.
+
 **Debug mode:** keep the prototype's date override in dev builds (date picker, ±1/±7 days, season presets, season offset, simulated scraper outage). It's how R checks behaviour across the year. Don't ship it enabled in production.
 
 ## Source and legal rules (do not break these)
@@ -144,7 +153,7 @@ GLOSSARY.md                   # project terms
 1. **Done 2026-11-25.** Scaffold the repo (Vite + React + TS, ESLint/Prettier, Vitest). Cloudflare Pages settings are in `README.md`; connecting the repo in the dashboard is R's step.
 2. **Done 2026-11-25** (see `staging/import-report.md`). `scripts/import-sheet.py`: turn `staging/draft-list-clean.xlsx` into `data/places/ibaraki/<municipality>/*.yaml` (25 places, with closures), `festivals/ibaraki/*.yaml`, `sources.yaml`. Mark converted windows `provisional: true`. Skip sources with no URL (koga-kanko-momo, mito-kanko-sakura) until one is found. Report anything that didn't map cleanly instead of guessing.
 3. **Done 2026-11-25.** `scripts/build-data.ts` validates `data/` against the zod schema in `src/lib/schema.ts` (strict: unknown fields fail) and cross-checks IDs, references, folders and date ranges; any problem fails the build. Writes `public/data/places.json` without `PRIVATE_KEYS`. `npm run check-data` validates only; `npm run dev` rebuilds on every change in `data/`. Tests in `scripts/build-data.test.ts`.
-4. `src/lib/status.ts`: port the prototype's stage, visibility, freshness and ranking logic as pure functions, with tests covering lead window, season rollover, never-backwards, stale fallback, illumination countdowns, venue closures precedence, featured tie-break and badge rules.
+4. **Done 2026-11-25.** `src/lib/status.ts` (with `src/lib/dates.ts`): stage, freshness, illumination, closures, pin, filter and page-order rules as pure functions of `today`, each returning a `why` for debug mode. Tests in `src/lib/status.test.ts`, including real-date fixtures.
 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images until real photos exist.
 
 Later phases (status pipeline, polish, launch) are in `reference/plan.md`.
