@@ -91,6 +91,7 @@ body,
   padding: var(--rw);
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s;
 }
 
 /* Estimate: same photo size, thinner ring, so the pin is smaller. */
@@ -100,9 +101,13 @@ body,
   height: calc(var(--pz) - 5px);
 }
 
-/* The hovered pin and its name go above every other pin. */
+/* The hovered pin and its name go above every other pin; the pin zooms very slightly. */
 .pin-marker:hover {
   z-index: 1000 !important;
+}
+
+.pin-marker:hover .pin {
+  transform: scale(1.06);
 }
 
 .pin img {

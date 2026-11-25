@@ -73,9 +73,10 @@ export function drawPin(el: HTMLElement, look: PinLook, name: string): void {
     `<img alt="" src="${look.photo}" class="photo-${look.photoFilter}">` +
     (look.festival ? '<span class="pin-fest"></span>' : '') +
     (look.clock ? `<span class="pin-clock">${CLOCK_SVG}</span>` : '') +
-    '<span class="pin-label"></span></div>';
+    '</div><span class="pin-label"></span>';
   const pin = el.firstElementChild as HTMLElement;
   pin.style.background = look.ring;
-  // Name on hover only (step 5.8 adds names by zoom level).
-  pin.querySelector('.pin-label')!.textContent = name;
+  // Name on hover only (step 5.8 adds names by zoom level). It sits outside .pin so the
+  // pin's hover zoom doesn't scale the text.
+  el.querySelector('.pin-label')!.textContent = name;
 }

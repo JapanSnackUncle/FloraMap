@@ -124,8 +124,9 @@ GLOSSARY.md                   # project terms
 **Map UI:**
 
 - Photo pins. **The ring colour is the stage**: まもなく #E7E5E4 (empty track, greyed photo), 咲き始め #E58FAD (fills clockwise with bloom % from the 分咲き figure; about a third when the source gives words only, which is the norm for leaves), 見頃 #B0245C, 見頃過ぎ #9E7F89 (photo partly faded). Leaves: #E9A23B / #C2410C / #8C6A4F. Lit illumination: gold #D4A017.
-- Place names below pins; which names show depends on zoom level, and a name is dropped if it would bump into another pin or name (MapLibre label collision).
+	- Place names below pins; which names show depends on zoom level, and a name is dropped if it would bump into another pin or name (MapLibre label collision).
 - **Full ring = confirmed; thin ring = estimate** (usual window, forecast, stale fallback, or last season's illumination dates). Same photo size, smaller pin. Not dashed, not faded (a faded 見頃 reads as 咲き始め).
+- **Grouped pins:** where pins overlap too much at the current zoom, they merge into one pin with a count badge on its edge (the number of places in the group). Tapping a group zooms the map in; it opens no details. The group pin shows its best-ranked place's pin (same ranking as Pin choice).
 - Orange dot = festival on.
 - **No status text and no kanji on pins** (place names aside).
 - Source, age, 分咲き figure and dates go in the list and on the place page.

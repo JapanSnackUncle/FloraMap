@@ -104,7 +104,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [ ] 5.5 Filters: the five chips, シーズン中 by default.
   - [ ] 5.6 List: visible places with stage, source and age, 分咲き, dates, 本日休園, festival tags.
   - [ ] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
-  - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle.
+  - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle. Also when multiple pins overlap excessively on the map, group into a single pin with an indicator on the edge of the pin with the number of pins in the group. Clicking the pin will zoom in the map without popping up details.
   - [ ] 5.9 Phone pass: narrow layout, tested on a phone over Wi-Fi.
 
 ### Phase 2 – App complete (weeks 4–6)
