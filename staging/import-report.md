@@ -16,7 +16,7 @@ Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 
 
 ## Needs R
 
-- [ ] **Remove two sources?** `pref-syun` is a one-off 2026 article, not a running status page. `sakuragawa-kanko-ajisai` is a festival page with no dated status.
+- [x] Removed two sources (R, 2026-11-25): `pref-syun` (one-off 2026 article) and `sakuragawa-kanko-ajisai` (festival page, no dated status).
 - [ ] **Two candidate sources found** (new sources need R's OK): 弘道館's own 見頃情報 (kodokan-ibaraki.jp) for `kodokan-ume`; 桜川市観光協会's 桜の開花状況 page for 桜川's cherries.
 - [ ] **ひたち海浜公園 芝桜** isn't on the park's official flower calendars: keep, or drop the planting?
 - [ ] **Rename `hitachi-seaside-forecast`** to e.g. `hitachi-seaside-flower-info` now that its URL changed (IDs aren't live yet).

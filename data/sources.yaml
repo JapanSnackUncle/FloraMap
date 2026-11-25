@@ -32,13 +32,6 @@ sources:
     checked: "yes"
     planting_ids: [ibaraki-flower-park-hydrangea, ibaraki-flower-park-kawazu-zakura, ibaraki-flower-park-rose, ibaraki-flower-park-sunflower]
     editor_notes: "Active: latest 「秋バラの開花状況2026」 (2026.11.23). Good scraper target. Rose 開花状況 posts confirmed (Oct–Nov 2026); アジサイ, ヒマワリ, 河津桜 not seen in the Oct–Nov pages, check in their seasons."
-  - id: pref-syun
-    name_ja: "県 旬の観光情報（複数のまつり）"
-    publisher: "茨城県 広報広聴課"
-    url: "https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260205.html"
-    format: "HTML feature pages with dated status lines"
-    checked: "yes"
-    editor_notes: "checked: Yes (via search); One page covers several festivals; updated per article, not daily. One-off 2026 plum feature article (fixed snapshots 1/30, 2/2), not a running status page. Covers no planting. Candidate for removal."
   - id: kasama-tsutsuji-status
     name_ja: "笠間つつじまつり"
     publisher: "笠間観光協会"
@@ -55,13 +48,6 @@ sources:
     checked: "yes"
     planting_ids: [itako-ayame-hanashobu]
     editor_notes: "checked: Yes (2026 page) Reports the garden as a whole (あやめ/花菖蒲 used interchangeably), not アヤメ or カキツバタ separately, so it covers 花菖蒲 only (checked 2026-11-25)."
-  - id: sakuragawa-kanko-ajisai
-    name_ja: "雨引観音 あじさい祭"
-    publisher: "桜川市観光協会"
-    url: "https://www.kankou-sakuragawa.jp/page/page000684.html"
-    checked: "no"
-    planting_ids: [amabiki-kannon-hydrangea]
-    editor_notes: "festival page only, no dated bloom status (checked 2026-11-25). Candidate for removal."
   - id: kitaibaraki-ajisai-status
     name_ja: "北茨城あじさいの森"
     publisher: "北茨城あじさいの森（そば道場）"
