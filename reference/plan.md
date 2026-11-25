@@ -98,7 +98,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] 4. `status.ts`: stage, freshness, illumination, closures and pin rules, with tests (25 Nov).
 - [ ] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
   - [x] 5.1 Map shell: MapLibre with the local Ibaraki basemap, Japanese labels, OpenStreetMap credit (25 Nov). The view is kept in the address bar (#zoom/lat/lng).
-  - [ ] 5.2 Plain markers: one dot per place at its coordinates, name on hover.
+  - [x] 5.2 Plain markers: one dot per place at its coordinates, name on hover (25 Nov). The hover label also shows municipality and coordinates, for checking pins.
   - [ ] 5.3 Status wiring and a basic debug bar: date picker, ±1/±7 days, season presets, each place's pin and `why`.
   - [ ] 5.4 Ring pins: placeholder photo, stage colour, 咲き始め fill, full vs thin ring, gold lit, festival dot, clock badge.
   - [ ] 5.5 Filters: the five chips, シーズン中 by default.

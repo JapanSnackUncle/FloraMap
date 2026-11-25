@@ -56,3 +56,16 @@ body,
   flex: 1;
   min-height: 0;
 }
+
+.load-error {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: #fde2e1;
+  color: #9b1c1c;
+}
+
+.maplibregl-popup-content {
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 // MapLibre decodes tiles in a background worker. Importing the worker file's URL makes Vite
@@ -15,6 +15,8 @@ import {
   TILE_BOUNDS,
   TILES_URL,
 } from '../config';
+import type { FeatureCollection, Point } from 'geojson';
+import type { PublicPlace } from '../lib/schema';
 
 // MapLibre reads "pmtiles://..." URLs through this protocol handler. Register it once per page.
 let protocolRegistered = false;
@@ -45,8 +47,38 @@ const MAX_BOUNDS: [[number, number], [number, number]] = [
   [e + PAN_MARGIN, n + PAN_MARGIN],
 ];
 
-export default function MapView() {
+const PLACES_SOURCE = 'places';
+const PLACES_LAYER = 'places-dots';
+
+function placesGeoJson(places: PublicPlace[]): FeatureCollection<Point> {
+  return {
+    type: 'FeatureCollection',
+    features: places.map((p) => ({
+      type: 'Feature',
+      id: p.id,
+      geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+      properties: {
+        id: p.id,
+        name_ja: p.name_ja,
+        name_en: p.name_en ?? '',
+        municipality: p.municipality,
+        lat: p.lat,
+        lng: p.lng,
+      },
+    })),
+  };
+}
+
+const escapeHtml = (s: string) =>
+  s.replace(
+    /[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
+  );
+
+export default function MapView({ places }: { places: PublicPlace[] | null }) {
   const container = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<maplibregl.Map | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     if (!container.current) return;
@@ -77,8 +109,61 @@ export default function MapView() {
       hash: true,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    return () => map.remove();
+    map.on('load', () => setLoaded(true));
+    mapRef.current = map;
+    return () => {
+      mapRef.current = null;
+      setLoaded(false);
+      map.remove();
+    };
   }, []);
+
+  // Plain dots, one per place, with the name on hover (step 5.2; ring pins replace these in 5.4).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded || !places) return;
+    const data = placesGeoJson(places);
+    const existing = map.getSource<maplibregl.GeoJSONSource>(PLACES_SOURCE);
+    if (existing) {
+      existing.setData(data);
+      return;
+    }
+    map.addSource(PLACES_SOURCE, { type: 'geojson', data });
+    map.addLayer({
+      id: PLACES_LAYER,
+      type: 'circle',
+      source: PLACES_SOURCE,
+      paint: {
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 7, 5, 14, 8],
+        'circle-color': '#B0245C',
+        'circle-stroke-color': '#ffffff',
+        'circle-stroke-width': 2,
+      },
+    });
+
+    const popup = new maplibregl.Popup({ closeButton: false, closeOnClick: false, offset: 10 });
+    const show = (e: maplibregl.MapLayerMouseEvent) => {
+      const f = e.features?.[0];
+      if (!f) return;
+      const p = f.properties as Record<string, string | number>;
+      map.getCanvas().style.cursor = 'pointer';
+      popup
+        .setLngLat((f.geometry as Point).coordinates as [number, number])
+        .setHTML(
+          `<strong>${escapeHtml(String(p.name_ja))}</strong>` +
+            (p.name_en ? `<br>${escapeHtml(String(p.name_en))}` : '') +
+            `<br><small>${escapeHtml(String(p.municipality))} · ${Number(p.lat).toFixed(5)}, ${Number(p.lng).toFixed(5)}</small>`,
+        )
+        .addTo(map);
+    };
+    const hide = () => {
+      map.getCanvas().style.cursor = '';
+      popup.remove();
+    };
+    map.on('mousemove', PLACES_LAYER, show);
+    map.on('click', PLACES_LAYER, show); // touch screens have no hover
+    map.on('mouseleave', PLACES_LAYER, hide);
+  }, [loaded, places]);
 
   return <div ref={container} className="map" />;
 }

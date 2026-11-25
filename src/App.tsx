@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import MapView from './components/MapView';
+import { useData } from './data';
 import { t, type Lang } from './i18n';
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('ja');
+  const { data, error } = useData();
   return (
     <div className="app" lang={lang}>
       <header className="app-header">
@@ -16,7 +18,8 @@ export default function App() {
           {t('switchLang', lang)}
         </button>
       </header>
-      <MapView />
+      {error && <p className="load-error">{t('loadError', lang)}</p>}
+      <MapView places={data?.places ?? null} />
     </div>
   );
 }
