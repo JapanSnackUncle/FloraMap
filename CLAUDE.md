@@ -160,6 +160,7 @@ Later phases (status pipeline, polish, launch) are in `reference/plan.md`.
 ## Working style
 
 - R prefers **direct, precise answers** and honest evaluation. Say plainly when something is a bad idea.
+- R knows programming in general and version control, but is new to web development (only a small static site before). Skip explaining git or basic programming; do explain web-specific tools, terms and conventions (build steps, npm, bundlers, service workers, CORS, caching…) briefly, in plain terms, the first time they come up.
 - Ask before: adding paid services, changing the bloom scale or schema, renaming IDs, or adding any new data source.
 - When data is uncertain, leave the field empty and list it for R. **Never invent dates, hours, fees or coordinates.**
 - UI strings in both Japanese and English from the start (`ja` default).
