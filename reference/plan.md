@@ -97,7 +97,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] 3. `build-data.ts`: validation, private fields stripped, `places.json` (25 Nov).
 - [x] 4. `status.ts`: stage, freshness, illumination, closures and pin rules, with tests (25 Nov).
 - [ ] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
-  - [ ] 5.1 Map shell: MapLibre with the local Ibaraki basemap, Japanese labels, OpenStreetMap credit.
+  - [x] 5.1 Map shell: MapLibre with the local Ibaraki basemap, Japanese labels, OpenStreetMap credit (25 Nov). The view is kept in the address bar (#zoom/lat/lng).
   - [ ] 5.2 Plain markers: one dot per place at its coordinates, name on hover.
   - [ ] 5.3 Status wiring and a basic debug bar: date picker, ±1/±7 days, season presets, each place's pin and `why`.
   - [ ] 5.4 Ring pins: placeholder photo, stage colour, 咲き始め fill, full vs thin ring, gold lit, festival dot, clock badge.
@@ -113,6 +113,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
 - [ ] English/Japanese toggle; installable as a PWA.
 - [ ] Connect the repo to Cloudflare Pages (settings in README.md).
+- [ ] Self-host the map's label fonts and icons (now loaded from protomaps.github.io), and put the basemap on Cloudflare R2 (`VITE_TILES_URL`).
 
 ### Phase 3 – Status pipeline (weeks 4–7)
 

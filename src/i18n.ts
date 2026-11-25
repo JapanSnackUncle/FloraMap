@@ -3,7 +3,6 @@ export type Lang = 'ja' | 'en';
 
 export const strings = {
   appTitle: { ja: '茨城フローラマップ', en: 'Ibaraki Flora Map' },
-  comingSoon: { ja: '準備中', en: 'Coming soon' },
   switchLang: { ja: 'English', en: '日本語' },
 } satisfies Record<string, Record<Lang, string>>;
 
