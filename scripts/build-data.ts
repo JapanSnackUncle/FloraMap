@@ -7,7 +7,7 @@
 // so bad data never reaches the site. Private fields (schema.PRIVATE_KEYS) are
 // stripped from the output. No date logic here: stages are decided in the browser.
 
-import { mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { parse as parseYaml } from 'yaml';
@@ -169,6 +169,15 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
     (sourcesDoc?.sources ?? []).map((s) => ({ id: s.id, file: 'sources.yaml' })),
   );
   const plantingIds = new Set([...plantingPlace.keys()].filter((id) => featureIds.has(id)));
+
+  // ---------- pin photos: every species pin_photo file must exist in photos-pin/
+
+  const pinPhotoDir = join(dataDir, '..', 'photos-pin');
+  for (const s of speciesDoc?.species ?? []) {
+    const f = s.pin_photo?.file;
+    if (f && !existsSync(join(pinPhotoDir, f)))
+      err('species.yaml', `${s.id}: pin_photo "${f}" not found in photos-pin/`);
+  }
 
   // ---------- places
 

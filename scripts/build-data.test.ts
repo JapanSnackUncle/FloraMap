@@ -287,6 +287,18 @@ describe('the build fails on', () => {
     fails({ 'closures.csv': CLOSURES.replace('place_id', 'place') }, 'header must be exactly');
   });
 
+  it('a pin photo file that does not exist', () => {
+    fails(
+      {
+        'species.yaml': SPECIES.replace(
+          '    name_en: "Plum"\n',
+          '    name_en: "Plum"\n    pin_photo:\n      file: "missing.jpg"\n      credit: "R"\n      license: "own"\n',
+        ),
+      },
+      'pin_photo "missing.jpg" not found',
+    );
+  });
+
   it('broken YAML', () => {
     fails({ 'species.yaml': 'species:\n  - id: [unclosed\n' }, 'YAML error');
   });
