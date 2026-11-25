@@ -119,6 +119,7 @@ GLOSSARY.md                   # project terms
 - **Place page order:** illuminations in their run, then plantings and illuminations in a rolling year from today: in season first (earliest start on top), then upcoming by start date, finished ones last. On 4/15 at ひたち海浜公園: スイセン first, 梅 last.
 - Clicking an empty part of the map clears the selection.
 - **Clock badge** ("peak within ~5 days"): only where an **official report**, or an illumination's **announced** dates, backs it. Never from a usual window alone.
+- **List:** shows the places that pass the filter **and** are inside the visible map area (so it stays short when the map covers all of Kanto), best pin first; updates once the map stops moving. A count line at the top: 「表示範囲内 N件 · 全M件」 (M = places passing the filter). No show-all button.
 - **Filters:** シーズン中 (default: everything except シーズン外), 見頃のみ, 開催中のイベント, イルミネーション, すべて表示.
 
 **Map UI:**
