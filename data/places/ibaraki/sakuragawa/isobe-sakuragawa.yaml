@@ -1,0 +1,28 @@
+schema_version: 1
+id: isobe-sakuragawa
+name_ja: "磯部桜川公園"
+name_en: "Isobe Sakuragawa Park"
+name_kana: "いそべさくらがわこうえん"
+prefecture: ibaraki
+municipality: "桜川市"
+municipality_slug: sakuragawa
+address_ja: "磯部740-2"
+lat: 36.365219
+lng: 140.13739
+geocode_precision: lot
+hours_ja: "制限なし"
+fee_ja: "無料"
+parking_ja: "40台、無料"
+official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/look/page003402.html"]
+checked_against: ["https://weathernews.jp/sakura/spot/4003/"]
+plantings:
+  - id: isobe-sakuragawa-yamazakura
+    kind: bloom
+    species: sakura
+    species_variety: "ヤマザクラ"
+    windows:
+      - start: "04-1"
+        end: "04-2"
+    provisional: true
+    window_raw: "4月上旬〜中旬"
+    checked_against: ["https://rurubu.jp/andmore/article/5777?page=3"]

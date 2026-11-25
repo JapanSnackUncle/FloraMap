@@ -1,0 +1,12 @@
+schema_version: 1
+id: hitachi-seaside-flowering
+name_ja: "フラワリング（春のフラワーリレー）"
+place_ids: [hitachi-seaside]
+planting_ids: [hitachi-seaside-narcissus, hitachi-seaside-tulip, hitachi-seaside-nemophila]
+fee_ja: "大人450円（季節により異なる）"
+parking_ja: "約4,350台、600円"
+official_urls: ["https://hitachikaihin.jp/flower-calendar/spring/"]
+checked_against: ["https://www.fashion-press.net/news/116267"]
+editions:
+  - id: hitachi-seaside-flowering-2027
+    dates_announced: false

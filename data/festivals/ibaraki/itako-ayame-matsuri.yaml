@@ -1,0 +1,17 @@
+schema_version: 1
+id: itako-ayame-matsuri
+name_ja: "水郷潮来あやめまつり"
+place_ids: [itako-ayame]
+planting_ids: [itako-ayame-hanashobu]
+fee_ja: "入園無料（ろ舟遊覧は別料金）"
+parking_ja: "専用なし（周辺の民間有料）"
+night_events_ja: "毎日ライトアップ"
+official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260526.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/20002401"]
+editions:
+  - id: itako-ayame-matsuri-2026
+    from: "2026-05-22"
+    to: "2026-06-21"
+    dates_announced: true
+  - id: itako-ayame-matsuri-2027
+    dates_announced: false

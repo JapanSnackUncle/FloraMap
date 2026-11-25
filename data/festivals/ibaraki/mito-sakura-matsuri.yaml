@@ -1,0 +1,17 @@
+schema_version: 1
+id: mito-sakura-matsuri
+name_ja: "水戸の桜まつり"
+place_ids: [senbako]
+planting_ids: [senbako-sakura]
+fee_ja: "無料"
+parking_ja: "無料411台＋土日祝有料178台"
+night_events_ja: "ライトアップ 18–22時"
+official_urls: ["https://mitokoumon.com/festival/sakura.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80103047/sakura"]
+editions:
+  - id: mito-sakura-matsuri-2026
+    from: "2026-03-28"
+    to: "2026-04-12"
+    dates_announced: true
+  - id: mito-sakura-matsuri-2027
+    dates_announced: false

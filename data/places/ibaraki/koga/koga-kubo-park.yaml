@@ -1,0 +1,38 @@
+schema_version: 1
+id: koga-kubo-park
+name_ja: "古河公方公園（古河総合公園）"
+name_en: "Koga Kubo Park"
+name_kana: "こがくぼうこうえん（こがそうごうこうえん）"
+prefecture: ibaraki
+municipality: "古河市"
+municipality_slug: koga
+address_ja: "鴻巣399-1"
+lat: 36.17955
+lng: 139.702042
+geocode_precision: lot
+hours_ja: "日の出–日没"
+fee_ja: "入園無料"
+parking_ja: "800台、無料（桃まつり期間は有料）"
+official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000759513.pdf"]
+checked_against: ["https://summer.walkerplus.com/odekake/detail/ar0308s62964/map.html"]
+plantings:
+  - id: koga-kubo-park-hanamomo
+    kind: bloom
+    species: hanamomo
+    windows:
+      - start: "03-3"
+        end: "04-1"
+    provisional: true
+    window_raw: "3月下旬〜4月上旬"
+    checked_against: ["https://tabi-mag.jp/ib0225/"]
+  - id: koga-kubo-park-lotus
+    kind: bloom
+    species: lotus
+    species_variety: "大賀ハス"
+    windows:
+      - start: "06-3"
+        end: "07-2"
+    provisional: true
+    window_raw: "夏"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/download/oogahasu.html", "https://www.city.ibaraki-koga.lg.jp/soshiki/toshi/7/1650.html"]
+    editor_notes: "古河市: 大賀ハス 見頃 6月下旬〜7月中旬（開花 6月下旬〜8月上旬）"

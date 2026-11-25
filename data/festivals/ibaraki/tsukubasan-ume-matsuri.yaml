@@ -1,0 +1,16 @@
+schema_version: 1
+id: tsukubasan-ume-matsuri
+name_ja: "筑波山梅まつり"
+place_ids: [tsukubasan-bairin]
+planting_ids: [tsukubasan-bairin-ume]
+fee_ja: "入園無料"
+parking_ja: "市営445台、普通車500円"
+official_urls: ["https://umematsuri.jp/"]
+checked_against: ["https://rurubu.jp/andmore/spot/20001002"]
+editions:
+  - id: tsukubasan-ume-matsuri-2026
+    from: "2026-02-07"
+    to: "2026-03-15"
+    dates_announced: true
+  - id: tsukubasan-ume-matsuri-2027
+    dates_announced: false

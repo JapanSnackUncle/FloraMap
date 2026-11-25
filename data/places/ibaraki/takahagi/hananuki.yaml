@@ -1,0 +1,28 @@
+schema_version: 1
+id: hananuki
+name_ja: "花貫渓谷"
+name_en: "Hananuki Gorge"
+name_kana: "はなぬきけいこく"
+prefecture: ibaraki
+municipality: "高萩市"
+municipality_slug: takahagi
+address_ja: "中戸川・大能地区"
+lat: 36.733146
+lng: 140.6177
+geocode_precision: manual
+point_note: middle
+hours_ja: "散策自由"
+fee_ja: "無料"
+parking_ja: "150台（花貫110・大能40）、紅葉まつり期間は普通車1,000円"
+official_urls: ["https://www.city.takahagi.ibaraki.jp/kankou/spot/sizen/page000012.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006075"]
+plantings:
+  - id: hananuki-momiji
+    kind: foliage
+    species: momiji
+    windows:
+      - start: "11-2"
+        end: "11-3"
+    provisional: true
+    window_raw: "11月中旬〜下旬"
+    checked_against: ["https://tenki.jp/kouyou/ranking/3/11/"]

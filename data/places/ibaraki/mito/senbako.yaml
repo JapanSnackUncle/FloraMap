@@ -1,0 +1,27 @@
+schema_version: 1
+id: senbako
+name_ja: "千波湖"
+name_en: "Lake Senba"
+name_kana: "せんばこ"
+prefecture: ibaraki
+municipality: "水戸市"
+municipality_slug: mito
+address_ja: "千波町3081"
+lat: 36.37125
+lng: 140.4543
+geocode_precision: lot
+hours_ja: "散策自由"
+fee_ja: "無料"
+parking_ja: "411台無料＋土日祝178台（500円）"
+official_urls: ["https://mitokoumon.com/facility/park/senbako/"]
+checked_against: ["https://rurubu.jp/andmore/spot/80103047"]
+plantings:
+  - id: senbako-sakura
+    kind: bloom
+    species: sakura
+    windows:
+      - start: "03-3"
+        end: "04-1"
+    provisional: true
+    window_raw: "3月下旬〜4月上旬"
+    checked_against: ["https://weathernews.jp/sakura/area/ibaraki/"]

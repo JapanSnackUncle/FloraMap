@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ibaraki Flora Map prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a working map app prototype, calm and legible, the debug bar clearly separate.
+   IDEA: the prefecture as a printed field map with photo pins, like a park guide.
+   PICTURE: the map itself, with stage rings on photo pins.
+   COLOUR and TYPE: land sage, sea pale blue, stage pinks from the mockup; Inter + Noto Sans JP.
+   LAYOUT: debug bar on top; map left, list/detail right; stacked below 860px. */
+:root{color-scheme:light dark;--bg:light-dark(#F7F6F2,#141412);--ink:light-dark(#1C1917,#EDEBE6);--mute:light-dark(#57534E,#A8A29E);--line:light-dark(#E7E5E4,#33302C);--card:light-dark(#FFFFFF,#1E1D1A);--land:light-dark(#E4EADB,#25291F);--landedge:light-dark(#B9C7A8,#4A5640);--sea:light-dark(#D9E7EE,#16232A);--lake:light-dark(#C9DDE7,#1E3540);--debug:light-dark(#1C1917,#000);--track:#E7E5E4;--start:#E58FAD;--peak:#B0245C;--past:#9E7F89;--lstart:#E9A23B;--lpeak:#C2410C;--lpast:#8C6A4F;--fest:#E0701F}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,'Noto Sans JP',sans-serif;overflow-x:clip}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid #2563EB;outline-offset:2px}
+.debug{background:var(--debug);color:#F5F5F4;padding:10px max(2vw,12px);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px}
+.debug b{font-weight:700;color:#FBBF24;letter-spacing:.02em}
+.debug input[type=date]{background:#292524;border:1px solid #44403C;border-radius:8px;padding:6px 8px;height:38px;font-size:16px;color-scheme:dark}
+.debug .btn{height:38px;min-width:38px;padding:0 10px;border-radius:8px;border:1px solid #44403C;background:#292524;color:#F5F5F4;white-space:nowrap}
+.debug .btn:hover{background:#3A3532}
+.debug .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.debug input[type=range]{width:min(420px,70vw);accent-color:#FBBF24}
+.debug label{display:flex;gap:6px;align-items:center;white-space:nowrap}
+.debug .note{color:#A8A29E}
+.prov{background:#FEF3C7;color:#78350F;padding:8px max(2vw,12px);font-size:13px;border-bottom:1px solid #FCD34D}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,400px);gap:0;min-height:calc(100vh - 60px)}
+.mapcol{padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.mapbox{position:relative;width:min(100%,calc(84vh * 838 / 1032));aspect-ratio:838/1032;overflow:auto;border-radius:12px;overscroll-behavior:contain}
+.map{position:relative;width:calc(100% * var(--z,1));aspect-ratio:838/1032}
+.zoom{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px;z-index:9}
+.zoom button{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:20px;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.mapwrap{position:relative;width:min(100%,calc(84vh * 838 / 1032))}
+.mapwrap .mapbox{width:100%}
+.map>svg{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--mute);justify-content:center}
+.legend span{display:flex;align-items:center;gap:5px}
+.lg{width:13px;height:13px;border-radius:50%;display:inline-block}
+.pin{position:absolute;width:var(--pz,46px);height:var(--pz,46px);margin:calc(var(--pz,46px) / -2) 0 0 calc(var(--pz,46px) / -2);border-radius:50%;padding:max(3px,calc(var(--pz,46px) / 11));border:none;box-shadow:0 2px 6px rgba(0,0,0,.28);background:var(--track);transition:transform .15s}
+.pin.thin{--tw:calc(var(--pz,46px) - 2 * (max(3px,calc(var(--pz,46px) / 11)) - max(1.5px,calc(var(--pz,46px) / 24))));width:var(--tw);height:var(--tw);margin:calc(var(--tw) / -2) 0 0 calc(var(--tw) / -2);padding:max(1.5px,calc(var(--pz,46px) / 24))} /* same photo, same 2px gap, thinner ring = smaller pin */
+.pin.dash{padding:0;border:max(3px,calc(var(--pz,46px) / 11)) dashed var(--track);background:#fff}
+.pin img{width:100%;height:100%;border-radius:50%;display:block;padding:2px;background:#fff;object-fit:cover;clip-path:none}
+.pin:hover,.pin.sel{transform:scale(1.18);z-index:5}
+.pin.sel{box-shadow:0 0 0 3px #2563EB,0 2px 6px rgba(0,0,0,.28)}
+.pin .fd{position:absolute;right:-3px;top:-3px;width:15px;height:15px;border-radius:50%;background:var(--fest);border:2px solid #fff}
+.pin .soon{position:absolute;right:-6px;bottom:-5px;width:21px;height:21px;border-radius:50%;background:#fff;border:2px solid var(--peak);display:grid;place-items:center}
+.pin .lbl{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:3px;font:700 11px 'Noto Sans JP',sans-serif;white-space:nowrap;color:#1C1917;text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;pointer-events:none;display:none}
+.pin:hover .lbl,.pin.sel .lbl,.pin:focus-visible .lbl{display:block}
+.panel{border-left:1px solid var(--line);background:var(--card);padding:16px;display:flex;flex-direction:column;gap:12px;max-height:calc(100vh - 60px);overflow:auto;position:sticky;top:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:500}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+h1{font-size:20px;line-height:1.2;margin:0}
+h2{font-size:22px;line-height:1.2;margin:0}
+.sub{font-size:12px;color:var(--mute)}
+.row{display:flex;gap:12px;align-items:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:transparent;text-align:left;width:100%}
+.row:hover{border-color:var(--mute)}
+.row img{width:56px;height:56px;border-radius:10px;flex:none}
+.row .t{display:flex;flex-direction:column;gap:4px;flex:1}
+.nm{font-weight:700;font-size:14px;font-family:'Noto Sans JP',Inter,sans-serif}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{border-radius:10px;padding:1px 8px;font:600 11px 'Noto Sans JP',Inter,sans-serif;white-space:nowrap;border:1.5px solid transparent}
+.tag.dash{border-style:dashed}
+.tag.fe{background:#FDEBDD;color:#8A3A08}
+.hero{width:100%;aspect-ratio:16/9;border-radius:14px;display:block;object-fit:cover}
+.pl{display:grid;grid-template-columns:44px minmax(0,1fr);gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.pl img{width:44px;height:44px;border-radius:50%}
+.bar{position:relative;height:8px;border-radius:4px;background:var(--line);margin-top:6px}
+.bar i{position:absolute;top:0;height:8px;border-radius:4px}
+.bar b{position:absolute;top:-3px;width:2px;height:14px;background:var(--ink)}
+dl{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:6px 10px;margin:0;font-size:13px}
+dt{color:var(--mute)}dd{margin:0}
+.warn{font-size:12px;color:#92400E;background:#FEF3C7;border-radius:8px;padding:6px 10px}
+.back{align-self:flex-start;height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line);background:var(--card)}
+a{color:#1D4ED8;overflow-wrap:anywhere}
+.small{font-size:12px;color:var(--mute)}
+@media(max-width:860px){.wrap{grid-template-columns:minmax(0,1fr)}.panel{border-left:0;border-top:1px solid var(--line);max-height:none;position:static}.mapwrap{width:100%}}
+@media(prefers-reduced-motion:reduce){.pin{transition:none}}
+</style>
+</head>
+<body>
+<div class="debug" role="region" aria-label="Debug controls">
+  <b>DEBUG</b>
+  <div class="grp">
+    <button class="btn" id="dm7" aria-label="7 days back">−7</button>
+    <button class="btn" id="dm1" aria-label="1 day back">−1</button>
+    <input type="date" id="date" min="2026-11-01" max="2027-12-31" aria-label="Simulated date">
+    <button class="btn" id="dp1" aria-label="1 day forward">+1</button>
+    <button class="btn" id="dp7" aria-label="7 days forward">+7</button>
+  </div>
+  <input type="range" id="slider" min="0" max="425" aria-label="Date slider">
+  <div class="grp" id="presets"></div>
+  <label title="Shifts the simulated official reports earlier or later than the usual window">Season <input type="range" id="offset" min="-10" max="10" step="1" style="width:110px"> <span id="offv"></span></label>
+  <label><input type="checkbox" id="stale"> Scraper outage <select id="staleDays" class="btn" aria-label="Days since last report"><option>5</option><option selected>10</option><option>25</option></select> days</label>
+  <label>Estimate style <select id="estStyle" class="btn" aria-label="Estimate ring style"><option value="thin">thin</option><option value="faded">faded</option><option value="dashed">dashed</option></select></label>
+  <button class="btn" id="lang">EN</button>
+  <span class="note">Schematic map</span>
+</div>
+<div class="prov" role="note"><b>Provisional prototype — not actual data.</b> Bloom windows, statuses, reports and photos are placeholders made up for testing. Illumination dates marked dashed are last season's. Check official sources for real information.</div>
+
+<div class="wrap">
+  <div class="mapcol">
+    <div class="mapwrap"><div class="mapbox" id="mapbox"><div class="map" id="map"></div></div><div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</div>
+
+<script>
+{
+/* ---------- data (from the sheet: Spot details, Spots, Festivals 2027) ---------- */
+const TYPES={
+ ume:{ja:'梅',en:'Plum',c:'#E58FB0'},sakura:{ja:'桜',en:'Cherry',c:'#F5BFD0'},kawazu:{ja:'河津桜',en:'Kawazu cherry',c:'#EE85AA'},yae:{ja:'八重桜',en:'Double cherry',c:'#F08FB4'},yama:{ja:'ヤマザクラ',en:'Mountain cherry',c:'#F4D4DC'},
+ momo:{ja:'ハナモモ',en:'Peach blossom',c:'#EA5E8E'},nemo:{ja:'ネモフィラ',en:'Nemophila',c:'#7DB8EC'},tulip:{ja:'チューリップ',en:'Tulip',c:'#E5483F'},suisen:{ja:'スイセン',en:'Daffodil',c:'#F3D03C'},shiba:{ja:'芝桜',en:'Moss phlox',c:'#EF7FB0'},
+ poppy:{ja:'ポピー',en:'Poppy',c:'#F2803A'},rose:{ja:'バラ',en:'Rose',c:'#D23558'},ajisai:{ja:'アジサイ',en:'Hydrangea',c:'#7489DD'},shobu:{ja:'花菖蒲',en:'Japanese iris',c:'#7A4FB5'},ayame:{ja:'アヤメ',en:'Ayame iris',c:'#6550BE'},
+ kaki:{ja:'カキツバタ',en:'Rabbit-ear iris',c:'#4A58BE'},tsutsuji:{ja:'ツツジ',en:'Azalea',c:'#DD4486'},hagi:{ja:'萩',en:'Bush clover',c:'#BE62A2'},himawari:{ja:'ヒマワリ',en:'Sunflower',c:'#F3BB1E'},cosmos:{ja:'コスモス',en:'Cosmos',c:'#EE88BE'},
+ nanohana:{ja:'菜の花',en:'Rapeseed',c:'#EEDB2E'},hasu:{ja:'大賀ハス',en:'Lotus',c:'#F2A1B6'},
+ illum:{ja:'イルミネーション',en:'Illumination',c:'#E8B838'},
+ kochia:{ja:'コキア紅葉',en:'Red kochia',c:'#C8323C',leaf:1},koyo:{ja:'紅葉',en:'Autumn leaves',c:'#D2502A',leaf:1}
+};
+// [type, variety, start, peakStart, peakEnd, end, usual-text]
+const S=(id,ja,en,city,lat,lng,prec,hours,fee,parking,src,official,pl)=>({id,ja,en,city,lat,lng,prec,hours,fee,parking,src,official,pl});
+const SPOTS=[
+S('hitachi-seaside','国営ひたち海浜公園','Hitachi Seaside Park','ひたちなか市',36.398067,140.572067,0,'9:30–17:00（季節で変動）／火曜休','大人450円、中学生以下無料','約4,350台、600円',['https://rurubu.jp/andmore/spot/80006225'],1,[
+ ['ume','','02-01','02-15','02-28','03-10','2月'],['suisen','','03-15','03-25','04-15','04-22','3月下旬〜4月中旬'],['tulip','','04-05','04-12','04-25','05-01','4月中旬〜下旬'],['nemo','','04-05','04-15','05-05','05-12','4月中旬〜5月上旬'],['shiba','','04-08','04-15','05-05','05-10','4月中旬〜5月上旬'],['poppy','','05-01','05-10','05-31','06-07','5月'],['rose','','05-10','05-20','06-10','06-20','5月〜6月'],['himawari','','08-01','08-10','08-25','08-31','8月中旬'],['kochia','','09-28','10-05','10-20','10-31','10月上旬〜中旬'],['cosmos','','09-25','10-05','10-25','11-05','10月']]),
+S('kairakuen','偕楽園','Kairakuen','水戸市',36.376099,140.450745,1,'6:00–19:00（10月–2月中旬は7:00–18:00）','大人320円','約1,000台（梅まつり期間は有料）',['https://rurubu.jp/andmore/spot/80005902'],1,[
+ ['ume','約100品種3,000本','01-20','02-20','03-10','03-20','2月下旬〜3月上旬'],['sakura','','03-22','03-28','04-08','04-14','3月下旬〜4月上旬'],['tsutsuji','','04-20','04-28','05-15','05-20','4月下旬〜5月中旬'],['hagi','','09-01','09-08','09-25','10-01','9月'],['koyo','もみじ谷','11-05','11-18','12-02','12-10','11月中旬〜12月上旬']]),
+S('kodokan','弘道館','Kodokan','水戸市',36.375072,140.477859,1,'9:00–17:00（10/1–2/10は–16:30）','大人420円','18台',['https://rurubu.jp/andmore/spot/80005922'],1,[
+ ['ume','','02-01','02-20','03-08','03-18','2月下旬〜3月上旬']]),
+S('tsukubasan-bairin','筑波山梅林','Mt. Tsukuba Plum Grove','つくば市',36.21204,140.089569,1,'入園自由','無料','445台、500円',['https://rurubu.jp/andmore/spot/80006149'],1,[
+ ['ume','','02-05','02-18','03-12','03-20','2月中旬〜3月中旬']]),
+S('ibaraki-flower-park','いばらきフラワーパーク','Ibaraki Flower Park','石岡市',36.212288,140.170242,1,'9:00–17:00／火曜休','春 大人1,200–1,800円（バラ見頃が最高額）','1,200台、無料',['https://www.walkerplus.com/spot/ar0308s65321/map.html'],1,[
+ ['kawazu','','02-15','02-25','03-08','03-15','2月下旬〜3月上旬'],['rose','春バラ','05-05','05-15','06-08','06-15','5月中旬〜6月上旬'],['ajisai','','06-01','06-10','07-05','07-12','6月〜7月'],['himawari','','07-10','07-20','08-10','08-20','7月中旬〜'],['rose','秋バラ','10-01','10-15','11-15','11-30','10月〜11月中旬']]),
+S('koga-kubo-park','古河公方公園','Koga Kubo Park','古河市',36.17955,139.702042,1,'日の出–日没','無料','800台（桃まつり期間は有料）',['https://summer.walkerplus.com/odekake/detail/ar0308s62964/map.html'],1,[
+ ['momo','約1,500本','03-15','03-25','04-08','04-12','3月下旬〜4月上旬'],['hasu','','07-01','07-10','07-31','08-08','夏']]),
+S('kasama-tsutsuji','笠間つつじ公園','Kasama Azalea Park','笠間市',36.386425,140.261536,1,'まつり期間 8:00–18:00','まつり期間 500円（3分咲き・見頃過ぎは300円）','420台、無料',['https://www.walkerplus.com/spot/ar0308s75762/data.html'],0,[
+ ['tsutsuji','','04-10','04-20','05-06','05-12','4月中旬〜5月上旬']]),
+S('itako-ayame','水郷潮来あやめ園','Itako Ayame Garden','潮来市',35.937698,140.547806,1,'終日入園自由','無料','周辺の民間有料駐車場',['https://rurubu.jp/andmore/spot/20002401'],0,[
+ ['ayame','','04-25','05-01','05-10','05-15','4月下旬〜5月上旬'],['kaki','','05-03','05-08','05-18','05-23','5月上旬〜中旬'],['shobu','500種100万株','05-25','06-03','06-20','06-27','5月下旬〜6月下旬']]),
+S('amabiki-kannon','雨引観音（楽法寺）','Amabiki Kannon','桜川市',36.331989,140.123596,0,'8:30–17:00','あじさい祭期間 入山料500円','約500台',['https://www.nta.co.jp/kokunai/special/eventinfo/10625055.htm'],0,[
+ ['sakura','河津桜〜八重桜','03-05','03-25','04-15','05-01','3月〜5月'],['ajisai','','06-10','06-18','07-15','07-22','6月中旬〜7月中旬']]),
+S('kitaibaraki-ajisai','北茨城あじさいの森','Kitaibaraki Hydrangea Forest','北茨城市',36.827927,140.693359,0,'あじさい祭り期間 9:00–16:00','大人300円（五分咲き以前は無料）','約150台、無料',['https://weathernews.jp/ajisai/spot/0808/'],0,[
+ ['ajisai','','06-20','07-01','07-20','07-28','6月下旬〜7月（仮）']]),
+S('shizumine','静峰ふるさと公園','Shizumine Furusato Park','那珂市',36.501785,140.422058,1,'9:00–17:00／月曜休','無料','340台（別資料540台）',['https://rurubu.jp/andmore/spot/80006312/sakura'],0,[
+ ['yae','','04-08','04-15','04-28','05-03','4月中旬〜下旬']]),
+S('hitachi-fudoki','常陸風土記の丘','Hitachi Fudoki-no-oka','石岡市',36.20726,140.240585,1,'9:00–17:00','—','普通車500円',['https://weathernews.jp/sakura/spot/40015/'],0,[
+ ['sakura','ソメイヨシノ・シダレ・ボタン','03-28','04-03','04-22','04-28','4月上旬〜下旬']]),
+S('fukuokazeki','福岡堰','Fukuoka Weir','つくばみらい市',36.040627,140.032196,0,'入場自由','無料','約590台（まつり期間の土日は有料）',['https://weathernews.jp/sakura/spot/4011/'],0,[
+ ['sakura','','03-25','04-01','04-10','04-15','4月上旬']]),
+S('heiwa-dori','平和通り','Heiwa-dori Avenue','日立市',36.593441,140.659225,0,'制限なし','無料','専用なし（メイン日は臨時駐車場）',['https://weathernews.jp/sakura/spot/4009/'],0,[
+ ['sakura','','03-30','04-05','04-15','04-20','4月上旬〜中旬']]),
+S('senbako','千波湖','Lake Senba','水戸市',36.37125,140.4543,1,'散策自由','無料','411台無料＋土日祝178台',['https://rurubu.jp/andmore/spot/80103047'],0,[
+ ['sakura','','03-20','03-27','04-06','04-12','3月下旬〜4月上旬']]),
+S('kokaigawa-fureai','小貝川ふれあい公園','Kokaigawa Fureai Park','下妻市',36.193893,139.989334,0,'月曜休','無料','379台',['https://www.asoview.com/note/6964/'],0,[
+ ['nanohana','','03-20','04-01','04-20','04-30','春'],['poppy','','05-01','05-10','05-25','06-01','春'],['cosmos','','09-25','10-05','10-25','11-05','秋']]),
+S('akeno-himawari','明野ひまわりの里','Akeno Sunflower Field','筑西市',36.258102,140.04744,1,'—','—','約200台',['https://www.mapple.net/pref/08227/spot/'],0,[
+ ['himawari','八重','08-18','08-25','09-08','09-15','8月下旬〜9月上旬']]),
+S('fukuroda','袋田の滝','Fukuroda Falls','大子町',36.751102,140.391998,0,'9:00–17:00（12–4月）など','観瀑トンネル 大人500円','町営無料約260台＋民間',['https://weathernews.jp/koyo/spot/24002/'],0,[
+ ['koyo','','10-25','11-05','11-18','11-25','11月上旬〜中旬']]),
+S('ryujin-otsuribashi','竜神大吊橋','Ryujin Suspension Bridge','常陸太田市',36.66592,140.473495,0,'8:30–17:00／無休','渡橋料 大人320円','265台、無料',['https://rurubu.jp/andmore/spot/80006055'],0,[
+ ['koyo','','11-01','11-12','11-28','12-05','11月中旬〜下旬']]),
+S('hananuki','花貫渓谷','Hananuki Valley','高萩市',36.74662,140.589966,0,'散策自由','無料','150台（紅葉まつり期間 1,000円）',['https://rurubu.jp/andmore/spot/80006075'],0,[
+ ['koyo','','11-01','11-12','11-28','12-05','11月中旬〜下旬']]),
+S('isobe-sakuragawa','磯部桜川公園','Isobe Sakuragawa Park','桜川市',36.365219,140.13739,1,'制限なし','無料','40台、無料',['https://weathernews.jp/sakura/spot/4003/'],0,[
+ ['yama','','04-01','04-06','04-16','04-22','4月上旬〜中旬']])
+];
+SPOTS.push(
+S('kawachi-fureai','水と緑のふれあい公園','Kawachi Water & Green Park','河内町',35.886639,140.28212,0,'イルミ期間 17:00–21:00','—','あり',['https://weathernews.jp/illumi/spot/1702010/'],0,[]),
+S('hitachi-civic','日立シビックセンター新都市広場','Hitachi Civic Center Plaza','日立市',36.590866,140.659973,1,'イルミ期間 16:30–22:00','無料','あり',['https://weathernews.jp/illumi/spot/1702003/'],0,[]),
+S('kasumigaura-park','霞ヶ浦総合公園','Kasumigaura Park','土浦市',36.064804,140.219971,1,'イルミ期間 17:00–21:00','無料','170台、無料',['https://weathernews.jp/illumi/spot/1702005/'],0,[]),
+S('kirakuyama','きらくやまふれあいの丘','Kirakuyama Fureai Hill','つくばみらい市',35.964127,140.087631,1,'イルミ期間 16:30–20:30（月曜・雨天休み）','無料','300台、無料',['https://sp.jorudan.co.jp/illumi/spot_J0258.html'],0,[])
+);
+// illuminations: full dates (they cross the new year). ok=1: 2026-27 dates published; ok=0: last season's dates reused
+const ILLUM={
+ 'kawachi-fureai':[{ja:'かわちイルミネーション2026',en:'Kawachi Illumination 2026',from:'2026-11-03',to:'2027-02-14',ok:1,bulbs:'約50万球',hours:[['2026-11-03','2027-01-12','17:00–21:00'],['2027-01-13','2027-02-14','17:30–21:30']],src:'https://weathernews.jp/illumi/spot/1702010/'}],
+ 'hitachi-civic':[{ja:'Hitachi Starlight Illumination 2026',en:'Hitachi Starlight Illumination 2026',from:'2026-11-14',to:'2027-01-11',ok:1,bulbs:'約17万球',hours:[['2026-11-14','2027-01-11','16:30–22:00']],src:'https://weathernews.jp/illumi/spot/1702003/'}],
+ 'kasumigaura-park':[{ja:'水郷桜イルミネーション（第15回）',en:'Suigo Sakura Illumination',from:'2026-11-21',to:'2027-01-11',ok:1,bulbs:'LED約19万球',hours:[['2026-11-21','2027-01-11','17:00–21:00']],src:'https://weathernews.jp/illumi/spot/1702005/'}],
+ 'ibaraki-flower-park':[{ja:'Moonlight Rose Garden 2026',en:'Moonlight Rose Garden 2026',from:'2026-10-10',to:'2027-01-24',ok:1,bulbs:'',hours:[['2026-10-10','2027-01-24','17:00–20:30']],note:'第1部 10/10–11/23 フラワーイルミネイト／第2部 11/28–1/24 ウィンターイルミネイト。入園料必要',src:'https://www.walkerplus.com/event/ar0308e129706/data.html'}],
+ 'fukuroda':[{ja:'大子来人〜ダイゴライト〜',en:'Daigo Light (Fukuroda Falls)',from:'2026-11-01',to:'2027-01-12',ok:0,bulbs:'',hours:[['2026-11-01','2026-11-30','日没–20:00'],['2026-12-01','2027-01-12','日没–19:00']],note:'滝のライトアップ＋光のトンネル。観瀑トンネル利用料が必要',src:'https://www.daigo-kanko.jp/fukuroda-falls/daigolight.html'}],
+ 'kirakuyama':[{ja:'きらくやまイルミネーション',en:'Kirakuyama Illumination',from:'2026-11-28',to:'2026-12-25',ok:0,bulbs:'約10万球',hours:[['2026-11-28','2026-12-25','16:30–20:30']],note:'雨天中止',src:'https://weathernews.jp/illumi/spot/9009791/'}]
+};
+// venue closed days apply to the whole place (flowers and lights); shown as a pill by the name, never on the map
+const CLOSED={
+ 'ibaraki-flower-park':{dow:[2],dates:['2026-11-04','2026-11-25','2026-11-26','2026-11-27','2026-12-30','2026-12-31','2027-01-01'],open:['2026-11-03','2026-12-29']},
+ 'kirakuyama':{dow:[1]}
+};
+for(const id in ILLUM)ILLUM[id].forEach(ev=>ev.spot=id);
+const closedToday=(id,dt)=>{const c=CLOSED[id];if(!c)return false;const i=iso(dt);return (c.dates||[]).includes(i)||((c.dow||[]).includes(dt.getDay())&&!(c.open||[]).includes(i))};
+const closedPill=id=>closedToday(id,cur())?` <span class="tag" style="background:#FDE2E1;color:#9B1C1C">${esc(T('本日休園','Closed today'))}</span>`:'';
+// festivals: dates as MM-DD; confirmed=2027 official, else 2026 dates reused
+const FEST=[
+ {ja:'水戸の梅まつり',en:'Mito Plum Festival',spots:['kairakuen','kodokan'],from:'02-11',to:'03-22',ok:1},
+ {ja:'筑波山梅まつり',en:'Mt. Tsukuba Plum Festival',spots:['tsukubasan-bairin'],from:'02-07',to:'03-15'},
+ {ja:'古河桃まつり',en:'Koga Peach Festival',spots:['koga-kubo-park'],from:'03-14',to:'03-29'},
+ {ja:'水戸の桜まつり',en:'Mito Cherry Festival',spots:['senbako'],from:'03-28',to:'04-12'},
+ {ja:'常陸風土記の丘さくらまつり',en:'Fudoki-no-oka Cherry Festival',spots:['hitachi-fudoki'],from:'03-28',to:'04-26'},
+ {ja:'日立さくらまつり',en:'Hitachi Cherry Festival',spots:['heiwa-dori'],from:'04-01',to:'04-12'},
+ {ja:'八重桜まつり',en:'Double Cherry Festival',spots:['shizumine'],from:'04-09',to:'04-22'},
+ {ja:'笠間つつじまつり',en:'Kasama Azalea Festival',spots:['kasama-tsutsuji'],from:'04-11',to:'05-06'},
+ {ja:'フラワリング',en:'Flowering (spring relay)',spots:['hitachi-seaside'],from:'04-01',to:'05-31'},
+ {ja:'春バラに魅せられる時間',en:'Spring Rose Season',spots:['ibaraki-flower-park'],from:'05-05',to:'06-05'},
+ {ja:'水郷潮来あやめまつり',en:'Itako Iris Festival',spots:['itako-ayame'],from:'05-22',to:'06-21'}
+];
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const CUM=[0,31,59,90,120,151,181,212,243,273,304,334];
+const md2d=md=>{const[m,d]=md.split('-').map(Number);return CUM[m-1]+d};
+const date2d=dt=>CUM[dt.getMonth()]+dt.getDate();
+const ORIGIN=new Date(2026,10,1);
+let st={est:'thin',zoom:1,date:null,offset:0,stale:false,staleDays:10,en:false,sel:null,filter:'active'};
+try{Object.assign(st,JSON.parse(localStorage.getItem('floraDebug')||'{}'))}catch(e){}
+st.sel=null;
+if(!st.date){const n=new Date();st.date=n<ORIGIN||n>new Date(2027,11,31)?'2026-11-24':iso(n)}
+function iso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const cur=()=>{const[y,m,d]=st.date.split('-').map(Number);return new Date(y,m-1,d)};
+const save=()=>{try{localStorage.setItem('floraDebug',JSON.stringify({date:st.date,offset:st.offset,stale:st.stale,staleDays:st.staleDays,en:st.en,est:st.est}))}catch(e){}};
+const T=(ja,en)=>st.en?en:ja;
+const STG={f:[['まだ','Not yet'],['咲き始め','Starting'],['見頃','Peak'],['見頃過ぎ','Past peak'],['終了','Over']],
+           l:[['青葉','Green'],['色づき始め','Turning'],['見頃','Peak'],['色あせ','Fading'],['落葉','Fallen']]};
+const dOf=x=>{const[y,m,d]=x.split('-').map(Number);return new Date(y,m-1,d)};
+function illumStatus(ev,dt){
+  const day=864e5,t=dt.getTime(),f=dOf(ev.from).getTime(),to=dOf(ev.to).getTime(),id=iso(dt),dash=!ev.ok;
+  if(t<f){const n=Math.round((f-t)/day);return n>LEAD?{illum:1,lv:4,state:'over',dash}:{illum:1,lv:0,state:'before',untilStart:n,soon:!!ev.ok&&n<=5,dash}}
+  if(t>to){const n=Math.round((t-to)/day);return{illum:1,lv:4,state:'over',dash}}
+  const h=(ev.hours.find(r=>id>=r[0]&&id<=r[1])||[])[2]||'';
+  return{illum:1,lv:2,state:'lit',hours:h,dash};
+}
+const ILC={lit:'#D4A017',closed:'#A8A29E',before:'#E7E5E4',over:'#E7E5E4',next:'#E7E5E4'};
+const sColor=s=>s.illum?ILC[s.state]:colorOf(s.lv,s.leaf);
+const sName=s=>s.illum?T(...{lit:['点灯中','Lit'],closed:['本日休み','Closed today'],before:['点灯前','Not yet lit'],over:['終了','Over'],next:['次回未定','Next TBA']}[s.state]):stageName(s.lv,s.leaf);
+const stageName=(lv,leaf)=>{const p=STG[leaf?'l':'f'][lv];return T(p[0],p[1])};
+const colorOf=(lv,leaf)=>lv===1?(leaf?'#E9A23B':'#E58FAD'):lv===2?(leaf?'#C2410C':'#B0245C'):lv===3?(leaf?'#8C6A4F':'#9E7F89'):'#E7E5E4';
+const typeName=t=>T(TYPES[t].ja,TYPES[t].en);
+const fmtMD=md=>{const[m,d]=md.split('-').map(Number);return st.en?['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1]+' '+d:m+'月'+d+'日'};
+
+/* placeholder photo: generated SVG per flower type */
+const photoCache={};
+function photo(t){
+  if(photoCache[t])return photoCache[t];
+  const ty=TYPES[t],c=ty.c;let g='';
+  if(t==='illum'){let r='';const P=[[18,30,7],[40,18,5],[62,34,9],[84,22,6],[28,62,10],[52,70,6],[76,60,8],[12,84,5],[90,86,7],[46,46,4],[66,88,5]];
+    for(const[x,y,q]of P)r+=`<circle cx="${x}" cy="${y}" r="${q}" fill="${q%2?'#F5D46B':'#FFF4D6'}" opacity="${.55+q/25}"/>`;
+    return photoCache[t]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1B1F3B"/><stop offset="1" stop-color="#3B2F5C"/></linearGradient></defs><rect width="100" height="100" fill="url(#n)"/>${r}</svg>`)}
+  const pts=[[30,34,15],[70,26,12],[52,62,17],[18,74,11],[84,70,13],[44,92,9],[90,40,8]];
+  for(const[x,y,r]of pts){
+    if(ty.leaf){let p='';for(let i=0;i<5;i++){const a=(i*72-90)*Math.PI/180,b=a+36*Math.PI/180;p+=`${x+Math.cos(a)*r},${y+Math.sin(a)*r} ${x+Math.cos(b)*r*.45},${y+Math.sin(b)*r*.45} `}g+=`<polygon points="${p}" fill="${c}" stroke="rgba(0,0,0,.15)" stroke-width="1"/>`}
+    else{for(let i=0;i<5;i++)g+=`<ellipse cx="${x}" cy="${y-r*.5}" rx="${r*.42}" ry="${r*.55}" fill="${c}" transform="rotate(${i*72} ${x} ${y})" stroke="rgba(255,255,255,.6)" stroke-width=".8"/>`;g+=`<circle cx="${x}" cy="${y}" r="${r*.22}" fill="#F6D365"/>`}
+  }
+  const bg=ty.leaf?['#F3E6D3','#7E8F5A']:['#EAF2E3','#8FB07A'];
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${bg[0]}"/><stop offset="1" stop-color="${bg[1]}"/></linearGradient></defs><rect width="100" height="100" fill="url(#g)"/>${g}</svg>`;
+  return photoCache[t]='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+}
+
+/* ---------- status model ---------- */
+const FRESH=[[7,14],[3,6],[4,8],[3,6],[7,14]];
+const LEAD=14; // days before the usual start that まだ appears; otherwise off-season = 終了
+function stageAt(p,d){
+  const[s,ps,pe,e]=[p[2],p[3],p[4],p[5]].map(md2d);
+  if(d<s)return s-d<=LEAD?{lv:0,pct:0,untilPeak:ps-d,untilStart:s-d}:{lv:4,pct:0,untilPeak:-1,off:1};
+  if(d<ps){const pct=Math.round(10+60*(d-s)/(ps-s));return{lv:1,pct,untilPeak:ps-d}}
+  if(d<=pe)return{lv:2,pct:100,untilPeak:0};
+  if(d<=e)return{lv:3,pct:100,untilPeak:-1};
+  const n=s+365-d; // next season
+  return n<=LEAD?{lv:0,pct:0,untilPeak:ps+365-d,untilStart:n}:{lv:4,pct:0,untilPeak:-1,off:1};
+}
+function status(spot,p,d){
+  const leaf=!!TYPES[p[0]].leaf;
+  if(!spot.official){const u=stageAt(p,d);return{...u,leaf,src:'usual',dash:true,soon:false}}
+  const age=st.stale?st.staleDays:(d%3);
+  const truth=stageAt(p,d-st.offset);
+  const rep=stageAt(p,d-st.offset-age);           // what the last report said
+  const [fresh,aging]=FRESH[rep.lv];
+  if(age>21){const u=stageAt(p,d);return{...u,leaf,src:'none',dash:true,age,soon:false}}
+  if(age>aging)return{...rep,leaf,src:'stale',dash:true,age,soon:false};  // last confirmed, never backwards
+  return{...rep,leaf,src:age>fresh?'aging':'official',dash:false,age,soon:rep.lv<2&&truth.untilPeak>0&&truth.untilPeak<=5};
+}
+const festOn=(id,d)=>FEST.filter(f=>f.spots.includes(id)&&d>=md2d(f.from)&&d<=md2d(f.to));
+const rank=s=>s.illum?({lit:600,closed:250,before:200-Math.min(s.untilStart,99),over:0,next:0}[s.state]):s.lv===2?500:s.lv===1?400:s.lv===3?300:s.lv===0?200-Math.min(s.untilStart??99,99):0;
+function spotState(spot,d){
+  const list=spot.pl.map(p=>({p,s:status(spot,p,d)})).concat((ILLUM[spot.id]||[]).map(ev=>({p:['illum'],ev,s:illumStatus(ev,cur())})));
+  // tie-break within the same stage: the planting with more of that stage still ahead wins
+  // (e.g. two at 見頃: the one whose peak ends later), so a fading flower doesn't front the pin
+  const tie=x=>x.ev?0:x.s.lv===1?x.s.pct:x.s.lv===2?md2d(x.p[4]):x.s.lv===3?md2d(x.p[5]):0;
+  const better=(a,b)=>rank(b.s)>rank(a.s)||(rank(b.s)===rank(a.s)&&tie(b)>tie(a));
+  const best=list.reduce((a,b)=>better(a,b)?b:a);
+  return{list,best,fest:festOn(spot.id,d)};
+}
+
+/* ---------- map ---------- */
+const K=Math.cos(36.3*Math.PI/180)*800,LON0=139.62,LAT0=36.99;
+const px=(lon,lat)=>[(lon-LON0)*K,(LAT0-lat)*800];
+const poly=a=>a.map(([lo,la])=>px(lo,la).map(v=>v.toFixed(1)).join(',')).join(' ');
+const IBARAKI=[[140.80,36.93],[140.62,36.97],[140.45,36.93],[140.30,36.83],[140.27,36.70],[140.18,36.55],[140.14,36.45],[140.05,36.35],[139.98,36.30],[139.85,36.27],[139.78,36.25],[139.70,36.20],[139.68,36.13],[139.75,36.08],[139.86,36.03],[139.95,35.97],[140.02,35.93],[140.08,35.88],[140.20,35.92],[140.27,35.875],[140.35,35.87],[140.48,35.85],[140.62,35.80],[140.78,35.73],[140.85,35.74],[140.68,35.95],[140.58,36.15],[140.58,36.31],[140.61,36.40],[140.61,36.47],[140.68,36.60],[140.72,36.72],[140.76,36.82]];
+const LAKES=[[[140.18,36.08],[140.27,36.10],[140.36,36.14],[140.43,36.13],[140.45,36.07],[140.50,35.98],[140.46,35.96],[140.38,36.02],[140.30,36.03],[140.22,36.03],[140.19,36.06]],[[140.57,36.05],[140.61,36.07],[140.63,35.98],[140.59,35.91],[140.565,35.94]],[[140.42,36.30],[140.50,36.31],[140.52,36.28],[140.45,36.28]]];
+const CITIES=[['水戸','Mito',140.47,36.35],['つくば','Tsukuba',140.11,36.07],['日立','Hitachi',140.60,36.63],['古河','Koga',139.76,36.23],['鹿嶋','Kashima',140.63,35.90],['大子','Daigo',140.33,36.80],['霞ヶ浦','Kasumigaura',140.33,36.07]];
+function drawBase(){
+  const[tx,ty]=px(140.10,36.225);
+  return `<svg viewBox="0 0 838 1032" aria-hidden="true"><rect width="838" height="1032" fill="var(--sea)"/>
+  <polygon points="${poly(IBARAKI)}" fill="var(--land)" stroke="var(--landedge)" stroke-width="2.5" stroke-linejoin="round"/>
+  ${LAKES.map(l=>`<polygon points="${poly(l)}" fill="var(--lake)"/>`).join('')}
+  <path d="M${tx-14},${ty+8} L${tx},${ty-12} L${tx+14},${ty+8}Z" fill="var(--landedge)"/>
+  ${CITIES.map(c=>{const[x,y]=px(c[2],c[3]);return `<text x="${x}" y="${y}" font-size="15" fill="var(--mute)" text-anchor="middle" font-family="Noto Sans JP, Inter">${esc(T(c[0],c[1]))}</text>`}).join('')}
+  <text x="770" y="560" font-size="16" fill="#4B6B7A" text-anchor="middle" letter-spacing="3" style="writing-mode:vertical-rl">${esc(T('太平洋','Pacific'))}</text>
+  <svg id="leaders" viewBox="0 0 838 1032" overflow="visible"></svg></svg>`;
+}
+function ringStyle(s){
+  const c=sColor(s),est=!!(s.dash||s.src==='none');
+  const col=s.illum?(s.state==='lit'?c:null):(s.src==='none'||s.lv===0||s.lv===4?null:c);
+  const fill=k=>k===null?'var(--track)':(!s.illum&&s.lv===1?`conic-gradient(${k} 0 ${s.pct}%,var(--track) ${s.pct}% 100%)`:k);
+  if(!est)return{cls:'',st:`background:${fill(col)}`};
+  if(st.est==='dashed')return{cls:'dash',st:`border-color:${s.src==='none'?'#A8A29E':(col||'#D6D3D1')}`};
+  if(st.est==='faded')return{cls:'',st:`background:${fill(col&&col+'66')}`};
+  return{cls:'thin',st:`background:${fill(col)}`};
+}
+const imgFilter=s=>(s.illum&&s.state!=='lit')||s.lv===0||s.lv===4||s.src==='none'?'filter:grayscale(1);opacity:.8':s.lv===3?'filter:grayscale(.55)':'';
+function drawPins(){
+  const m=$('map'),W=m.clientWidth,H=m.clientHeight,sc=W/838,d=date2d(cur());
+  const pz=Math.round(Math.max(30,Math.min(46,W/17)));m.style.setProperty('--pz',pz+'px');
+  m.querySelectorAll('.pin').forEach(e=>e.remove());
+  const items=visibleSpots(d).map(({spot,ss})=>{const[x,y]=px(spot.lng,spot.lat);return{spot,ss,x0:x*sc,y0:y*sc,x:x*sc,y:y*sc}});
+  for(let it=0;it<60;it++)for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){
+    const a=items[i],b=items[j];let dx=b.x-a.x,dy=b.y-a.y,dist=Math.hypot(dx,dy)||.01;const min=pz+4;
+    if(dist<min){const push=(min-dist)/2;dx/=dist;dy/=dist;a.x-=dx*push;a.y-=dy*push;b.x+=dx*push;b.y+=dy*push}
+  }
+  let lines='';
+  for(const it of items){
+    const{spot,ss}=it,s=ss.best.s,r=ringStyle(s);
+    if(Math.hypot(it.x-it.x0,it.y-it.y0)>6)lines+=`<line x1="${it.x0/sc}" y1="${it.y0/sc}" x2="${it.x/sc}" y2="${it.y/sc}" stroke="var(--mute)" stroke-width="1.5"/><circle cx="${it.x0/sc}" cy="${it.y0/sc}" r="3" fill="var(--ink)"/>`;
+    const b=document.createElement('button');
+    b.className='pin '+r.cls+(st.sel===spot.id?' sel':'');
+    b.style.cssText=`left:${it.x}px;top:${it.y}px;${r.st}`;
+    b.setAttribute('aria-label',`${T(spot.ja,spot.en)} ${typeName(ss.best.p[0])} ${sName(s)}`);
+    b.innerHTML=`<img alt="" src="${photo(ss.best.p[0])}" style="${imgFilter(s)}">${ss.fest.length?'<span class="fd"></span>':''}${s.soon?'<span class="soon"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>':''}<span class="lbl">${esc(T(spot.ja,spot.en))}</span>`;
+    b.onclick=()=>{st.sel=spot.id;render()};
+    m.appendChild(b);
+  }
+  $('leaders').innerHTML=lines;
+}
+function visibleSpots(d){
+  return SPOTS.map(spot=>{const ss=spotState(spot,d);if(st.filter==='illum'){const il=ss.list.filter(x=>x.ev);if(il.length)ss.best=il.reduce((a,b)=>rank(b.s)>rank(a.s)?b:a)}return{spot,ss}}).filter(({ss})=>st.filter==='all'||(st.filter==='active'&&ss.best.s.lv!==4)||(st.filter==='peak'&&ss.best.s.lv===2)||(st.filter==='fest'&&ss.fest.length)||(st.filter==='illum'&&ss.list.some(x=>x.s.illum&&(x.s.state==='lit'||x.s.state==='closed'))));
+}
+
+/* ---------- panel ---------- */
+function tag(s,t){
+  if(s.illum){const lit=s.state==='lit';return `<span class="tag${s.dash?' dash':''}" style="background:${lit?'#2A2340':'var(--line)'};color:${lit?'#F5D46B':'var(--mute)'};border-color:${s.dash?(lit?'#D4A017':'#A8A29E'):'transparent'}">${esc(t?T('イルミ','Illum')+' ':'')}${esc(sName(s))}</span>`}
+  const c=colorOf(s.lv,s.leaf),dark=s.lv===2||s.lv===3;
+  const bg=s.lv===0||s.lv===4?'var(--line)':s.lv===1?'#FBE3EC':c;
+  const fg=dark?'#fff':s.lv===1?(s.leaf?'#8A4B06':'#8E1E4A'):'var(--mute)';
+  const pct=s.lv===1&&!s.dash&&!s.leaf?` ${Math.round(s.pct/10)}${T('分','/10')}`:'';
+  return `<span class="tag${s.dash?' dash':''}" style="background:${s.lv===1&&s.leaf?'#FCEBD3':bg};color:${fg};border-color:${s.dash?c==='#E7E5E4'?'#A8A29E':c:'transparent'}">${esc(t?typeName(t)+' ':'')}${esc(stageName(s.lv,s.leaf))}${pct}</span>`}
+function cycleLine(s,p){
+  if(!p||s.illum)return '';
+  if(s.lv===0)return T(`例年 ${p[6]}`,`Usually ${p[6]}`);
+  if(s.lv===4)return T(`次回 例年 ${p[6]}`,`Next: usually ${p[6]}`);
+  return '';
+}
+function srcLine(s,ev){
+  if(s.illum){ev=ev||{};const ph=ev.ok===0?T('（前年の日程を仮置き）',' (last year’s dates as placeholder)'):'';
+    const off=ev.spot&&closedToday(ev.spot,cur());
+    const m={lit:off?T(`点灯時間 ${s.hours}`,`Lit ${s.hours}`):T(`今夜 ${s.hours}`,`Tonight ${s.hours}`),closed:T('本日は休園日・点灯なし','Closed today, no lighting'),before:T(`${fmtMD(ev.from.slice(5))}から点灯予定`,`Lighting from ${fmtMD(ev.from.slice(5))}`),over:T('今季は終了','Finished for the season'),next:T('次回の日程は未発表','Next dates not announced')}[s.state];
+    return m+ph}
+  if(s.src==='usual')return T('例年の時期から推定','Estimated from usual window');
+  if(s.src==='none')return T('最新情報なし（3週間以上）・例年の時期を表示','No recent info (3+ weeks) · showing usual window');
+  if(s.src==='stale')return T(`最終確認 ${s.age}日前の状態`,`Last confirmed ${s.age} days ago`);
+  if(s.src==='aging')return T(`公式 · ${s.age}日前（古くなりつつある）`,`Official · ${s.age} days ago (aging)`);
+  return T(`公式 · ${s.age===0?'今日':s.age+'日前'}`,`Official · ${s.age===0?'today':s.age+' days ago'}`);
+}
+function renderList(d){
+  const all=visibleSpots(d).sort((a,b)=>rank(b.ss.best.s)-rank(a.ss.best.s)||(b.ss.fest.length-a.ss.fest.length));
+  const hidden=SPOTS.length-all.length;
+  const nLit=all.filter(x=>x.ss.list.some(y=>y.s.illum&&y.s.state==='lit')).length,nPeak=all.filter(x=>x.ss.best.s.lv===2&&!x.ss.best.s.illum).length,nStart=all.filter(x=>x.ss.best.s.lv===1&&!x.ss.best.s.illum).length;
+  const dt=cur();
+  return `<div><h1>${esc(st.en?dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}):dt.toLocaleDateString('ja-JP',{year:'numeric',month:'long',day:'numeric',weekday:'short'}))}</h1>
+  <div class="sub">${esc(T(`見頃 ${nPeak} · 咲き始め ${nStart} · 点灯中 ${nLit} · 全${all.length}スポット`,`${nPeak} at peak · ${nStart} starting · ${nLit} lit · ${all.length} spots`))}${st.filter==='active'&&hidden?' · '+esc(T(`終了 ${hidden}件は非表示`,`${hidden} finished hidden`)):''}</div></div>
+  <div class="chips">${[['active','シーズン中','In season'],['peak','見頃のみ','Peak only'],['fest','開催中のイベント','Festivals on'],['illum','イルミネーション','Illuminations'],['all','すべて表示','Show all']].map(([k,j,e])=>`<button class="chip" data-f="${k}" aria-pressed="${st.filter===k}">${esc(T(j,e))}</button>`).join('')}</div>
+  ${all.length?all.map(({spot,ss})=>{const s=ss.best.s;
+    return `<button class="row" data-id="${esc(spot.id)}"><img alt="" src="${photo(ss.best.p[0])}" style="${imgFilter(s)}"><span class="t"><span><span class="nm">${esc(T(spot.ja,spot.en))}</span> <span class="small">${esc(spot.city)}</span>${closedPill(spot.id)}</span>
+    <span class="tags">${tag(s,ss.best.p[0])}${ss.fest.map(f=>`<span class="tag fe">${esc(T(f.ja+' 開催中',f.en+' on'))}</span>`).join('')}</span>
+    <span class="small">${esc(cycleLine(s,ss.best.p)||srcLine(s,ss.best.ev))}${s.soon&&!s.illum?' · '+esc(T('もうすぐ見頃','Peak soon')):''}</span></span></button>`}).join(''):`<p class="small">${esc(T('該当するスポットはありません。','No spots match.'))} <button class="chip" data-f="all">${esc(T('すべて表示','Show all'))}</button></p>`}`;
+}
+function renderDetail(spot,d){
+  const ss=spotState(spot,d),s=ss.best.s;
+  const cyc=x=>{const st0=md2d(x.p[2]),en=md2d(x.p[5]);return st0-d+(d>en?365:0)}; // rolling year from today: in season first, then upcoming, finished ones last
+  const sorted=ss.list.filter(x=>!x.ev).sort((a,b)=>cyc(a)-cyc(b)),ills=ss.list.filter(x=>x.ev);
+  return `<button class="back" id="back">← ${esc(T('一覧','List'))}</button>
+  <img class="hero" alt="" src="${photo(ss.best.p[0])}" style="${imgFilter(s)}">
+  <div><h2>${esc(T(spot.ja,spot.en))}${closedPill(spot.id)}</h2><div class="sub">${esc(spot.city)} · ${esc(T('写真はプレースホルダー','Placeholder photo'))}</div></div>
+  ${ss.fest.map(f=>`<div class="tags"><span class="tag fe">${esc(T(f.ja+' 開催中',f.en+' on'))}</span><span class="small">${esc(fmtMD(f.from)+'–'+fmtMD(f.to))} ${esc(f.ok?T('（2027年公式）','(2027 official)'):T('（2026年日程を仮置き）','(2026 dates as placeholder)'))}</span></div>`).join('')}
+  ${ills.map(({ev,s})=>`<div class="pl"><img alt="" src="${photo('illum')}" style="${imgFilter(s)}"><div>
+    <div class="tags"><span class="nm">${esc(T(ev.ja,ev.en))}</span>${tag(s)}</div>
+    <div class="small">${esc(srcLine(s,ev))}</div>
+    <div class="small">${esc(T('期間','Period'))} ${esc(ev.from.replace(/-/g,'/'))}–${esc(ev.to.replace(/-/g,'/'))}${ev.bulbs?' · '+esc(ev.bulbs):''}${ev.note?' · '+esc(ev.note):''}</div>
+    <div class="small"><a href="${esc(ev.src)}" target="_blank" rel="noopener">${esc(T('情報元','Source'))}</a></div>
+  </div></div>`).join('')}
+  <div>${sorted.map(({p,s})=>{const ty=TYPES[p[0]],y0=0,yr=365,l=v=>(md2d(v)/yr*100).toFixed(2);
+    return `<div class="pl"><img alt="" src="${photo(p[0])}" style="${imgFilter(s)}"><div>
+    <div class="tags"><span class="nm">${esc(typeName(p[0]))}</span>${p[1]?`<span class="small">${esc(p[1])}</span>`:''}${tag(s)}</div>
+    <div class="small">${esc(cycleLine(s,p)||srcLine(s)+' · '+T('例年','Usual')+' '+p[6])}</div>
+    <div class="bar" title="${esc(T('1年の中の時期','Position in the year'))}"><i style="left:${l(p[2])}%;width:${(l(p[5])-l(p[2])).toFixed(2)}%;background:${ty.leaf?'#F3C99A':'#F6C9D8'}"></i><i style="left:${l(p[3])}%;width:${(l(p[4])-l(p[3])).toFixed(2)}%;background:${ty.leaf?'#C2410C':'#B0245C'}"></i><b style="left:${(d/yr*100).toFixed(2)}%"></b></div>
+    </div></div>`}).join('')}</div>
+  ${spot.prec===0?`<div class="warn">${esc(T('座標は町字レベル（概略）。地図上の位置は要手動修正。','Coordinates are neighbourhood-level only; pin needs manual placement.'))}</div>`:''}
+  <dl><dt>${esc(T('時間','Hours'))}</dt><dd>${esc(spot.hours)}</dd><dt>${esc(T('料金','Fee'))}</dt><dd>${esc(spot.fee)}</dd><dt>${esc(T('駐車場','Parking'))}</dt><dd>${esc(spot.parking)}</dd>
+  <dt>${esc(T('座標','Coords'))}</dt><dd>${spot.lat.toFixed(5)}, ${spot.lng.toFixed(5)}</dd><dt>${esc(T('出典','Source'))}</dt><dd>${spot.src.map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u)}</a>`).join('<br>')}</dd>
+  <dt>${esc(T('状況元','Status'))}</dt><dd>${esc(spot.pl.length?(spot.official?T('公式ページ（シミュレーション）','Official page (simulated)'):T('なし — 例年の時期のみ','None — usual window only')):T('イルミの日程・休園日から判定','From illumination dates and closed days'))}</dd></dl>`;
+}
+function renderLegend(){
+  const it=[['#E7E5E4','まだ','Not yet',''],['#E58FAD','咲き始め','Starting',''],['#B0245C','見頃','Peak',''],['#9E7F89','見頃過ぎ','Past peak',''],['#C2410C','紅葉 見頃','Leaves peak','']];
+  $('legend').innerHTML=it.map(([c,j,e])=>`<span><i class="lg" style="border:3px solid ${c}"></i>${esc(T(j,e))}</span>`).join('')+
+  `<span><i class="lg" style="${st.est==='dashed'?'border:3px dashed #57534E':st.est==='faded'?'border:3px solid #B0245C66':'border:1.5px solid #57534E'}"></i>${esc(T(st.est==='thin'?'細いリング = 例年・推定':st.est==='faded'?'淡いリング = 例年・推定':'点線 = 例年・推定','Thin'===''?'':(st.est==='thin'?'Thin ring = usual / estimate':st.est==='faded'?'Faded ring = usual / estimate':'Dashed = usual / estimate')))}</span><span><i class="lg" style="background:conic-gradient(#E58FAD 0 50%,#E7E5E4 50% 100%)"></i>${esc(T('リング=咲き具合','Ring = bloom %'))}</span><span><i class="lg" style="border:3px solid #D4A017;background:#2A2340"></i>${esc(T('イルミ点灯中','Illumination lit'))}</span><span><i class="lg" style="background:#E0701F"></i>${esc(T('イベント開催中','Festival on'))}</span><span><i class="lg" style="border:2px solid #B0245C"></i>${esc(T('もうすぐ見頃','Peak soon'))}</span>`;
+}
+
+/* ---------- render + controls ---------- */
+function render(){
+  const d=date2d(cur());
+  $('date').value=st.date;$('slider').value=Math.round((cur()-ORIGIN)/864e5);
+  $('offset').value=st.offset;$('offv').textContent=(st.offset>0?'+':'')+st.offset+'d';
+  $('stale').checked=st.stale;$('staleDays').value=String(st.staleDays);$('lang').textContent=st.en?'日本語':'EN';$('estStyle').value=st.est;
+  document.documentElement.lang=st.en?'en':'ja';
+  renderPresets();$('map').innerHTML=drawBase();renderLegend();drawPins();
+  const sp=SPOTS.find(x=>x.id===st.sel);
+  $('panel').innerHTML=sp?renderDetail(sp,d):renderList(d);
+  save();
+}
+const setDate=dt=>{if(dt<ORIGIN)dt=new Date(ORIGIN);const max=new Date(2027,11,31);if(dt>max)dt=max;st.date=iso(dt);render()};
+const shift=n=>{const d=cur();d.setDate(d.getDate()+n);setDate(d)};
+$('dm7').onclick=()=>shift(-7);$('dm1').onclick=()=>shift(-1);$('dp1').onclick=()=>shift(1);$('dp7').onclick=()=>shift(7);
+$('date').onchange=e=>{if(e.target.value){const[y,m,d]=e.target.value.split('-').map(Number);setDate(new Date(y,m-1,d))}};
+$('slider').oninput=e=>{const d=new Date(ORIGIN);d.setDate(d.getDate()+Number(e.target.value));setDate(d)};
+$('offset').oninput=e=>{st.offset=Number(e.target.value);render()};
+$('stale').onchange=e=>{st.stale=e.target.checked;render()};
+$('staleDays').onchange=e=>{st.staleDays=Number(e.target.value);render()};
+$('lang').onclick=()=>{st.en=!st.en;render()};
+$('estStyle').onchange=e=>{st.est=e.target.value;render()};
+const setZoom=z=>{const box=$('mapbox'),cx=(box.scrollLeft+box.clientWidth/2)/box.scrollWidth,cy=(box.scrollTop+box.clientHeight/2)/box.scrollHeight;st.zoom=Math.max(1,Math.min(4,z));$('map').style.setProperty('--z',st.zoom);requestAnimationFrame(()=>{box.scrollLeft=cx*box.scrollWidth-box.clientWidth/2;box.scrollTop=cy*box.scrollHeight-box.clientHeight/2})};
+$('zin').onclick=()=>setZoom(st.zoom*1.6);$('zout').onclick=()=>setZoom(st.zoom/1.6);
+const PRE=[['今日','Today',null],['梅','Plum','2027-02-24'],['河津桜','Kawazu','2027-03-01'],['桜','Cherry','2027-04-03'],['ネモフィラ','Nemophila','2027-04-25'],['花菖蒲','Iris','2027-06-10'],['紫陽花','Hydrangea','2027-06-28'],['ひまわり','Sunflower','2027-08-28'],['紅葉','Leaves','2027-11-20'],['イルミ','Illum','2026-12-20']];
+function renderPresets(){$('presets').innerHTML=PRE.map(([j,e,v],i)=>`<button class="btn" data-p="${i}">${esc(T(j,e))}</button>`).join('')}
+$('presets').onclick=e=>{const b=e.target.closest('[data-p]');if(!b)return;const v=PRE[b.dataset.p][2];if(!v){setDate(new Date())}else{const[y,m,d]=v.split('-').map(Number);setDate(new Date(y,m-1,d))}};
+$('panel').onclick=e=>{
+  const f=e.target.closest('[data-f]');if(f){st.filter=f.dataset.f;render();return}
+  const r=e.target.closest('[data-id]');if(r){st.sel=r.dataset.id;render();$('panel').scrollTop=0;return}
+  if(e.target.closest('#back')){st.sel=null;render()}
+};
+document.addEventListener('keydown',e=>{if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;if(e.key==='ArrowRight')shift(e.shiftKey?7:1);if(e.key==='ArrowLeft')shift(e.shiftKey?-7:-1);if(e.key==='Escape'&&st.sel){st.sel=null;render()}});
+$('map').addEventListener('click',e=>{if(!e.target.closest('.pin')&&st.sel){st.sel=null;render()}});
+const ro=new ResizeObserver(()=>drawPins());ro.observe($('map'));
+render();
+}
+</script>
+</body>
+</html>

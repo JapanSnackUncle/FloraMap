@@ -1,0 +1,141 @@
+schema_version: 1
+id: hitachi-seaside
+name_ja: "国営ひたち海浜公園"
+name_en: "Hitachi Seaside Park"
+name_kana: "こくえいひたちかいひんこうえん"
+prefecture: ibaraki
+municipality: "ひたちなか市"
+municipality_slug: hitachinaka
+address_ja: "馬渡字大沼605-4"
+lat: 36.401894
+lng: 140.591509
+geocode_precision: manual
+point_note: entrance
+hours_ja: "9:30–17:00（7/21–8/31は–18:00、11/1–2月末は–16:30）"
+closed_ja: "火曜休（祝日の場合は直後の平日）、12/31・1/1休、2月第1火曜の前日〜直後の金曜休。春期3/26–5/31・冬期12/25–30, 1/2–7は毎日開園"
+fee_ja: "大人450円、65歳以上210円、中学生以下無料（季節により異なる）"
+parking_ja: "約4,350台、普通車1日600円"
+official_urls: ["https://hitachikaihin.jp/guide/schedule.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006225", "https://summer.walkerplus.com/odekake/detail/ar0308s47036/data.html"]
+editor_notes: "closed days updated from official schedule page (checked 2026-11-25); ネモフィラ・コキア見頃期は季節料金 +350円（2025年度）\nclosures written out from official schedule page (checked 2026-11-25, 内閣府 holiday list). 2/23(火・祝)→2/24休, 11/3→11/4休; 5/4→5/6 falls inside the spring open period."
+closures:
+  source_url: "https://www.hitachikaihin.jp/guide/schedule.html"
+  valid_until: "2027-06-30"
+  weekly: [tue]
+  fixed_dates: ["12-31", "01-01"]
+  dates_closed: ["2026-11-04", "2027-02-24", "2027-02-01", "2027-02-02", "2027-02-03", "2027-02-04", "2027-02-05"]
+  dates_open: ["2026-11-03", "2027-02-23"]
+  periods_open:
+    - from: "2026-12-25"
+      to: "2026-12-30"
+    - from: "2027-01-02"
+      to: "2027-01-07"
+    - from: "2027-03-26"
+      to: "2027-05-31"
+plantings:
+  - id: hitachi-seaside-cosmos
+    kind: bloom
+    species: cosmos
+    windows:
+      - start: "10-1"
+        end: "10-3"
+    provisional: true
+    window_raw: "10月"
+    official_urls: ["https://www.shanghai.pref.ibaraki.jp/wp-content/uploads/2017/04/97d05839043cfbdd1a916d9fa7212901.pdf"]
+    editor_notes: "window 10-1–10-3 is a whole-month placeholder"
+  - id: hitachi-seaside-kochia-green
+    kind: bloom
+    species: kochia
+    species_variety: "緑"
+    windows:
+      - start: "07-1"
+        end: "09-2"
+    provisional: true
+    window_raw: "7月上旬〜9月中旬"
+    official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000791839.pdf"]
+  - id: hitachi-seaside-kochia-red
+    kind: foliage
+    species: kochia
+    species_variety: "紅葉"
+    windows:
+      - start: "10-1"
+        end: "10-2"
+    provisional: true
+    window_raw: "10月上旬〜中旬"
+    official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000791839.pdf"]
+  - id: hitachi-seaside-narcissus
+    kind: bloom
+    species: narcissus
+    windows:
+      - start: "03-3"
+        end: "04-2"
+    provisional: true
+    window_raw: "3月下旬〜4月中旬"
+    official_urls: ["https://hitachikaihin.jp/wp-content/uploads/2025/03/250314_flowering.pdf"]
+  - id: hitachi-seaside-nemophila
+    kind: bloom
+    species: nemophila
+    windows:
+      - start: "04-2"
+        end: "05-1"
+    provisional: true
+    window_raw: "4月中旬〜5月上旬"
+    official_urls: ["https://hitachikaihin.jp/forecast/forecast-nemophila/"]
+    checked_against: ["https://www.enjoytokyo.jp/article/204615/"]
+  - id: hitachi-seaside-poppy
+    kind: bloom
+    species: poppy
+    windows:
+      - start: "05-1"
+        end: "05-3"
+    provisional: true
+    window_raw: "5月"
+    official_urls: ["https://www.shanghai.pref.ibaraki.jp/wp-content/uploads/2017/04/97d05839043cfbdd1a916d9fa7212901.pdf"]
+    editor_notes: "window 05-1–05-3 is a whole-month placeholder"
+  - id: hitachi-seaside-rose
+    kind: bloom
+    species: rose
+    windows:
+      - start: "05-1"
+        end: "06-3"
+    provisional: true
+    window_raw: "5月〜6月"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/hibari/hibari-site/hibari202602/2tokusyu1.html"]
+    editor_notes: "window 05-1–06-3 is a whole-month placeholder"
+  - id: hitachi-seaside-shibazakura
+    kind: bloom
+    species: shibazakura
+    windows:
+      - start: "04-2"
+        end: "05-1"
+    provisional: true
+    window_raw: "4月中旬〜5月上旬"
+    checked_against: ["https://www.fun-japan.jp/jp/articles/14025"]
+  - id: hitachi-seaside-sunflower
+    kind: bloom
+    species: sunflower
+    windows:
+      - start: "08-2"
+        end: "08-2"
+    provisional: true
+    window_raw: "8月中旬"
+    checked_against: ["https://travel.watch.impress.co.jp/docs/news/716770.html"]
+  - id: hitachi-seaside-tulip
+    kind: bloom
+    species: tulip
+    windows:
+      - start: "04-2"
+        end: "04-3"
+    provisional: true
+    window_raw: "4月中旬〜下旬"
+    official_urls: ["https://hitachikaihin.jp/wp-content/uploads/2025/03/250314_flowering.pdf"]
+  - id: hitachi-seaside-ume
+    kind: bloom
+    species: ume
+    windows:
+      - start: "02-1"
+        end: "02-3"
+    provisional: true
+    window_raw: "2月"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/hibari/hibari-site/hibari202602/2tokusyu1.html"]
+    editor_notes: "window 02-1–02-3 is a whole-month placeholder"

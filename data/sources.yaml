@@ -1,0 +1,93 @@
+schema_version: 1
+sources:
+  - id: hitachi-seaside-forecast
+    name_ja: "国営ひたち海浜公園（全花）"
+    publisher: "ひたち公園管理センター"
+    url: "https://hitachikaihin.jp/forecast/forecast-nemophila/"
+    format: "HTML forecast page + PDF press releases"
+    checked: "no"
+    planting_ids: [hitachi-seaside-cosmos, hitachi-seaside-kochia-green, hitachi-seaside-kochia-red, hitachi-seaside-narcissus, hitachi-seaside-nemophila, hitachi-seaside-poppy, hitachi-seaside-rose, hitachi-seaside-shibazakura, hitachi-seaside-sunflower, hitachi-seaside-tulip, hitachi-seaside-ume]
+    editor_notes: "checked: Not reachable from here; Uses 生育中〜なごり花 stages with dated forecasts. Likely one forecast page per flower; check bot blocking."
+  - id: mito-kanko-ume
+    name_ja: "水戸の梅まつり（偕楽園・弘道館）"
+    publisher: "水戸観光コンベンション協会"
+    url: "https://mitokoumon.com/ume/index.html#kaika"
+    format: "HTML section on the festival page"
+    checked: "yes"
+    planting_ids: [kairakuen-azalea, kairakuen-hagi, kairakuen-momiji, kairakuen-sakura, kairakuen-ume, kodokan-ume]
+    editor_notes: "Says status updates start late January. Also confirms 2027 festival 2/11–3/22."
+  - id: tsukubasan-umematsuri
+    name_ja: "筑波山梅まつり"
+    publisher: "筑波山梅まつり実行委員会（つくば観光コンベンション協会）"
+    url: "https://umematsuri.jp/?p=2962"
+    format: "HTML post: dated heading + photo"
+    checked: "yes"
+    planting_ids: [tsukubasan-bairin-ume]
+    editor_notes: "開花情報 category; last post 2026-03-05. Little text, so the stage may be in the image."
+  - id: flowerpark-news
+    name_ja: "いばらきフラワーパーク"
+    publisher: "いばらきフラワーパーク"
+    url: "https://www.flowerpark.or.jp/news-column_category/flowerring/"
+    format: "HTML article list (title, date, 開花状況 tag)"
+    checked: "yes"
+    planting_ids: [ibaraki-flower-park-hydrangea, ibaraki-flower-park-kawazu-zakura, ibaraki-flower-park-rose, ibaraki-flower-park-sunflower]
+    editor_notes: "Active: latest 「秋バラの開花状況2026」 (2026.11.23). Good scraper target."
+  - id: pref-syun
+    name_ja: "県 旬の観光情報（複数のまつり）"
+    publisher: "茨城県 広報広聴課"
+    url: "https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260205.html"
+    format: "HTML feature pages with dated status lines"
+    checked: "yes"
+    editor_notes: "checked: Yes (via search); One page covers several festivals; updated per article, not daily."
+  - id: kasama-tsutsuji-status
+    name_ja: "笠間つつじまつり"
+    publisher: "笠間観光協会"
+    url: "https://www.kasama-kankou.jp/page/dir000128.html"
+    format: "HTML list of dated posts; each title gives 開花状況 and the day's 入園料"
+    checked: "yes"
+    planting_ids: [kasama-tsutsuji-azalea]
+    editor_notes: "checked: Yes (2025 posts); Entry fee depends on bloom stage, so status is published somewhere."
+  - id: itako-ayame-status
+    name_ja: "水郷潮来あやめまつり"
+    publisher: "潮来市観光商工課"
+    url: "https://www.city.itako.lg.jp/kankou/kankou-ayame-kaika/page005229.html"
+    format: "HTML page per season (令和8年) with dated status lines"
+    checked: "yes"
+    planting_ids: [itako-ayame-ayame, itako-ayame-hanashobu, itako-ayame-kakitsubata]
+    editor_notes: "checked: Yes (2026 page)"
+  - id: sakuragawa-kanko-ajisai
+    name_ja: "雨引観音 あじさい祭"
+    publisher: "桜川市観光協会"
+    url: "https://www.kankou-sakuragawa.jp/page/page000684.html"
+    checked: "no"
+    planting_ids: [amabiki-kannon-hydrangea, amabiki-kannon-kawazu-zakura, amabiki-kannon-sakura]
+    editor_notes: "Festival page; whether it carries bloom status is unchecked."
+  - id: kitaibaraki-ajisai-status
+    name_ja: "北茨城あじさいの森"
+    publisher: "北茨城あじさいの森（そば道場）"
+    url: "http://www.ajisainomori.com/"
+    format: "Official site + official blog https://ameblo.jp/ajisai-no-mori/ (posts updates)"
+    checked: partly
+    planting_ids: [kitaibaraki-ajisai-hydrangea]
+    editor_notes: "Free entry before 5分咲き, so status is published somewhere."
+  - id: hitachi-sakura-status
+    name_ja: "日立さくらまつり"
+    publisher: "日立市観光物産協会"
+    url: "https://tenki.city.hitachi.lg.jp/sakura/heiwa"
+    format: "HTML; 日立市天気相談所 開花/満開 observations. Forecast: https://tenki.city.hitachi.lg.jp/sakura/yosoku"
+    checked: "yes"
+    planting_ids: [heiwa-dori-sakura]
+  - id: shimotsuma-kankou-kokaigawa
+    name_ja: "小貝川ふれあい公園（ポピー・コスモス）"
+    url: "https://www.shimotsuma-kankou.jp/"
+    format: "下妻市観光協会: dated 開花情報 posts (ポピー, コスモス)"
+    checked: "yes"
+    planting_ids: [kokaigawa-fureai-cosmos, kokaigawa-fureai-nanohana, kokaigawa-fureai-poppy]
+    editor_notes: "Approved by R 2026-11-25."
+  - id: sakuragawa-sakura-status
+    name_ja: "桜川のサクラ 最新開花情報"
+    url: "https://www.city.sakuragawa.lg.jp/tourism_guide/look/page003402.html"
+    format: "桜川市: 最新開花情報 page linked from the 桜川のサクラ page (unchecked)"
+    checked: "yes"
+    planting_ids: [isobe-sakuragawa-yamazakura]
+    editor_notes: "Approved by R 2026-11-25."

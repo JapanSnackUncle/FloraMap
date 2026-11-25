@@ -1,0 +1,27 @@
+schema_version: 1
+id: tsukubasan-bairin
+name_ja: "筑波山梅林"
+name_en: "Mt. Tsukuba Plum Garden"
+name_kana: "つくばさんばいりん"
+prefecture: ibaraki
+municipality: "つくば市"
+municipality_slug: tsukuba
+address_ja: "沼田1688"
+lat: 36.21204
+lng: 140.089569
+geocode_precision: lot
+hours_ja: "入園自由"
+fee_ja: "無料"
+parking_ja: "445台、普通車1回500円（市営）"
+official_urls: ["https://www.city.tsukuba.lg.jp/tourism/27501.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006149"]
+plantings:
+  - id: tsukubasan-bairin-ume
+    kind: bloom
+    species: ume
+    windows:
+      - start: "02-2"
+        end: "03-2"
+    provisional: true
+    window_raw: "2月中旬〜3月中旬"
+    checked_against: ["https://kids.rurubu.jp/article/121048/"]

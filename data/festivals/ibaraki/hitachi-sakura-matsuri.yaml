@@ -1,0 +1,17 @@
+schema_version: 1
+id: hitachi-sakura-matsuri
+name_ja: "日立さくらまつり"
+place_ids: [heiwa-dori]
+planting_ids: [heiwa-dori-sakura]
+fee_ja: "無料"
+parking_ja: "専用なし。メイン日（2026年4/4・5）のみ臨時無料約670台"
+night_events_ja: "平和通りライトアップ 18–23時（予定）"
+checked_against: ["https://rurubu.jp/andmore/spot/20001392", "https://rurubu.jp/andmore/spot/80005947/sakura"]
+editor_notes: "平和通り・かみね公園・十王パノラマ公園"
+editions:
+  - id: hitachi-sakura-matsuri-2026
+    from: "2026-04-01"
+    to: "2026-04-12"
+    dates_announced: true
+  - id: hitachi-sakura-matsuri-2027
+    dates_announced: false

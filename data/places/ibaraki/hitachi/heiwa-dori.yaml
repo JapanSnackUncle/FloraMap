@@ -1,0 +1,28 @@
+schema_version: 1
+id: heiwa-dori
+name_ja: "平和通り"
+name_en: "Heiwa Street"
+name_kana: "へいわどおり"
+prefecture: ibaraki
+municipality: "日立市"
+municipality_slug: hitachi
+address_ja: "平和町"
+lat: 36.592307
+lng: 140.660694
+geocode_precision: manual
+point_note: "beginning of street by hitachi station"
+hours_ja: "制限なし"
+fee_ja: "無料"
+parking_ja: "専用駐車場なし（民間有料）。さくらまつりメイン日は臨時無料駐車場あり"
+official_urls: ["https://www.city.hitachi.lg.jp/citypromotion/hitachi_donnamachi/1007306/1004679/1004681.html"]
+checked_against: ["https://weathernews.jp/sakura/spot/4009/", "https://rurubu.jp/andmore/spot/20001392"]
+plantings:
+  - id: heiwa-dori-sakura
+    kind: bloom
+    species: sakura
+    windows:
+      - start: "04-1"
+        end: "04-2"
+    provisional: true
+    window_raw: "4月上旬〜中旬"
+    checked_against: ["https://www.mapple.net/sp/sakura/ibaraki"]

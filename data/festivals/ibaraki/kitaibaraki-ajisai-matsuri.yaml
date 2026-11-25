@@ -1,0 +1,9 @@
+schema_version: 1
+id: kitaibaraki-ajisai-matsuri
+name_ja: "あじさい祭り（北茨城あじさいの森）"
+place_ids: [kitaibaraki-ajisai]
+planting_ids: [kitaibaraki-ajisai-hydrangea]
+official_urls: ["http://www.ajisainomori.com/"]
+editions:
+  - id: kitaibaraki-ajisai-matsuri-2027
+    dates_announced: false

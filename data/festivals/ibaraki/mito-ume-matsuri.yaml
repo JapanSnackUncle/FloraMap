@@ -1,0 +1,19 @@
+schema_version: 1
+id: mito-ume-matsuri
+name_ja: "水戸の梅まつり"
+place_ids: [kairakuen, kodokan]
+planting_ids: [kairakuen-ume, kodokan-ume]
+fee_ja: "偕楽園 大人500円・小人250円（梅まつり期間料金、県民無料なし）、弘道館 大人420円"
+parking_ja: "有料化。偕楽園表門前は2026年800円/回"
+night_events_ja: "UME The Lights（2026年開催、開催日は17時に一度閉園）"
+official_urls: ["https://mitokoumon.com/ume/", "https://ibaraki-kairakuen.jp/resource/files/20260126133521972183132.pdf"]
+editor_notes: "偕楽園・弘道館\nfee corrected from official guide (checked 2026-11-25); was: 偕楽園 大人320円、弘道館 大人420円"
+editions:
+  - id: mito-ume-matsuri-2026
+    from: "2026-02-11"
+    to: "2026-03-22"
+    dates_announced: true
+  - id: mito-ume-matsuri-2027
+    from: "2027-02-11"
+    to: "2027-03-22"
+    dates_announced: true

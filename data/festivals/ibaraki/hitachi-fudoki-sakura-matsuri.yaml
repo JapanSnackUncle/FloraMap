@@ -1,0 +1,14 @@
+schema_version: 1
+id: hitachi-fudoki-sakura-matsuri
+name_ja: "常陸風土記の丘・さくらまつり"
+place_ids: [hitachi-fudoki]
+planting_ids: [hitachi-fudoki-sakura]
+parking_ja: "普通車500円"
+checked_against: ["https://weathernews.jp/sakura/spot/40015/"]
+editions:
+  - id: hitachi-fudoki-sakura-matsuri-2026
+    from: "2026-03-28"
+    to: "2026-04-26"
+    dates_announced: true
+  - id: hitachi-fudoki-sakura-matsuri-2027
+    dates_announced: false

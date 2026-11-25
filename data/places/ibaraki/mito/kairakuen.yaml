@@ -1,0 +1,82 @@
+schema_version: 1
+id: kairakuen
+name_ja: "偕楽園"
+name_en: "Kairakuen"
+name_kana: "かいらくえん"
+prefecture: ibaraki
+municipality: "水戸市"
+municipality_slug: mito
+address_ja: "常磐町1-3-3"
+lat: 36.376099
+lng: 140.450745
+geocode_precision: block
+hours_ja: "6:00–19:00（10月–2月中旬は7:00–18:00）"
+closed_ja: "無休"
+fee_ja: "大人320円、小中学生・70歳以上160円（好文亭は別途）"
+parking_ja: "約1,000台、有料・無料あり（梅まつり期間は有料）"
+official_urls: ["https://ibaraki-kairakuen.jp/guide/"]
+checked_against: ["https://rurubu.jp/andmore/spot/80005902"]
+editor_notes: "hours and normal fees match official guide (checked 2026-11-25). 梅まつり期間以外は県民無料・開門〜9時は全員無料"
+plantings:
+  - id: kairakuen-azalea
+    kind: bloom
+    species: azalea
+    windows:
+      - start: "04-3"
+        end: "05-2"
+    provisional: true
+    window_raw: "4月下旬〜5月中旬"
+    checked_against: ["https://jp.trip.com/blog/azalea-attractions/"]
+  - id: kairakuen-hagi
+    kind: bloom
+    species: hagi
+    windows:
+      - start: "09-1"
+        end: "09-3"
+    provisional: true
+    window_raw: "9月"
+    checked_against: ["https://kids.rurubu.jp/article/121048/"]
+    editor_notes: "window 09-1–09-3 is a whole-month placeholder"
+  - id: kairakuen-momiji
+    kind: foliage
+    species: momiji
+    windows:
+      - start: "11-2"
+        end: "11-3"
+    provisional: true
+    window_raw: "(blank)"
+    checked_against: ["https://koyo.walkerplus.com/ranking/yokatta/ar0308/"]
+    editor_notes: "もみじ谷"
+  - id: kairakuen-sakura
+    kind: bloom
+    species: sakura
+    windows:
+      - start: "03-3"
+        end: "04-1"
+    provisional: true
+    window_raw: "3月下旬〜4月上旬"
+    checked_against: ["https://kids.rurubu.jp/article/121048/"]
+  - id: kairakuen-ume
+    kind: bloom
+    species: ume
+    windows:
+      - start: "02-3"
+        end: "03-1"
+    provisional: true
+    window_raw: "2月下旬〜3月上旬"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260205.html"]
+illuminations:
+  - id: kairakuen-illumination
+    kind: illumination
+    name_ja: "もみじ谷　ライトアップ"
+    editions:
+      - season: "2026-27"
+        from: "2026-11-07"
+        to: "2026-11-29"
+        dates_announced: true
+        hours:
+          - from: "2026-11-07"
+            to: "2026-11-29"
+            hours_ja: "日没–21:00"
+            note_ja: "ibaraki-kairakuen.jp news id=5899: 日没～21時。期間は色づき状況により変更の場合あり（HPで告知）"
+        editor_notes: "https://ibaraki-kairakuen.jp/news/detail?id=5899 (2026-09-27). 約170本のモミジ・カエデ。dates marked （予定）"

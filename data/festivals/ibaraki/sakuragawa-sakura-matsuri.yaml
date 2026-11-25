@@ -1,0 +1,14 @@
+schema_version: 1
+id: sakuragawa-sakura-matsuri
+name_ja: "桜川の桜まつり"
+place_ids: [isobe-sakuragawa]
+planting_ids: [isobe-sakuragawa-yamazakura]
+official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/play/page000396.html"]
+editor_notes: "SAKURAフェスティバル is a different event at 桜川市総合運動公園"
+editions:
+  - id: sakuragawa-sakura-matsuri-2026
+    from: "2026-03-05"
+    to: "2026-04-25"
+    dates_announced: true
+  - id: sakuragawa-sakura-matsuri-2027
+    dates_announced: false

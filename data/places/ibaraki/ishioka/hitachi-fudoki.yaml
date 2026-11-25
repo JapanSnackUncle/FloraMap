@@ -1,0 +1,26 @@
+schema_version: 1
+id: hitachi-fudoki
+name_ja: "常陸風土記の丘"
+name_en: "Hitachi Fudokinooka"
+name_kana: "ひたちふどきのおか"
+prefecture: ibaraki
+municipality: "石岡市"
+municipality_slug: ishioka
+address_ja: "染谷1646"
+lat: 36.20726
+lng: 140.240585
+geocode_precision: lot
+hours_ja: "9:00–17:00（駐車場は8:00–）"
+parking_ja: "有料：普通車500円"
+checked_against: ["https://weathernews.jp/sakura/spot/40015/"]
+plantings:
+  - id: hitachi-fudoki-sakura
+    kind: bloom
+    species: sakura
+    species_variety: "ソメイヨシノ・シダレ・ボタン"
+    windows:
+      - start: "04-1"
+        end: "04-3"
+    provisional: true
+    window_raw: "4月上旬〜下旬"
+    checked_against: ["https://sp.jorudan.co.jp/hanami/rank_ibaraki.html"]

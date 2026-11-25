@@ -1,0 +1,50 @@
+schema_version: 1
+id: itako-ayame
+name_ja: "水郷潮来あやめ園"
+name_en: "Itako Iris Garden"
+name_kana: "すいごういたこあやめえん"
+prefecture: ibaraki
+municipality: "潮来市"
+municipality_slug: itako
+address_ja: "あやめ1-5"
+lat: 35.937698
+lng: 140.547806
+geocode_precision: block
+hours_ja: "終日入園自由"
+fee_ja: "無料"
+parking_ja: "専用駐車場なし（周辺の民間有料駐車場）"
+official_urls: ["https://www.city.itako.lg.jp/kankou/kankou-itakokankou/kankou-spot/kankou-mainspot/kankou-spot03/page001385.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/20002401"]
+plantings:
+  - id: itako-ayame-ayame
+    kind: bloom
+    species: iris
+    species_variety: "アヤメ"
+    windows:
+      - start: "04-3"
+        end: "05-1"
+    provisional: true
+    window_raw: "4月下旬〜5月上旬"
+    checked_against: ["https://rurubu.jp/andmore/article/19038"]
+  - id: itako-ayame-hanashobu
+    kind: bloom
+    species: iris
+    species_variety: "花菖蒲"
+    windows:
+      - start: "05-3"
+        end: "06-3"
+    provisional: true
+    window_raw: "5月下旬〜6月下旬（一番の見頃は6月上旬）"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260526.html"]
+    checked_against: ["https://rurubu.jp/andmore/article/19038"]
+    editor_notes: "一番の見頃は6月上旬"
+  - id: itako-ayame-kakitsubata
+    kind: bloom
+    species: iris
+    species_variety: "カキツバタ"
+    windows:
+      - start: "05-1"
+        end: "05-2"
+    provisional: true
+    window_raw: "5月上旬〜中旬"
+    checked_against: ["https://rurubu.jp/andmore/article/19038"]

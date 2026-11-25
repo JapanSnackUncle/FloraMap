@@ -1,0 +1,13 @@
+schema_version: 1
+id: fukuokazeki-sakura-matsuri
+name_ja: "福岡堰さくらまつり"
+place_ids: [fukuokazeki]
+planting_ids: [fukuokazeki-sakura]
+fee_ja: "無料"
+parking_ja: "約590台、まつり期間中の土日は有料"
+official_urls: ["https://www.city.tsukubamirai.lg.jp/jyumin/seikatsu-machidukuri/page007471.html"]
+checked_against: ["https://weathernews.jp/sakura/spot/4011/"]
+editor_notes: "2026: 駐車場は4/4・4/5のみ有料（8:00–16:00、1,000円）、みらい平駅から無料シャトルバス 4/3–4/7"
+editions:
+  - id: fukuokazeki-sakura-matsuri-2027
+    dates_announced: false

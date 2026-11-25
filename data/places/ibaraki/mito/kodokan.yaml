@@ -1,0 +1,26 @@
+schema_version: 1
+id: kodokan
+name_ja: "弘道館"
+name_en: "Kodokan"
+name_kana: "こうどうかん"
+prefecture: ibaraki
+municipality: "水戸市"
+municipality_slug: mito
+address_ja: "三の丸1-6-29"
+lat: 36.375072
+lng: 140.477859
+geocode_precision: lot
+hours_ja: "9:00–17:00（10/1–2/10は–16:30）"
+fee_ja: "大人420円、小中学生・70歳以上210円"
+parking_ja: "18台（普通車13・バス5）"
+checked_against: ["https://rurubu.jp/andmore/spot/80005922"]
+plantings:
+  - id: kodokan-ume
+    kind: bloom
+    species: ume
+    windows:
+      - start: "02-3"
+        end: "03-1"
+    provisional: true
+    window_raw: "2月下旬〜3月上旬"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260205.html"]

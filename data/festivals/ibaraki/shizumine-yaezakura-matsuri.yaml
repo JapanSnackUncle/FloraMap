@@ -1,0 +1,17 @@
+schema_version: 1
+id: shizumine-yaezakura-matsuri
+name_ja: "八重桜まつり"
+place_ids: [shizumine]
+planting_ids: [shizumine-yaezakura]
+fee_ja: "無料"
+parking_ja: "普通車500円（通常は無料）"
+night_events_ja: "ライトアップ 2026-04-14〜21、18–20時"
+official_urls: ["https://www.city.naka.lg.jp/event-kankou/event-info/page006243.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006312/sakura"]
+editions:
+  - id: shizumine-yaezakura-matsuri-2026
+    from: "2026-04-09"
+    to: "2026-04-22"
+    dates_announced: true
+  - id: shizumine-yaezakura-matsuri-2027
+    dates_announced: false

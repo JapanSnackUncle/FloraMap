@@ -1,0 +1,82 @@
+schema_version: 1
+id: ibaraki-flower-park
+name_ja: "いばらきフラワーパーク"
+name_en: "Ibaraki Flower Park"
+name_kana: "いばらきふらわーぱーく"
+prefecture: ibaraki
+municipality: "石岡市"
+municipality_slug: ishioka
+address_ja: "下青柳200"
+lat: 36.212288
+lng: 140.170242
+geocode_precision: lot
+hours_ja: "9:00–17:00（季節により変動）"
+closed_ja: "火曜休"
+fee_ja: "季節・開花で変動：春は大人1,200–1,800円・小人400–600円（バラ見頃が最高額）"
+parking_ja: "1,200台、無料"
+official_urls: ["https://www.flowerpark.or.jp/time-price/"]
+checked_against: ["https://www.walkerplus.com/spot/ar0308s65321/map.html", "https://www.walkerplus.com/event/ar0308e304893/price.html"]
+editor_notes: "closed days moved from ibaraki-flower-park-illumination (2026-11-25): closures belong to the place"
+closures:
+  source_url: "https://www.flowerpark.or.jp/time-price/"
+  weekly: [tue]
+  dates_closed: ["2026-11-04", "2026-11-25", "2026-11-26", "2026-11-27", "2026-12-30", "2026-12-31", "2027-01-01"]
+  dates_open: ["2026-11-03", "2026-12-29"]
+plantings:
+  - id: ibaraki-flower-park-hydrangea
+    kind: bloom
+    species: hydrangea
+    windows:
+      - start: "06-1"
+        end: "07-3"
+    provisional: true
+    window_raw: "6月〜7月"
+    official_urls: ["https://www.flowerpark.or.jp/wp-content/uploads/2026/03/IFP_SEASONAL-NEWS2026_Vol4_%E3%82%A2%E3%82%B8%E3%82%B5%E3%82%A4_0509%E5%9C%A7%E7%B8%AE.pdf"]
+    editor_notes: "window 06-1–07-3 is a whole-month placeholder"
+  - id: ibaraki-flower-park-kawazu-zakura
+    kind: bloom
+    species: sakura
+    species_variety: "河津桜"
+    windows:
+      - start: "02-3"
+        end: "03-1"
+    provisional: true
+    window_raw: "2月下旬〜3月上旬"
+    checked_against: ["https://sp.jorudan.co.jp/hanami/spot_1399.html"]
+  - id: ibaraki-flower-park-rose
+    kind: bloom
+    species: rose
+    windows:
+      - start: "05-2"
+        end: "06-1"
+      - start: "10-1"
+        end: "11-2"
+    provisional: true
+    window_raw: "5月中旬〜6月上旬\n10月〜11月中旬"
+    checked_against: ["https://dc.watch.impress.co.jp/docs/news/2012541.html", "https://www.tour.ne.jp/j_spot/126830/"]
+    editor_notes: "window2 10-1–11-2 is a whole-month placeholder"
+  - id: ibaraki-flower-park-sunflower
+    kind: bloom
+    species: sunflower
+    windows:
+      - start: "07-2"
+        end: "07-3"
+    provisional: true
+    window_raw: "7月中旬〜"
+    checked_against: ["https://news.allabout.co.jp/articles/o/96064/"]
+    editor_notes: "window 07-2–07-3 is a whole-month placeholder"
+illuminations:
+  - id: ibaraki-flower-park-illumination
+    kind: illumination
+    name_ja: "Moonlight Rose Garden 2026"
+    editions:
+      - season: "2026-27"
+        from: "2026-10-10"
+        to: "2027-01-24"
+        dates_announced: true
+        hours:
+          - from: "2026-10-10"
+            to: "2027-01-24"
+            hours_ja: "17:00–20:30"
+        fee_ja: "入園料必要"
+        editor_notes: "第1部 10/10–11/23、第2部 11/28–1/24"

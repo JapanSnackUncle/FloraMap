@@ -1,0 +1,35 @@
+schema_version: 1
+id: kasumigaura-park
+name_ja: "霞ヶ浦総合公園"
+name_en: "Kasumigaura General Park"
+name_kana: "かすみがうらそうごうこうえん"
+prefecture: ibaraki
+municipality: "土浦市"
+municipality_slug: tsuchiura
+address_ja: "大岩田145"
+lat: 36.064804
+lng: 140.219971
+geocode_precision: lot
+hours_ja: "イルミ期間 17:00–21:00"
+fee_ja: "無料"
+parking_ja: "170台、無料"
+official_urls: ["https://www.city.tsuchiura.lg.jp/kanko-bunka-sports/sangyobunkajigyodan/event-info/suigosakura-illumination/"]
+checked_against: ["https://weathernews.jp/illumi/spot/1702005/"]
+illuminations:
+  - id: kasumigaura-park-illumination
+    kind: illumination
+    name_ja: "第15回 光がつくる“Art”水郷桜イルミネーション"
+    editions:
+      - season: "2026-27"
+        from: "2026-11-21"
+        to: "2027-01-11"
+        dates_announced: true
+        hours:
+          - from: "2026-11-21"
+            to: "2027-01-11"
+            hours_ja: "17:00–21:00"
+          - from: "2026-12-31"
+            to: "2026-12-31"
+            hours_ja: "17:00–翌6:30頃"
+            note_ja: "大晦日オールナイト点灯（公式 checked 2026-11-25: 元旦6時30頃まで）"
+        editor_notes: "LED約19万球"

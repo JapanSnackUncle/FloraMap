@@ -1,0 +1,37 @@
+schema_version: 1
+id: shizumine
+name_ja: "静峰ふるさと公園"
+name_en: "Shizumine Furusato Park"
+name_kana: "しずみねふるさとこうえん"
+prefecture: ibaraki
+municipality: "那珂市"
+municipality_slug: naka
+address_ja: "静1720-1"
+lat: 36.501785
+lng: 140.422058
+geocode_precision: lot
+hours_ja: "9:00–17:00"
+closed_ja: "月曜休（祝日の場合は翌平日）、年末年始（12/28–1/4）休"
+fee_ja: "無料"
+parking_ja: "340台（八重桜まつり期間は普通車500円）"
+official_urls: ["https://www.city.naka.lg.jp/event-kankou/kankou-spot/page000275.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006312/sakura", "https://sp.jorudan.co.jp/hanami/spot_65.html"]
+editor_notes: "那珂市の八重桜まつりチラシ（2026）では周辺駐車場 約500台\nclosures from official page (checked 2026-11-25). The sheet said まつり期間は無休; the official page does not say so (only parking is charged during the festival), so no exception is recorded."
+closures:
+  source_url: "https://www.city.naka.lg.jp/event-kankou/kankou-spot/page000275.html"
+  valid_until: "2027-06-30"
+  weekly: [mon]
+  fixed_dates: ["12-28", "12-29", "12-30", "12-31", "01-01", "01-02", "01-03", "01-04"]
+  dates_closed: ["2026-11-24", "2027-01-12", "2027-03-23", "2027-05-06"]
+  dates_open: ["2026-11-23", "2027-01-11", "2027-03-22", "2027-05-03"]
+plantings:
+  - id: shizumine-yaezakura
+    kind: bloom
+    species: sakura
+    species_variety: "八重桜"
+    windows:
+      - start: "04-2"
+        end: "04-3"
+    provisional: true
+    window_raw: "4月中旬〜下旬"
+    checked_against: ["https://rurubu.jp/andmore/article/5777?page=2"]

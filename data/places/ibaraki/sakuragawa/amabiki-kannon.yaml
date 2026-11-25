@@ -1,0 +1,52 @@
+schema_version: 1
+id: amabiki-kannon
+name_ja: "雨引観音（楽法寺）"
+name_en: "Amabiki Kannon"
+name_kana: "あまびきかんのん（らくほうじ）"
+prefecture: ibaraki
+municipality: "桜川市"
+municipality_slug: sakuragawa
+address_ja: "本木1"
+lat: 36.331989
+lng: 140.123596
+geocode_precision: lot
+hours_ja: "8:30–17:00（あじさい祭のライトアップ期間は延長）"
+fee_ja: "あじさい祭期間は入山料500円"
+parking_ja: "普通車500台、大型10台"
+official_urls: ["http://www.amabiki.or.jp/", "https://www.city.sakuragawa.lg.jp/tourism_guide/learn/page000450.html"]
+checked_against: ["https://weathernews.jp/koyo/spot/24022/", "https://www.nta.co.jp/kokunai/special/eventinfo/10625055.htm"]
+plantings:
+  - id: amabiki-kannon-hydrangea
+    kind: bloom
+    species: hydrangea
+    windows:
+      - start: "06-1"
+        end: "07-2"
+    provisional: true
+    window_raw: "6月中旬〜7月中旬"
+    official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/learn/page000450.html"]
+    checked_against: ["https://www.nta.co.jp/kokunai/special/eventinfo/10625055.htm"]
+    editor_notes: "window start 06-2 → 06-1: 桜川市/寺 say 6月上旬〜7月中旬"
+  - id: amabiki-kannon-kawazu-zakura
+    kind: bloom
+    species: sakura
+    species_variety: "河津桜"
+    windows:
+      - start: "03-2"
+        end: "03-2"
+    provisional: true
+    window_raw: "3月〜5月"
+    official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/look/page000371.html"]
+    checked_against: ["https://skyticket.jp/guide/467167/"]
+    editor_notes: "split from 桜（河津桜〜八重桜）\n桜川市: 河津桜 3月中旬"
+  - id: amabiki-kannon-sakura
+    kind: bloom
+    species: sakura
+    windows:
+      - start: "04-1"
+        end: "04-2"
+    provisional: true
+    window_raw: "3月〜5月"
+    official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/look/page000371.html"]
+    checked_against: ["https://skyticket.jp/guide/467167/"]
+    editor_notes: "split from 桜（河津桜〜八重桜）: this row is the cherries other than 河津桜\n桜川市: 桜 4月上旬〜中旬（寺: 江戸彼岸桜・ソメイヨシノ・山桜・ぼたん桜が順次）"

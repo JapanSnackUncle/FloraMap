@@ -1,0 +1,29 @@
+schema_version: 1
+id: ryujin-otsuribashi
+name_ja: "竜神大吊橋"
+name_en: "Ryujin Suspension Bridge"
+name_kana: "りゅうじんおおつりばし"
+prefecture: ibaraki
+municipality: "常陸太田市"
+municipality_slug: hitachiota
+address_ja: "天下野町2133-6"
+lat: 36.682314
+lng: 140.46699
+geocode_precision: manual
+point_note: "parking lot"
+hours_ja: "8:30–17:00（土曜は–20:00）"
+closed_ja: "無休"
+fee_ja: "渡橋料 大人320円、小中学生210円"
+parking_ja: "265台、無料"
+official_urls: ["https://www.city.hitachiota.ibaraki.jp/miryoku/miru/facility/page000237.html"]
+checked_against: ["https://rurubu.jp/andmore/spot/80006055"]
+plantings:
+  - id: ryujin-otsuribashi-momiji
+    kind: foliage
+    species: momiji
+    windows:
+      - start: "11-2"
+        end: "11-3"
+    provisional: true
+    window_raw: "11月中旬〜下旬"
+    checked_against: ["https://tenki.jp/kouyou/parking/3/11/"]

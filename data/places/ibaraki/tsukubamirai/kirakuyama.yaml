@@ -1,0 +1,36 @@
+schema_version: 1
+id: kirakuyama
+name_ja: "きらくやまふれあいの丘"
+name_en: "Kirakuyama Fureai-no-Oka"
+name_kana: "きらくやまふれあいのおか"
+prefecture: ibaraki
+municipality: "つくばみらい市"
+municipality_slug: tsukubamirai
+address_ja: "神生530"
+lat: 35.964127
+lng: 140.087631
+geocode_precision: lot
+hours_ja: "イルミ期間 16:30–20:30（月曜・雨天休み）"
+fee_ja: "無料"
+parking_ja: "300台、無料"
+checked_against: ["https://weathernews.jp/illumi/spot/9009791/"]
+editor_notes: "closed days moved from kirakuyama-illumination (2026-11-25): closures belong to the place. R: Monday closure is the whole park. Whether it applies outside the illumination season is unconfirmed; 雨天休み stays a note."
+closures:
+  weekly: [mon]
+illuminations:
+  - id: kirakuyama-illumination
+    kind: illumination
+    name_ja: "きらくやまイルミネーション"
+    editions:
+      - season: "2025-26"
+        from: "2025-11-28"
+        to: "2025-12-25"
+        dates_announced: true
+        hours:
+          - from: "2025-11-28"
+            to: "2025-12-25"
+            hours_ja: "16:30–20:30"
+            note_ja: "last season"
+      - season: "2026-27"
+        dates_announced: false
+        editor_notes: "雨天休み。約10万球"

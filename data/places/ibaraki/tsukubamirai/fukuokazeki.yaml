@@ -1,0 +1,27 @@
+schema_version: 1
+id: fukuokazeki
+name_ja: "福岡堰"
+name_en: "Fukuokazeki"
+name_kana: "ふくおかぜき"
+prefecture: ibaraki
+municipality: "つくばみらい市"
+municipality_slug: tsukubamirai
+address_ja: "北山〜福岡"
+lat: 36.040728
+lng: 140.029879
+geocode_precision: lot
+hours_ja: "入場自由"
+fee_ja: "無料"
+parking_ja: "約590台（さくらまつり期間中の土日は有料）"
+official_urls: ["https://www.city.tsukubamirai.lg.jp/jyumin/shisetu-koutsu/kouen/page001571.html"]
+checked_against: ["https://weathernews.jp/sakura/spot/4011/"]
+plantings:
+  - id: fukuokazeki-sakura
+    kind: bloom
+    species: sakura
+    windows:
+      - start: "04-1"
+        end: "04-1"
+    provisional: true
+    window_raw: "4月上旬"
+    checked_against: ["https://www.mapple.net/sp/sakura/ibaraki"]

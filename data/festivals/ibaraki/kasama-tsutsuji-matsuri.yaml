@@ -1,0 +1,17 @@
+schema_version: 1
+id: kasama-tsutsuji-matsuri
+name_ja: "笠間つつじまつり"
+place_ids: [kasama-tsutsuji]
+planting_ids: [kasama-tsutsuji-azalea]
+fee_ja: "500円（3分咲き・見頃過ぎは300円）、中学生以下無料"
+parking_ja: "420台、無料"
+night_events_ja: "開花時のみ20時まで"
+official_urls: ["https://www.kasama-kankou.jp/page/dir000126.html"]
+checked_against: ["https://www.iwafu.com/jp/events/1058791", "https://www.navitime.co.jp/category/0101002001/08/"]
+editions:
+  - id: kasama-tsutsuji-matsuri-2026
+    from: "2026-04-11"
+    to: "2026-05-06"
+    dates_announced: true
+  - id: kasama-tsutsuji-matsuri-2027
+    dates_announced: false

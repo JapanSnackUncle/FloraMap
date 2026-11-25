@@ -1,0 +1,16 @@
+schema_version: 1
+id: koga-momo-matsuri
+name_ja: "古河桃まつり"
+place_ids: [koga-kubo-park]
+planting_ids: [koga-kubo-park-hanamomo]
+fee_ja: "入園無料"
+parking_ja: "800台、期間中は有料"
+night_events_ja: "ライトアップ（期間中土日）"
+official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260306.html"]
+editions:
+  - id: koga-momo-matsuri-2026
+    from: "2026-03-14"
+    to: "2026-03-29"
+    dates_announced: true
+  - id: koga-momo-matsuri-2027
+    dates_announced: false

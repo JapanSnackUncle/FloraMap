@@ -1,0 +1,14 @@
+schema_version: 1
+id: amabiki-ajisai-matsuri
+name_ja: "あじさい祭（雨引観音）"
+place_ids: [amabiki-kannon]
+planting_ids: [amabiki-kannon-hydrangea]
+official_urls: ["http://www.amabiki.or.jp/annualevents/event/"]
+editor_notes: "入山料・ライトアップ（水中華）の詳細は公式で未確認"
+editions:
+  - id: amabiki-ajisai-matsuri-2026
+    from: "2026-06-10"
+    to: "2026-07-20"
+    dates_announced: true
+  - id: amabiki-ajisai-matsuri-2027
+    dates_announced: false

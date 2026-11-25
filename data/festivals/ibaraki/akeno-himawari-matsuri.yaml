@@ -1,0 +1,15 @@
+schema_version: 1
+id: akeno-himawari-matsuri
+name_ja: "あけのひまわりフェスティバル"
+place_ids: [akeno-himawari]
+planting_ids: [akeno-himawari-sunflower]
+parking_ja: "420台、1000円"
+official_urls: ["https://www.chikuseikanko.jp/sightseeing/events-festivals/himawari/page000572.html"]
+checked_against: ["https://park.tachikawaonline.jp/event/150_akeno_himawari.htm", "https://kaika-live.com/akeno-himawari/"]
+editions:
+  - id: akeno-himawari-matsuri-2026
+    from: "2026-08-26"
+    to: "2026-08-30"
+    dates_announced: true
+  - id: akeno-himawari-matsuri-2027
+    dates_announced: false

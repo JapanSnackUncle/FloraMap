@@ -1,0 +1,31 @@
+schema_version: 1
+id: hitachi-civic
+name_ja: "日立シビックセンター新都市広場"
+name_en: "Hitachi Civic Center Plaza"
+name_kana: "ひたちしびっくせんたーしんとしひろば"
+prefecture: ibaraki
+municipality: "日立市"
+municipality_slug: hitachi
+address_ja: "幸町1-18-1"
+lat: 36.590866
+lng: 140.659973
+geocode_precision: block
+hours_ja: "イルミ期間 16:30–22:00"
+fee_ja: "無料"
+parking_ja: "あり"
+official_urls: ["https://www.civic.jp/"]
+checked_against: ["https://weathernews.jp/illumi/spot/1702003/"]
+illuminations:
+  - id: hitachi-civic-illumination
+    kind: illumination
+    name_ja: "Hitachi Starlight Illumination 2026"
+    editions:
+      - season: "2026-27"
+        from: "2026-11-14"
+        to: "2027-01-11"
+        dates_announced: true
+        hours:
+          - from: "2026-11-14"
+            to: "2027-01-11"
+            hours_ja: "16:30–22:00"
+        editor_notes: "約17万球"

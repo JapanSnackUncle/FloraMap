@@ -1,0 +1,10 @@
+schema_version: 1
+id: ryujin-momiji-matsuri
+name_ja: "竜神峡紅葉まつり"
+place_ids: [ryujin-otsuribashi]
+planting_ids: [ryujin-otsuribashi-momiji]
+night_events_ja: "竜神大吊橋ライトアップ（毎週土曜、20:00まで営業）"
+official_urls: ["https://www.city.hitachiota.ibaraki.jp/miryoku/events/page000365.html"]
+editions:
+  - id: ryujin-momiji-matsuri-2027
+    dates_announced: false

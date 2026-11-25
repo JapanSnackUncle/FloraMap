@@ -1,0 +1,27 @@
+schema_version: 1
+id: kasama-tsutsuji
+name_ja: "笠間つつじ公園"
+name_en: "Kasama Azalea Park"
+name_kana: "かさまつつじこうえん"
+prefecture: ibaraki
+municipality: "笠間市"
+municipality_slug: kasama
+address_ja: "笠間616-7"
+lat: 36.386425
+lng: 140.261536
+geocode_precision: lot
+hours_ja: "入園自由（つつじまつり期間は8:00–18:00）"
+fee_ja: "まつり期間：高校生以上500円（3分咲き・見頃過ぎは300円）、中学生以下無料／期間外無料"
+parking_ja: "420台、無料"
+official_urls: ["https://www.kasama-kankou.jp/page/dir000126.html"]
+checked_against: ["https://www.navitime.co.jp/category/0101002001/08/", "https://www.walkerplus.com/spot/ar0308s75762/data.html"]
+plantings:
+  - id: kasama-tsutsuji-azalea
+    kind: bloom
+    species: azalea
+    windows:
+      - start: "04-2"
+        end: "05-1"
+    provisional: true
+    window_raw: "4月中旬〜5月上旬"
+    checked_against: ["https://jp.trip.com/blog/azalea-attractions/", "https://www.iwafu.com/jp/events/1058791"]

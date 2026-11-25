@@ -1,0 +1,26 @@
+schema_version: 1
+id: akeno-himawari
+name_ja: "明野ひまわりの里"
+name_en: "Akeno Himawari Village"
+name_kana: "あけのひまわりのさと"
+prefecture: ibaraki
+municipality: "筑西市"
+municipality_slug: chikusei
+address_ja: "宮山504"
+lat: 36.238598
+lng: 140.034277
+geocode_precision: lot
+parking_ja: "500（1000円）"
+official_urls: ["https://www.city.chikusei.lg.jp/map_route.php?code=422"]
+checked_against: ["https://travel.watch.impress.co.jp/docs/news/716770.html", "https://www.mapple.net/pref/08227/spot/", "https://kaika-live.com/akeno-himawari/"]
+plantings:
+  - id: akeno-himawari-sunflower
+    kind: bloom
+    species: sunflower
+    species_variety: "八重"
+    windows:
+      - start: "08-3"
+        end: "09-1"
+    provisional: true
+    window_raw: "8月下旬〜9月上旬"
+    checked_against: ["https://travel.watch.impress.co.jp/docs/news/716770.html"]

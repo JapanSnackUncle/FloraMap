@@ -1,0 +1,51 @@
+schema_version: 1
+id: kokaigawa-fureai
+name_ja: "小貝川ふれあい公園"
+name_en: "Kokai River Fureai Park"
+name_kana: "こかいがわふれあいこうえん"
+prefecture: ibaraki
+municipality: "下妻市"
+municipality_slug: shimotsuma
+address_ja: "堀篭1650-1"
+lat: 36.192819
+lng: 139.992724
+geocode_precision: manual
+point_note: "parking lot"
+closed_ja: "無休（ネイチャーセンターのみ月曜休（祝日は翌日）・12/29–1/3休）"
+fee_ja: "無料"
+parking_ja: "普通379台、バス6台"
+official_urls: ["https://www.city.shimotsuma.lg.jp/shogaigakushu-bunka-sports/park/kokaigawafureai/page000195.html"]
+checked_against: ["https://www.asoview.com/note/6964/"]
+editor_notes: "checked 2026-11-25: the closed days on the city pages are for the ネイチャーセンター only, not the park, so the place has no closures. Park renamed ホーミックふれあい公園 from 2025-12-01 (naming rights)."
+plantings:
+  - id: kokaigawa-fureai-cosmos
+    kind: bloom
+    species: cosmos
+    windows:
+      - start: "09-2"
+        end: "09-3"
+    provisional: true
+    window_raw: "秋"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/download/kokaigawa.html", "https://www.city.shimotsuma.lg.jp/page/page005558.html"]
+    editor_notes: "下妻市: コスモス 9月中旬〜下旬（南側の花畑は10月中旬以降）"
+  - id: kokaigawa-fureai-nanohana
+    kind: bloom
+    species: nanohana
+    windows:
+      - start: "03-3"
+        end: "03-3"
+    provisional: true
+    window_raw: "春"
+    official_urls: ["https://www.shimotsuma-kankou.jp/page/page000189.html"]
+    checked_against: ["https://www.asoview.com/note/6964/"]
+    editor_notes: "下妻市観光協会: 菜の花 3月下旬"
+  - id: kokaigawa-fureai-poppy
+    kind: bloom
+    species: poppy
+    windows:
+      - start: "05-2"
+        end: "05-3"
+    provisional: true
+    window_raw: "春"
+    official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/download/kokaigawa.html", "https://www.shimotsuma-kankou.jp/page/page000189.html"]
+    editor_notes: "下妻市観光協会: ポピー 5月中旬〜下旬"

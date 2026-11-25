@@ -1,0 +1,28 @@
+schema_version: 1
+id: kitaibaraki-ajisai
+name_ja: "北茨城あじさいの森"
+name_en: "Kitaibaraki Hydrangea Forest"
+name_kana: "きたいばらきあじさいのもり"
+prefecture: ibaraki
+municipality: "北茨城市"
+municipality_slug: kitaibaraki
+address_ja: "華川町小豆畑1138"
+lat: 36.824531
+lng: 140.697238
+geocode_precision: manual
+point_note: entrance
+hours_ja: "あじさい祭り期間 9:00–16:00"
+fee_ja: "大人300円（五分咲き以前は無料）"
+parking_ja: "約150台、無料"
+official_urls: ["http://www.ajisainomori.com/"]
+checked_against: ["https://weathernews.jp/ajisai/spot/0808/"]
+plantings:
+  - id: kitaibaraki-ajisai-hydrangea
+    kind: bloom
+    species: hydrangea
+    windows:
+      - start: "06-2"
+        end: "07-2"
+    provisional: true
+    window_raw: "(blank)"
+    checked_against: ["https://weathernews.jp/ajisai/spot/0808/"]

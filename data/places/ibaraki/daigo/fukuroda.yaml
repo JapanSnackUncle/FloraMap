@@ -1,0 +1,50 @@
+schema_version: 1
+id: fukuroda
+name_ja: "袋田の滝"
+name_en: "Fukuroda Falls"
+name_kana: "ふくろだのたき"
+prefecture: ibaraki
+municipality: "大子町"
+municipality_slug: daigo
+address_ja: "袋田3-19"
+lat: 36.765022
+lng: 140.391998
+geocode_precision: manual
+point_note: entrance
+hours_ja: "8:00–18:00（5–10月）、8:00–17:00（11月）、9:00–17:00（12–4月）"
+fee_ja: "観瀑トンネル 大人500円・子供300円"
+parking_ja: "町営無料約260台＋民間有料約700台"
+official_urls: ["https://www.daigo-kanko.jp/fukuroda-falls.html"]
+checked_against: ["https://weathernews.jp/koyo/spot/24002/"]
+plantings:
+  - id: fukuroda-momiji
+    kind: foliage
+    species: momiji
+    windows:
+      - start: "11-1"
+        end: "11-2"
+    provisional: true
+    window_raw: "11月上旬〜中旬"
+    checked_against: ["https://tenki.jp/kouyou/ranking/3/11/"]
+illuminations:
+  - id: fukuroda-illumination
+    kind: illumination
+    name_ja: "大子来人〜ダイゴライト〜"
+    editions:
+      - season: "2025-26"
+        from: "2025-11-01"
+        to: "2026-01-12"
+        dates_announced: true
+      - season: "2026-27"
+        from: "2026-11-07"
+        to: "2027-01-31"
+        dates_announced: true
+        hours:
+          - from: "2026-11-07"
+            to: "2026-11-30"
+            hours_ja: "16:30–20:00"
+          - from: "2026-12-01"
+            to: "2027-01-31"
+            hours_ja: "16:30–19:00"
+        fee_ja: "観瀑トンネル利用料必要"
+        editor_notes: "2026–27 dates from official page (checked 2026-11-25); 毎日開催"

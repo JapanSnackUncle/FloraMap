@@ -1,0 +1,15 @@
+schema_version: 1
+id: hananuki-momiji-matsuri
+name_ja: "花貫渓谷紅葉まつり"
+place_ids: [hananuki]
+planting_ids: [hananuki-momiji]
+parking_ja: "花貫駐車場 普通車1,000円（110台）、大能駐車場 普通車1,000円（40台）"
+night_events_ja: "紅葉ライトアップ（2026: 11/7–11/23、日没–19:00）"
+official_urls: ["https://www.city.takahagi.ibaraki.jp/iju/event/page008432.html"]
+editions:
+  - id: hananuki-momiji-matsuri-2026
+    from: "2026-10-31"
+    to: "2026-11-30"
+    dates_announced: true
+  - id: hananuki-momiji-matsuri-2027
+    dates_announced: false
