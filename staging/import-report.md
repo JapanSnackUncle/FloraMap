@@ -5,7 +5,7 @@ Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 
 ## Done 2026-11-25
 
 - [x] Source coverage trimmed: `mito-kanko-ume` → 梅 only; `itako-ayame-status` → 花菖蒲 only (it doesn't report アヤメ/カキツバタ separately); `sakuragawa-kanko-ajisai` → アジサイ only; `shimotsuma-kankou-kokaigawa` → ポピー, コスモス.
-- [x] `hitachi-seaside-forecast`: old URL was a 404; now the park's 現在の花情報 page.
+- [x] `hitachi-seaside-flower-info` (then `hitachi-seaside-forecast`): old URL was a 404; now the park's 現在の花情報 page.
 - [x] ひたち海浜公園 windows from the park's official flower calendars: 梅 01-3–03-2, ポピー 05-2–05-3, バラ 05-2–06-1 and 10-3–11-1, コキア緑 08-2–09-3, コキア紅葉 10-1–10-3, コスモス confirmed.
 - [x] Official URLs: 常陸風土記の丘 (hitachifudoki.jp), 弘道館 (kodokan-ibaraki.jp), きらくやま (つくばみらい市観光協会).
 - [x] 弘道館: hours corrected (16:30 closing runs to 2/19, not 2/10); closures 12/29–31.
@@ -19,7 +19,7 @@ Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 
 - [x] Removed two sources (R, 2026-11-25): `pref-syun` (one-off 2026 article) and `sakuragawa-kanko-ajisai` (festival page, no dated status).
 - [x] Sources (R, 2026-11-25): added `kodokan-ume-status` (弘道館 梅の開花情報). The 桜川 観光協会 page only links to sakuragawanosakura.jp, the same site as `sakuragawa-sakura-status`, so that source's URL now points there instead of adding a duplicate.
 - [x] Dropped `hitachi-seaside-shibazakura` (R, 2026-11-25): not on the park's official flower calendars.
-- [ ] **Rename `hitachi-seaside-forecast`** to e.g. `hitachi-seaside-flower-info` now that its URL changed (IDs aren't live yet).
+- [x] Renamed source `hitachi-seaside-forecast` → `hitachi-seaside-flower-info` (R, 2026-11-25).
 
 ## Still open (fill when known)
 

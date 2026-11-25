@@ -1,13 +1,13 @@
 schema_version: 1
 sources:
-  - id: hitachi-seaside-forecast
+  - id: hitachi-seaside-flower-info
     name_ja: "国営ひたち海浜公園 現在の花情報"
     publisher: "ひたち公園管理センター"
     url: "https://www.hitachikaihin.jp/flower-plant/flower-info/"
     format: "HTML list per flower: 状態 (e.g. 咲いています), 場所, 撮影日 with a photo"
     checked: "yes"
     planting_ids: [hitachi-seaside-cosmos, hitachi-seaside-kochia-green, hitachi-seaside-kochia-red, hitachi-seaside-narcissus, hitachi-seaside-nemophila, hitachi-seaside-poppy, hitachi-seaside-rose, hitachi-seaside-sunflower, hitachi-seaside-tulip, hitachi-seaside-ume]
-    editor_notes: "checked 2026-11-25 in a browser (plain fetchers get an empty page). The old forecast-nemophila URL is a 404. Status words are coarse (咲いています), so the 撮影日 photo matters; per-flower forecast pages may reappear in spring. ID kept as is (rename needs R's OK)."
+    editor_notes: "checked 2026-11-25 in a browser (plain fetchers get an empty page). The old forecast-nemophila URL is a 404. Status words are coarse (咲いています), so the 撮影日 photo matters; per-flower forecast pages may reappear in spring. Renamed from hitachi-seaside-forecast (R, 2026-11-25)."
   - id: mito-kanko-ume
     name_ja: "水戸の梅まつり（偕楽園・弘道館）"
     publisher: "水戸観光コンベンション協会"
