@@ -26,6 +26,18 @@ npm run build-data   # validate and write public/data/places.json
 
 `npm run dev` and `npm run build` run the data step first, and `npm run dev` re-runs it whenever a file in `data/` changes. Any data problem stops the build, so bad data never reaches the site. The schema is `src/lib/schema.ts`; fields like `editor_notes` and `checked_against` are private and never written to the JSON.
 
+## Basemap tiles
+
+The map's background (roads, coastline, names) is a Protomaps vector-tile file, `tiles/ibaraki.pmtiles` (143 MB, zoom 0–15). It's git-ignored because of its size; for the live site it will go on Cloudflare R2.
+
+To recreate it, get the `pmtiles` command-line tool from https://github.com/protomaps/go-pmtiles/releases, pick a recent build date from https://build-metadata.protomaps.dev/builds.json, and run:
+
+```
+pmtiles extract https://build.protomaps.com/20261125.pmtiles tiles/ibaraki.pmtiles --bbox=139.68,35.73,140.86,36.96 --maxzoom=15
+```
+
+Add `--dry-run` first to see the size without downloading. The data is © OpenStreetMap contributors (ODbL): the map must show that attribution.
+
 ## Deploy (Cloudflare Pages)
 
 Connect the GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Pages → Connect to Git) with:

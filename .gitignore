@@ -25,3 +25,6 @@ __pycache__/
 
 # Cloudflare
 .wrangler/
+
+# basemap tiles (large; downloaded with pmtiles, see README)
+tiles/
