@@ -282,6 +282,7 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
       festivalIdsByPlace.set(id, [...(festivalIdsByPlace.get(id) ?? []), doc.id]);
 
   const byDate = <T extends { date: string }>(a: T, b: T) => a.date.localeCompare(b.date);
+  const speciesById = new Map(speciesDoc.species.map((s) => [s.id, s]));
 
   const publicPlaces = places
     .map(({ doc }) => {
@@ -291,6 +292,7 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
         ...rest,
         plantings: plantings.map((p) => ({
           ...p,
+          starting_days: speciesById.get(p.species)!.starting_days,
           statuses: statuses.filter((s) => s.planting_id === p.id).sort(byDate),
         })),
         illuminations,

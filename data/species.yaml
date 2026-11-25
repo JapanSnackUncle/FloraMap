@@ -2,93 +2,116 @@ schema_version: 1
 species:
   - id: ume
     kind: bloom
+    starting_days: 7
     name_ja: "梅"
     name_en: "Plum"
   - id: sakura
     kind: bloom
+    starting_days: 7
     name_ja: "桜"
     name_en: "Cherry blossom"
   - id: hanamomo
     kind: bloom
+    starting_days: 7
     name_ja: "ハナモモ"
     name_en: "Flowering peach"
   - id: nanohana
     kind: bloom
+    starting_days: 7
     name_ja: "菜の花"
     name_en: "Rapeseed"
   - id: narcissus
     kind: bloom
+    starting_days: 7
     name_ja: "スイセン"
     name_en: "Daffodil"
   - id: tulip
     kind: bloom
+    starting_days: 7
     name_ja: "チューリップ"
     name_en: "Tulip"
   - id: nemophila
     kind: bloom
+    starting_days: 7
     name_ja: "ネモフィラ"
     name_en: "Nemophila"
   - id: shibazakura
     kind: bloom
+    starting_days: 7
     name_ja: "芝桜"
     name_en: "Moss phlox"
   - id: azalea
     kind: bloom
+    starting_days: 7
     name_ja: "ツツジ"
     name_en: "Azalea"
   - id: wisteria
     kind: bloom
+    starting_days: 7
     name_ja: "藤"
     name_en: "Wisteria"
   - id: peony
     kind: bloom
+    starting_days: 7
     name_ja: "ボタン"
     name_en: "Tree peony"
   - id: poppy
     kind: bloom
+    starting_days: 7
     name_ja: "ポピー"
     name_en: "Poppy"
   - id: rose
     kind: bloom
+    starting_days: 7
     name_ja: "バラ"
     name_en: "Rose"
   - id: iris
     kind: bloom
+    starting_days: 7
     name_ja: "花菖蒲・アヤメ類"
     name_en: "Iris"
   - id: hydrangea
     kind: bloom
+    starting_days: 7
     name_ja: "アジサイ"
     name_en: "Hydrangea"
   - id: lotus
     kind: bloom
+    starting_days: 7
     name_ja: "ハス"
     name_en: "Lotus"
   - id: sunflower
     kind: bloom
+    starting_days: 7
     name_ja: "ヒマワリ"
     name_en: "Sunflower"
   - id: hagi
     kind: bloom
+    starting_days: 7
     name_ja: "萩"
     name_en: "Bush clover"
   - id: cosmos
     kind: bloom
+    starting_days: 7
     name_ja: "コスモス"
     name_en: "Cosmos"
   - id: hamanasu
     kind: bloom
+    starting_days: 7
     name_ja: "ハマナス"
     name_en: "Beach rose"
   - id: kochia
     kind: bloom
+    starting_days: 7
     name_ja: "コキア"
     name_en: "Kochia"
   - id: momiji
     kind: foliage
+    starting_days: 7
     name_ja: "紅葉"
     name_en: "Autumn leaves"
   - id: ginkgo
     kind: foliage
+    starting_days: 7
     name_ja: "イチョウ"
     name_en: "Ginkgo"

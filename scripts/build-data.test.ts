@@ -61,6 +61,7 @@ const SPECIES = `schema_version: 1
 species:
   - id: ume
     kind: bloom
+    starting_days: 7
     name_ja: "梅"
     name_en: "Plum"
 `;

@@ -34,6 +34,7 @@ function planting(
     kind: 'bloom',
     species: 'ume',
     windows: [{ start: '02-3', end: '03-1' }], // 2/21 – 3/10
+    starting_days: 7, // 咲き始め 2/14 – 2/20, まもなく 1/31 – 2/13
     statuses: statuses.map((s) => ({ ...defaults, ...s })),
     ...rest,
   } as PublicPlanting;
@@ -97,17 +98,31 @@ describe('dates', () => {
 describe('usual window only (no reports)', () => {
   const p = planting(); // window 2/21 – 3/10
 
-  it('is シーズン外 more than 14 days before the start', () => {
-    expect(state(p, '2027-02-06')).toMatchObject({ level: 4, basis: 'off-season' });
+  it('is シーズン外 before the まもなく period', () => {
+    expect(state(p, '2027-01-30')).toMatchObject({ level: 4, basis: 'off-season' });
   });
 
-  it('is まもなく within 14 days of the start, as an estimate', () => {
-    expect(state(p, '2027-02-07')).toMatchObject({
+  it('is まもなく for 14 days before 咲き始め, as an estimate', () => {
+    expect(state(p, '2027-01-31')).toMatchObject({
       level: 0,
       confirmed: false,
       basis: 'usual-window',
     });
-    expect(state(p, '2027-02-20')).toMatchObject({ level: 0 });
+    expect(state(p, '2027-02-13')).toMatchObject({ level: 0 });
+  });
+
+  it("is 咲き始め for the species' starting_days before the window, about a third filled", () => {
+    expect(state(p, '2027-02-14')).toMatchObject({ level: 1, confirmed: false, bloomPct: 33 });
+    expect(state(p, '2027-02-20')).toMatchObject({ level: 1 });
+  });
+
+  it('uses each species’ own number of 咲き始め days', () => {
+    const quick = planting({ starting_days: 3 }); // 咲き始め 2/18 – 2/20
+    expect(state(quick, '2027-02-17').level).toBe(0);
+    expect(state(quick, '2027-02-18').level).toBe(1);
+    const none = planting({ starting_days: 0 });
+    expect(state(none, '2027-02-20').level).toBe(0);
+    expect(state(none, '2027-02-21').level).toBe(2);
   });
 
   it('is 見頃 inside the window, 見頃過ぎ for 10 days after, then シーズン外', () => {
@@ -138,8 +153,9 @@ describe('season rollover', () => {
 
   it('handles a lead window that starts in the previous year', () => {
     const p = planting({ windows: [{ start: '01-1', end: '01-3' }] }); // 1/1 – 1/31
+    expect(state(p, '2026-12-27').level).toBe(1);
     expect(state(p, '2026-12-20').level).toBe(0);
-    expect(state(p, '2026-12-17').level).toBe(4);
+    expect(state(p, '2026-12-10').level).toBe(4);
   });
 
   it('uses the right one of two windows (spring and autumn roses)', () => {

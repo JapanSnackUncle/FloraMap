@@ -24,8 +24,10 @@ import {
 
 // ---------- constants (CLAUDE.md)
 
-/** まもなく shows only this many days before the usual start. */
+/** まもなく shows only this many days before a planting starts opening (or an illumination starts). */
 export const LEAD = 14;
+/** 咲き始め days before the usual window when a planting's species doesn't say (species.yaml starting_days). */
+export const DEFAULT_STARTING_DAYS = 7;
 /** Fresh / aging limits in days, by level 0–3. */
 export const FRESHNESS: Record<0 | 1 | 2 | 3, { fresh: number; aging: number }> = {
   0: { fresh: 7, aging: 14 },
@@ -37,7 +39,7 @@ export const FRESHNESS: Record<0 | 1 | 2 | 3, { fresh: number; aging: number }> 
 export const NO_RECENT_INFO_DAYS = 21;
 /** Statuses older than this never count. */
 export const MAX_STATUS_AGE = 60;
-/** A season runs from LEAD days before the usual window to this many days after it ("the following month"). */
+/** A season runs from the まもなく period before the usual window to this many days after it ("the following month"). */
 export const SEASON_TAIL_DAYS = 30;
 /** Usual-window fallback: 見頃過ぎ for the first third of a month after the window. */
 export const USUAL_PAST_PEAK_DAYS = 10;
@@ -137,13 +139,25 @@ export function windowInstances(planting: PublicPlanting, today: string): Window
   return out.sort((a, b) => a.start.localeCompare(b.start));
 }
 
-export function seasonOf(w: WindowInstance) {
-  return { from: addDays(w.start, -LEAD), to: addDays(w.end, SEASON_TAIL_DAYS) };
+/** The usual window is the typical 見頃 period; 咲き始め runs for `startingDays` before it, まもなく for LEAD before that. */
+export function seasonOf(w: WindowInstance, startingDays = DEFAULT_STARTING_DAYS) {
+  return { from: addDays(w.start, -(startingDays + LEAD)), to: addDays(w.end, SEASON_TAIL_DAYS) };
 }
 
-/** Level from the usual window alone. Precedence: before start = まもなく, inside = 見頃, first third after = 見頃過ぎ, else シーズン外. */
-export function usualLevel(w: WindowInstance, today: string): Level {
-  if (today < w.start) return daysBetween(today, w.start) <= LEAD ? SOON : OUT_OF_SEASON;
+/**
+ * Level from the usual window alone. Precedence: within `startingDays` before the window = 咲き始め,
+ * LEAD days before that = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, else シーズン外.
+ */
+export function usualLevel(
+  w: WindowInstance,
+  today: string,
+  startingDays = DEFAULT_STARTING_DAYS,
+): Level {
+  if (today < w.start) {
+    const n = daysBetween(today, w.start);
+    if (n <= startingDays) return STARTING;
+    return n <= startingDays + LEAD ? SOON : OUT_OF_SEASON;
+  }
   if (today <= w.end) return PEAK;
   if (daysBetween(w.end, today) <= USUAL_PAST_PEAK_DAYS) return PAST_PEAK;
   return OUT_OF_SEASON;
@@ -178,8 +192,9 @@ export function plantingState(planting: PublicPlanting, today: string): Planting
     peakSoon: false,
     nextWindow: next,
   };
+  const startingDays = planting.starting_days ?? DEFAULT_STARTING_DAYS;
   const current = instances.filter((w) => {
-    const s = seasonOf(w);
+    const s = seasonOf(w, startingDays);
     return s.from <= today && today <= s.to;
   });
   const window = current.at(-1);
@@ -197,7 +212,7 @@ export function plantingState(planting: PublicPlanting, today: string): Planting
     };
   }
 
-  const season = seasonOf(window);
+  const season = seasonOf(window, startingDays);
   const inSeason = (s: PublicStatus) =>
     s.date >= season.from && s.date <= today && daysBetween(s.date, today) <= MAX_STATUS_AGE;
   const rows = planting.statuses.filter(inSeason);
@@ -277,7 +292,7 @@ export function plantingState(planting: PublicPlanting, today: string): Planting
     };
   }
 
-  const level = usualLevel(window, today);
+  const level = usualLevel(window, today, startingDays);
   return {
     ...base,
     level,

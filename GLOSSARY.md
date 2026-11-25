@@ -12,7 +12,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **planting** | One flower or leaf display at one place, with its own usual window and status. ID e.g. `kairakuen-ume`. Species-varieties that bloom weeks apart are separate plantings (`amabiki-kannon-kawazu-zakura`, `amabiki-kannon-sakura`). |
 | **species** | The broad kind of plant from `species.yaml` (`ume`, `sakura`, `momiji`…). About 20, fixed. Not strictly botanical: `momiji` covers several maples. Field: `species`. Formerly *type*. |
 | **species-variety** | Optional free text under a species (`河津桜`, `ヤマザクラ`). Never used for logic. Field: `species_variety`. Formerly *variety*. |
-| **usual window** | The months a planting is normally worth seeing, as month + third. A list, so roses can have spring and autumn. In the sheet: `window_start`/`window_end`, `window2_start`/`window2_end`. |
+| **usual window** | The typical 見頃 period of a planting (例年の見頃), as month + third. A list, so roses can have spring and autumn. In the sheet: `window_start`/`window_end`, `window2_start`/`window2_end`. |
 | **month + third** | `"MM-N"`: N is 1 = 上旬 (1–10), 2 = 中旬 (11–20), 3 = 下旬 (21–end). `"04-2"` = mid-April. |
 | **provisional** | A usual window converted from text or a placeholder and not yet checked against past data. |
 | **featured** | Optional planting flag for a place's flagship flora. Only breaks ties within a pin rank. |
@@ -47,7 +47,8 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **シーズン外 / Out of Season** (4) | Everything else. Hidden by default. Replaces the older 終了 / 落葉. |
 | **分咲き** | The fraction of flowers open, in tenths (`5分咲き` = half). 満開 = full bloom. |
 | **mapping rule** | How a source's wording becomes a level (CLAUDE.md, Bloom scale). |
-| **lead window** | The `LEAD = 14` days before a usual window starts. The only time まもなく shows. |
+| **starting days** | Per species (`starting_days` in species.yaml): how many days of 咲き始め to show before the usual window when there's no report. |
+| **lead window** | The `LEAD = 14` days before 咲き始め starts (or before an illumination starts). The only time まもなく shows. |
 | **in season** | A feature that isn't シーズン外. The default filter シーズン中 shows these. |
 
 ## Illuminations
@@ -70,7 +71,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **fallback** | What a stale status is replaced with: newer forecast, then last confirmed stage, then the usual window. |
 | **never backwards** | Within a season, the stage shown can't be earlier than the last confirmed report. |
 | **no recent info** | The pin style after 3 weeks with no report. |
-| **season** | For a planting: its usual window, plus the lead window before and the following month after. For an illumination: its edition. "Never backwards" and "no report this season" use this. |
+| **season** | For a planting: its usual window, plus the 咲き始め days and lead window before and the following month after. For an illumination: its edition. "Never backwards" and "no report this season" use this. |
 
 ## Map and UI
 

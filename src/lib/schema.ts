@@ -184,6 +184,8 @@ export const sourcesFile = z.strictObject({
 export const species = z.strictObject({
   id: slug,
   kind: z.enum(['bloom', 'foliage']),
+  /** Days of 咲き始め (色づき始め for leaves) shown before the usual window when there's no report. */
+  starting_days: z.number().int().min(0).max(60),
   name_ja: text,
   name_en: text,
 });
@@ -240,7 +242,11 @@ type Public<T> = T extends readonly (infer U)[]
     : T;
 
 export type PublicStatus = Public<StatusRow>;
-export type PublicPlanting = Public<Planting> & { statuses: PublicStatus[] };
+export type PublicPlanting = Public<Planting> & {
+  statuses: PublicStatus[];
+  /** Copied from the planting's species by build-data. */
+  starting_days: number;
+};
 export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_slug'> & {
   plantings: PublicPlanting[];
   illuminations: Public<Illumination>[];

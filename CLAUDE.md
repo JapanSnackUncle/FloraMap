@@ -40,7 +40,7 @@ data/
   festivals/<prefecture>/<festival-id>.yaml
                               # by prefecture only: a festival can span municipalities
   sources.yaml                # every status source
-  species.yaml                # ~20 broad species, ja/en names
+  species.yaml                # ~20 broad species, ja/en names, starting_days
   statuses.csv                # append-only status log
   closures.csv                # append-only one-off venue closures
 scripts/
@@ -72,7 +72,7 @@ GLOSSARY.md                   # project terms
 - **Every place** has `prefecture` and `municipality` from day one.
 - **Coordinates:** one point per place (main entrance or viewing area). `geocode_precision` is `lot` or `block` (from the GSI geocoder), `manual` (placed by hand by R) or `approximate` (neighbourhood only, still to place). Optional free-text `point_note` says where the point is ("entrance", "parking lot").
 - **Features have a `kind`:** `bloom`, `foliage` or `illumination`. A place can hold several.
-  - **bloom/foliage:** broad `species` (from species.yaml) + optional free-text `species_variety`, plus `usual_window` as month + third (`"04-2"` = mid-April). The sheet only gives text like "4月上旬". Convert it, and mark every converted window `provisional: true` until checked against past data. Optional `featured: true` marks a place's flagship flora (see Pin choice).
+  - **bloom/foliage:** broad `species` (from species.yaml) + optional free-text `species_variety`, plus `usual_window` as month + third (`"04-2"` = mid-April): the typical **見頃** period, as sources state it (例年の見頃). The sheet only gives text like "4月上旬". Convert it, and mark every converted window `provisional: true` until checked against past data. Optional `featured: true` marks a place's flagship flora (see Pin choice).
   - Windows are a list, so roses (spring, autumn) and kochia can have two. Species-varieties that bloom weeks apart at one place (河津桜 and ソメイヨシノ) are separate plantings. Kochia is two plantings: green (bloom) and red (foliage).
   - **illumination:** an edition per season with `from`/`to` dates, nightly `hours` by date range (かわち's change on 1/13), and `dates_announced: true|false`. Closed days are not stored here (see Closures). Rain cancellation (きらくやま) is a note only.
 - **Photos** belong to plantings, not places; `credit` and `license` are required.
@@ -91,7 +91,8 @@ GLOSSARY.md                   # project terms
 
 **Visibility:**
 
-- **まもなく only in the 14 days before the usual start** (`LEAD = 14`, a single constant).
+- **Without a report, 咲き始め runs for the species' `starting_days` before the usual window** (species.yaml, an integer per species; 7 to start with, tune per species).
+- **まもなく only in the 14 days before 咲き始め starts** (`LEAD = 14`, a single constant).
 - Outside the lead window an off-season feature is **シーズン外**.
 - **シーズン外 is hidden from the map and list by default.** A すべて表示 filter shows everything, with "次回 例年 2月下旬〜" text.
 - **No countdowns for flora** (no "あと12日"): start dates move every year. Show the usual window as text.
@@ -103,8 +104,8 @@ GLOSSARY.md                   # project terms
 - Stale fallback order:
   1. a forecast newer than the last report;
   2. else the last confirmed stage, shown with a thin ring;
-  3. the usual window only if there's been no report this season: before the window = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, then シーズン外. All thin.
-- **Season:** a planting's usual window plus its lead window before and the following month after. For an illumination, the season is its edition. Reports from outside the current season never carry into it.
+  3. the usual window only if there's been no report this season: `starting_days` before the window = 咲き始め (about a third filled), the 14 days before that = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, then シーズン外. All thin.
+- **Season:** a planting's usual window plus its 咲き始め and まもなく periods before and the following month after. For an illumination, the season is its edition. Reports from outside the current season never carry into it.
 - **Never go backwards** within a season. Never advance a stale status on a guess: only a forecast, or the usual window when there's no report, may set the level. After 3 weeks of silence, show "no recent info". Statuses older than 60 days are ignored.
 - A status's date is the source's own "as of" date, else its publish date, else the fetch date; record which.
 
