@@ -16,6 +16,14 @@ sources:
     checked: "yes"
     planting_ids: [kairakuen-ume, kodokan-ume]
     editor_notes: "梅 only, one status for the whole festival (checked 2026-11-25). Says status updates start late January. Also confirms 2027 festival 2/11–3/22."
+  - id: kodokan-ume-status
+    name_ja: "弘道館の梅の開花情報"
+    publisher: "茨城県水戸土木事務所 偕楽園公園課 弘道館事務所"
+    url: "https://kodokan-ibaraki.jp/news/"
+    format: "HTML news list; 見頃情報 posts titled 弘道館の梅の開花情報 (第N回：date), every 1–2 weeks from late December"
+    checked: "yes"
+    planting_ids: [kodokan-ume]
+    editor_notes: "Approved by R 2026-11-25. 2025–26 season: posts on 12/23, 1/9, 1/20, 1/30, 2/6 (checked 2026-11-25)."
   - id: tsukubasan-umematsuri
     name_ja: "筑波山梅まつり"
     publisher: "筑波山梅まつり実行委員会（つくば観光コンベンション協会）"
@@ -71,9 +79,10 @@ sources:
     planting_ids: [kokaigawa-fureai-cosmos, kokaigawa-fureai-poppy]
     editor_notes: "Approved by R 2026-11-25. Coverage trimmed to ポピー and コスモス (the source name); site would not load for checking on 2026-11-25."
   - id: sakuragawa-sakura-status
-    name_ja: "桜川のサクラ 最新開花情報"
-    url: "https://www.city.sakuragawa.lg.jp/tourism_guide/look/page003402.html"
-    format: "桜川市: 最新開花情報 page linked from the 桜川のサクラ page (unchecked)"
+    name_ja: "桜川のサクラ 開花情報"
+    publisher: "桜川市商工会サクラサク里プロジェクト・櫻川保勝会"
+    url: "http://www.sakuragawanosakura.jp/index2.html"
+    format: "HTML news list with dated 開花情報 updates (2026: 3/22–4/17)"
     checked: "yes"
     planting_ids: [isobe-sakuragawa-yamazakura]
-    editor_notes: "Approved by R 2026-11-25."
+    editor_notes: "Approved by R 2026-11-25. URL changed 2026-11-25 from the city page (page003402) to the page it links to; the 桜川市観光協会 桜の開花情報 page links to the same site. Covers 磯部桜川公園, 櫻川磯部稲村神社 and 高峯, not 雨引観音."
