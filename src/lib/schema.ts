@@ -74,6 +74,9 @@ export const planting = z.strictObject({
   provisional: z.boolean().optional(),
   window_raw: text.optional(),
   official_urls: z.array(url).optional(),
+  /** Pin image override when the species close-up doesn't fit (e.g. 河津桜). */
+  pin_photo: photo.optional(),
+  /** Place-specific photos, for the place page. */
   photos: z.array(photo).optional(),
   ...privateFields,
 });
@@ -101,6 +104,8 @@ export const illumination = z.strictObject({
   name_ja: text,
   name_en: text.optional(),
   official_urls: z.array(url).optional(),
+  /** On-location photos; the first is the pin image. */
+  photos: z.array(photo).optional(),
   editions: z.array(illuminationEdition).min(1),
 });
 
@@ -186,6 +191,10 @@ export const species = z.strictObject({
   kind: z.enum(['bloom', 'foliage']),
   /** Days of 咲き始め (色づき始め for leaves) shown before the usual window when there's no report. */
   starting_days: z.number().int().min(0).max(60),
+  /** Close-up used as the pin image for this species' plantings. */
+  pin_photo: photo.optional(),
+  /** Pin image for the foliage kind, where a species has both (kochia: green vs red). */
+  pin_photo_foliage: photo.optional(),
   name_ja: text,
   name_en: text,
 });
