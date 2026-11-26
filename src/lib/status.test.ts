@@ -469,6 +469,52 @@ describe('closures', () => {
     expect(ps.closed).toBe(true);
     expect(ps.pin).toMatchObject({ type: 'illumination', state: 'lit' });
   });
+
+  describe('closed night during a lit run', () => {
+    const lights = illumination([
+      {
+        season: '2026-27',
+        from: '2026-11-01',
+        to: '2026-12-31',
+        dates_announced: true,
+        hours: [
+          { from: '2026-11-01', to: '2026-11-30', hours_ja: '17:00–20:30' },
+          { from: '2026-12-01', to: '2026-12-31', hours_ja: '17:00–21:00' },
+        ],
+      },
+    ]);
+    const venue = (closures: PublicPlace['closures']) =>
+      place({ closures, illuminations: [lights] });
+
+    it('gives the next open night and its hours', () => {
+      const ps = placeStatus(venue({ weekly: ['tue'] }), [], '2026-11-17'); // Tuesday
+      expect(ps.pin).toMatchObject({
+        state: 'lit',
+        closedTonight: true,
+        nextNight: { date: '2026-11-18', hoursJa: '17:00–20:30' },
+      });
+    });
+
+    it('skips several closed days, and picks up the new hours', () => {
+      const ps = placeStatus(
+        venue({ weekly: ['mon'], dates_closed: ['2026-12-01'] }),
+        [],
+        '2026-11-30', // Monday, then closed Tuesday 12/1 too
+      );
+      expect(ps.pin).toMatchObject({ nextNight: { date: '2026-12-02', hoursJa: '17:00–21:00' } });
+    });
+
+    it('has no next night when the run ends first', () => {
+      const ps = placeStatus(venue({ fixed_dates: ['12-31'] }), [], '2026-12-31');
+      expect(ps.pin).toMatchObject({ closedTonight: true, nextNight: undefined });
+    });
+
+    it('leaves open nights alone', () => {
+      const ps = placeStatus(venue({ weekly: ['tue'] }), [], '2026-11-18');
+      expect(ps.pin).toMatchObject({ state: 'lit', hoursJa: '17:00–20:30' });
+      expect(ps.pin).not.toHaveProperty('closedTonight');
+    });
+  });
 });
 
 // ---------- pin choice

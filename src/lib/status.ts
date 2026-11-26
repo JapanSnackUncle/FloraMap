@@ -341,6 +341,10 @@ export interface IlluminationState {
   to?: string;
   /** Tonight's hours, when lit. */
   hoursJa?: string;
+  /** Lit, but the venue is closed today (so tonight's hours don't apply). Set by featureStates. */
+  closedTonight?: boolean;
+  /** When closedTonight: the next night the venue is open within this run. None if the run ends first. */
+  nextNight?: { date: string; hoursJa?: string };
   /** 点灯まで あと n 日: only when soon and announced. */
   countdownDays?: number;
   /** Days to the start (for sorting まもなく; not for display unless announced). */
@@ -446,6 +450,25 @@ export function illuminationState(il: PublicIllumination, today: string): Illumi
   return { ...base, state: 'off', confirmed: false, peakSoon: false, why: 'no upcoming dates' };
 }
 
+/**
+ * On a closed day during a lit run: the first later night in the same run when the venue is
+ * open, with that night's hours. Undefined when the run ends before the venue reopens.
+ */
+export function nextOpenNight(
+  il: PublicIllumination,
+  place: Pick<PublicPlace, 'closures' | 'one_off_closures'>,
+  today: string,
+): { date: string; hoursJa?: string } | undefined {
+  const run = datedEditions(il, today).find((e) => e.from <= today && today <= e.to);
+  if (!run) return undefined;
+  for (let d = addDays(today, 1); d <= run.to; d = addDays(d, 1)) {
+    if (closedToday(place, d)) continue;
+    const hours = run.hours.find((h) => h.from <= d && d <= h.to);
+    return { date: d, hoursJa: hours?.hours_ja };
+  }
+  return undefined;
+}
+
 // ---------- closures
 
 /**
@@ -515,7 +538,11 @@ export function compareFeatures(a: FeatureState, b: FeatureState): number {
 export function featureStates(place: PublicPlace, today: string): FeatureState[] {
   return [
     ...place.plantings.map((p) => plantingState(p, today)),
-    ...place.illuminations.map((il) => illuminationState(il, today)),
+    ...place.illuminations.map((il): IlluminationState => {
+      const s = illuminationState(il, today);
+      if (s.state !== 'lit' || !closedToday(place, today)) return s;
+      return { ...s, closedTonight: true, nextNight: nextOpenNight(il, place, today) };
+    }),
   ];
 }
 

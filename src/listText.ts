@@ -2,7 +2,7 @@
 // go in the list, never on the pin). One pure function per feature state; tested.
 
 import type { Lang } from './i18n';
-import { daysBetween } from './lib/dates';
+import { daysBetween, weekdayOf } from './lib/dates';
 import type { FeatureState, WindowInstance } from './lib/status';
 
 export interface RowText {
@@ -51,6 +51,18 @@ const UNANNOUNCED = {
   en: 'Dates not announced yet (shown with last year’s)',
 };
 
+const WEEKDAYS = {
+  ja: { sun: '日', mon: '月', tue: '火', wed: '水', thu: '木', fri: '金', sat: '土' },
+  en: { sun: 'Sun', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat' },
+};
+
+/** Closed tonight: 次回 11/27（金）17:00–20:30 / Next: Fri 11/27, 17:00–20:30. */
+function nextNightText(n: { date: string; hoursJa?: string }, lang: Lang): string {
+  const day = WEEKDAYS[lang][weekdayOf(n.date)];
+  if (lang === 'ja') return `次回 ${md(n.date)}（${day}）${n.hoursJa ?? ''}`;
+  return `Next: ${day} ${md(n.date)}${n.hoursJa ? `, ${n.hoursJa}` : ''}`;
+}
+
 /** The list's status line for one feature on `today`. Empty text = nothing to show. */
 export function rowText(s: FeatureState, today: string, lang: Lang): RowText {
   const plain = (text: string): RowText => ({ text, aging: false });
@@ -60,8 +72,16 @@ export function rowText(s: FeatureState, today: string, lang: Lang): RowText {
     if (s.state === 'lit') {
       if (!s.confirmed) return plain(UNANNOUNCED[lang]);
       const until = s.to ? (ja ? `${md(s.to)}まで` : `until ${md(s.to)}`) : '';
-      const tonight = s.hoursJa ? (ja ? `今夜 ${s.hoursJa}` : `Tonight ${s.hoursJa}`) : '';
-      return plain([tonight, until].filter(Boolean).join(' · '));
+      const when = s.closedTonight
+        ? s.nextNight
+          ? nextNightText(s.nextNight, lang)
+          : ''
+        : s.hoursJa
+          ? ja
+            ? `今夜 ${s.hoursJa}`
+            : `Tonight ${s.hoursJa}`
+          : '';
+      return plain([when, until].filter(Boolean).join(' · '));
     }
     if (s.state === 'soon') {
       if (s.countdownDays === undefined) return plain(UNANNOUNCED[lang]);

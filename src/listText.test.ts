@@ -109,6 +109,18 @@ describe('rowText', () => {
     expect(rowText(s, '2026-12-15', 'en').text).toBe('Tonight 16:30–20:00 · until 1/31');
   });
 
+  it('lit illumination on a closed day: the next open night instead of tonight', () => {
+    const s = lights({
+      hoursJa: '17:00–20:30',
+      closedTonight: true,
+      nextNight: { date: '2026-11-27', hoursJa: '17:00–20:30' },
+    });
+    expect(rowText(s, '2026-11-26', 'ja').text).toBe('次回 11/27（金）17:00–20:30 · 1/31まで');
+    expect(rowText(s, '2026-11-26', 'en').text).toBe('Next: Fri 11/27, 17:00–20:30 · until 1/31');
+    const last = lights({ closedTonight: true, nextNight: undefined });
+    expect(rowText(last, '2027-01-31', 'ja').text).toBe('1/31まで');
+  });
+
   it('illumination countdown only when announced', () => {
     expect(rowText(lights({ state: 'soon', countdownDays: 5 }), today, 'ja').text).toBe(
       '点灯まで あと5日',
