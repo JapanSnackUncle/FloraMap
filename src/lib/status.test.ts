@@ -701,8 +701,13 @@ describe('real data', () => {
     });
   });
 
-  it("on 2026-12-01, kirakuyama is lit on last season's dates, thin", () => {
-    expect(at('kirakuyama', '2026-12-01').pin).toMatchObject({ state: 'lit', confirmed: false });
+  it('kirakuyama 2026 (announced 12/1–12/25): まもなく with a countdown on 11/28, lit on 12/1', () => {
+    expect(at('kirakuyama', '2026-11-28').pin).toMatchObject({ state: 'soon', countdownDays: 3 });
+    expect(at('kirakuyama', '2026-12-01').pin).toMatchObject({
+      state: 'lit',
+      confirmed: true,
+      hoursJa: '16:30–20:30',
+    });
   });
 
   it('every place has a pin on every day of the year, and the date logic never throws', () => {
