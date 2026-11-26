@@ -149,11 +149,12 @@ GLOSSARY.md                   # project terms
 
 - Map pins are 44 px (`PHONE_PIN_SIZE_PX`; desktop 54), and grouping uses `PHONE_GROUP_RADIUS_PX` (37, the same share of the pin as desktop's 45 of 54). Badges and names keep their desktop size; list rows keep 54 px photos.
 - The list and place page sit in a bottom sheet over a full-screen map, not a side panel. No title bar; the filter chips float over the top of the map. No zoom buttons (pinch). The OSM credit stays visible above the sheet.
-- Three resting heights: peek (grab bar + count line), half (~50%), full (up to just below the chips). The whole sheet drags; at full the content scrolls, and pulling down from its top lowers the sheet. Starts at peek; a `?place=` link starts at half.
+- Resting heights: peek (grab bar + count line), half (~50%), full (up to just below the chips). The list uses only peek and full (a half list has to be pulled to full to browse anyway); a place page uses all three. The whole sheet drags; at full the content scrolls, and pulling down from its top lowers the sheet. Starts at peek; a `?place=` link starts at half.
 - The list's visible area is the whole map screen, whatever the sheet's height.
 - Opening a place (pin or row) raises the sheet to half. If the pin is under the sheet or within `PAN_MARGIN_PX` (80) of the uncovered area's edges, the map pans (no zoom change) to put it in the middle of the uncovered area. Same when switching places.
 - At peek, a place page shows its name, 本日休園 pill and top feature's stage line.
-- While a page is open the chips are hidden and the sheet header has a close button. Closing returns the list to the height it had before the first place was opened, and the button says where that is: 「× 閉じる」 when the list was at peek (back to the map), else 「← 一覧に戻る」.
+- While a page is open the chips are hidden and the sheet header has buttons: 「× 閉じる」 on the right always (closes to the list at peek: back to the map), and 「← 一覧に戻る」 on the left when the page was opened from the full list (closes to the full list). A pin or link opens with the list at peek, so only 閉じる shows. A map tap also closes to the list at peek. Back and Esc return the list to its earlier height, except that a page lowered to peek closes to the list at peek.
+- The full list has 「× 閉じる」 at the right end of its count line: it lowers the list to peek.
 - "Centre on" (group tap, shared link) means the middle of the uncovered area.
 - No hover on touch: dropped names and group hover text don't show.
 - Sheet height is not kept in the address or history.

@@ -531,11 +531,16 @@ body,
   color: var(--mute);
 }
 
-/* シーズン中: the page's main section, a step above 施設情報 and シーズン外. */
+/* シーズン中: the page's main section, a step above 施設情報 and シーズン外 in size, but grey like
+   them, so the place name and the features (both dark) don't run together. More space above
+   than below: it reads as the heading of the features under it. */
 .place-page h3.main-heading {
-  padding-top: 12px;
+  padding-top: 20px;
   font-size: 16px;
-  color: var(--ink);
+}
+
+.main-heading + .page-features > .page-feature:first-child {
+  padding-top: 6px;
 }
 
 .page-features {
@@ -636,23 +641,24 @@ body,
   position: relative;
 }
 
-/* Chips float over the top of the map, in a 56 px row (SHEET_TOP_PX: the sheet's full height
-   stops under it). */
+/* Chips float over the top of the map, in a 56 px band (SHEET_TOP_PX: the sheet's full height
+   stops under it). The row is the scroller, so it takes touches itself (a pass-through row
+   can't be swiped); it's only as tall as the chips plus their shadow, so the map still drags
+   above and below it. */
 .phone .filter-bar {
   position: absolute;
-  top: 0;
+  top: 8px;
   left: 0;
   right: 0;
   z-index: 3;
-  height: 56px;
+  height: 40px;
   padding: 0 12px;
   background: none;
   border: 0;
-  pointer-events: none;
+  overscroll-behavior-x: contain;
 }
 
 .phone .filter-bar > * {
-  pointer-events: auto;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
   border-color: transparent;
 }
@@ -725,9 +731,15 @@ body,
   background: #d6d3d1;
 }
 
-.sheet-back {
+/* The sheet's button row: 一覧に戻る on the left, 閉じる on the right. */
+.sheet-head {
   flex: none;
-  align-self: flex-start;
+  display: flex;
+}
+
+.sheet-back,
+.sheet-close {
+  flex: none;
   border: 0;
   background: none;
   padding: 2px 16px 6px;
@@ -736,6 +748,25 @@ body,
   font-weight: 700;
   color: #b0245c;
   cursor: pointer;
+}
+
+.sheet-close {
+  margin-left: auto;
+}
+
+/* The full list's 閉じる: at the same place as a place page's (just under the 20 px grab bar,
+   same padding), over the right end of the count line, so it takes no row of its own. */
+.sheet-head-over {
+  position: absolute;
+  top: 20px;
+  right: 0;
+  z-index: 2;
+}
+
+/* Phones: the count line sits as close under the grab bar as the page's buttons do, so its
+   text lines up with the full list's 閉じる. */
+.phone .list-count {
+  padding-top: 5px;
 }
 
 .sheet-content {

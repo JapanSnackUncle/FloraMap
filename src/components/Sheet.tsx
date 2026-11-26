@@ -7,6 +7,8 @@ export type Snap = 'peek' | 'half' | 'full';
 interface Props {
   snap: Snap;
   onSnap: (s: Snap) => void;
+  /** The heights this content may rest at, lowest first (the list skips half). */
+  snaps: readonly Snap[];
   /** Above the scrolling content, under the grab bar (the place page's back button). */
   header?: ReactNode;
   /** Changes when the content is replaced (list ↔ a place page): scrolls back to the top. */
@@ -28,14 +30,16 @@ const PEEK_FALLBACK_PX = 64;
 const PEEK_PAD_PX = 8;
 
 /**
- * Phones: a bottom sheet over the map holding the list or place page. Three resting heights:
- * peek (down to the content's [data-peek] element), half and full. The whole sheet drags.
+ * Phones: a bottom sheet over the map holding the list or place page. Resting heights: peek
+ * (down to the content's [data-peek] element), half and full; `snaps` says which of them the
+ * current content uses (the list: peek and full). The whole sheet drags.
  * Below full the content doesn't scroll, so a swipe on it moves the sheet. At full the content
  * scrolls, and pulling down from its top lowers the sheet again (as in Google Maps).
  */
 export default function Sheet({
   snap,
   onSnap,
+  snaps,
   header,
   contentKey,
   onRest,
@@ -98,10 +102,19 @@ export default function Sheet({
     if (snap !== 'full' && content.current) content.current.scrollTop = 0;
   }, [snap]);
 
+  // New content that doesn't use the current height (a place page at half closing to the
+  // list): move to the nearest height it does use.
+  const nearest = (aim: number): Snap =>
+    snaps.reduce((a, b) => (Math.abs(heights[b] - aim) < Math.abs(heights[a] - aim) ? b : a));
+  const allowed = snaps.includes(snap);
+  useEffect(() => {
+    if (!allowed) onSnap(nearest(heights[snap]));
+  });
+
   // Latest values for the native listeners below.
-  const live = useRef({ snap, heights, h, onSnap });
+  const live = useRef({ snap, h, heights, onSnap, nearest });
   useLayoutEffect(() => {
-    live.current = { snap, heights, h, onSnap };
+    live.current = { snap, h, heights, onSnap, nearest };
   });
 
   // Dragging. Native listeners, because touchmove must be non-passive to stop the content
@@ -151,14 +164,10 @@ export default function Sheet({
       if (!wasDragging) return;
       swallowClick = true;
       setTimeout(() => (swallowClick = false), 0);
-      // The snap nearest to where the sheet would have coasted to.
-      const { heights: hs, h: nowH, onSnap: snapTo } = live.current;
-      const aim = nowH + last.v * FLICK_MS;
-      const best = (Object.keys(hs) as Snap[]).reduce((a, b) =>
-        Math.abs(hs[b] - aim) < Math.abs(hs[a] - aim) ? b : a,
-      );
+      // The allowed height nearest to where the sheet would have coasted to.
+      const { h: nowH, onSnap: snapTo, nearest: pick } = live.current;
       setDragH(null);
-      snapTo(best);
+      snapTo(pick(nowH + last.v * FLICK_MS));
     };
 
     const onTouchStart = (e: TouchEvent) => {
@@ -206,8 +215,9 @@ export default function Sheet({
     };
   }, []);
 
-  // Tapping the grab bar steps through the heights (for a mouse, or anyone who doesn't swipe).
-  const NEXT: Record<Snap, Snap> = { peek: 'half', half: 'full', full: 'peek' };
+  // Tapping the grab bar steps up through the allowed heights, then back to the lowest (for a
+  // mouse, or anyone who doesn't swipe).
+  const next = snaps[(snaps.indexOf(snap) + 1) % snaps.length]!;
 
   return (
     <div
@@ -219,7 +229,7 @@ export default function Sheet({
         type="button"
         className="sheet-grab"
         aria-label={handleLabel}
-        onClick={() => onSnap(NEXT[snap])}
+        onClick={() => onSnap(next)}
       />
       {header}
       <div ref={content} className="sheet-content">

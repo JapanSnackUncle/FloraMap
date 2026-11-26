@@ -14,6 +14,10 @@ import { passesFilter, pinForFilter, placeStatus, type Filter } from './lib/stat
 import { OPENED_WITH_PLACE, useSelectedPlace } from './selectedPlace';
 import { useIsPhone } from './usePhone';
 
+/** Sheet heights: a place page uses all three; the list skips half (it's for browsing). */
+const ALL_SNAPS: readonly Snap[] = ['peek', 'half', 'full'];
+const LIST_SNAPS: readonly Snap[] = ['peek', 'full'];
+
 export default function App() {
   const [lang, setLang] = useState<Lang>('ja');
   const { data, error } = useData();
@@ -27,15 +31,26 @@ export default function App() {
   const phone = useIsPhone();
 
   // Phones (CLAUDE.md, "Phone layout"): the sheet starts at peek, or at half for a place link.
-  // Opening a place raises it to half; closing returns the list to the height it had before.
+  // Opening a place raises it to half. The page's buttons say where closing goes: 一覧に戻る to
+  // the list at its earlier height, 閉じる to the map (list at peek). A map tap also closes to
+  // peek. Back and Esc return the list to its earlier height, unless the page was lowered to
+  // peek: then the list stays at peek.
   const [snap, setSnap] = useState<Snap>(OPENED_WITH_PLACE ? 'half' : 'peek');
   const [listSnap, setListSnap] = useState<Snap>('peek');
   const [prevSelected, setPrevSelected] = useState(selected);
+  // Set by a header button just before it closes the page.
+  const [closeTarget, setCloseTarget] = useState<Snap | null>(null);
   if (selected !== prevSelected) {
     setPrevSelected(selected);
     if (selected && !prevSelected) setListSnap(snap);
-    setSnap(selected ? 'half' : listSnap);
+    setSnap(selected ? 'half' : (closeTarget ?? (snap === 'peek' ? 'peek' : listSnap)));
+    setCloseTarget(null);
   }
+  const closeTo = (to: Snap) => {
+    if (!selected) return;
+    setCloseTarget(to);
+    close();
+  };
   // The sheet's height at rest, so "centre" on the map means the part above it.
   const [sheetH, setSheetH] = useState(0);
 
@@ -157,7 +172,7 @@ export default function App() {
               onViewChange={setBounds}
               selectedId={selected}
               onPinClick={open}
-              onEmptyClick={close}
+              onEmptyClick={() => closeTo('peek')}
               initialCenter={linkPlace ? { lng: linkPlace.lng, lat: linkPlace.lat } : null}
               insets={phone ? { top: SHEET_TOP_PX, bottom: sheetH } : null}
               phone={phone}
@@ -181,16 +196,33 @@ export default function App() {
           <Sheet
             snap={snap}
             onSnap={setSnap}
+            snaps={selectedStatus || (DEBUG && panelOpen) ? ALL_SNAPS : LIST_SNAPS}
             onRest={setSheetH}
             handleLabel={t('sheetHandle', lang)}
             contentKey={DEBUG && panelOpen ? 'debug' : (selected ?? 'list')}
             header={
-              selectedStatus && !(DEBUG && panelOpen) ? (
-                // The label says where closing goes: back to the list, or (when the list was
-                // at peek) back to the map.
-                <button type="button" className="sheet-back" onClick={close}>
-                  {listSnap === 'peek' ? `× ${t('close', lang)}` : `← ${t('back', lang)}`}
-                </button>
+              DEBUG && panelOpen ? null : selectedStatus ? (
+                // 一覧に戻る only when there's a list to go back to: the page was opened from the
+                // full list (at peek the list shows no rows, so a page opened then came from a
+                // pin or a link).
+                <div className="sheet-head">
+                  {listSnap === 'full' && (
+                    <button type="button" className="sheet-back" onClick={() => closeTo('full')}>
+                      ← {t('back', lang)}
+                    </button>
+                  )}
+                  <button type="button" className="sheet-close" onClick={() => closeTo('peek')}>
+                    × {t('close', lang)}
+                  </button>
+                </div>
+              ) : snap === 'full' ? (
+                // The full list hides the map: 閉じる lowers it to peek. It sits on the count
+                // line's row, not a row of its own.
+                <div className="sheet-head sheet-head-over">
+                  <button type="button" className="sheet-close" onClick={() => setSnap('peek')}>
+                    × {t('close', lang)}
+                  </button>
+                </div>
               ) : null
             }
           >

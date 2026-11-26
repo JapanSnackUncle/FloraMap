@@ -19,7 +19,7 @@ export const strings = {
   },
   closedToday: { ja: '本日休園', en: 'Closed today' },
   back: { ja: '一覧に戻る', en: 'Back to list' },
-  /** Phones: closes a place page opened while the list was at peek (back to the map). */
+  /** Phones: closes a place page, or lowers the full list, back to the map (list at peek). */
   close: { ja: '閉じる', en: 'Close' },
   /** Phones: the sheet's grab bar (screen readers; tapping it changes the sheet's height). */
   sheetHandle: { ja: 'パネルの高さを変える', en: 'Resize panel' },
