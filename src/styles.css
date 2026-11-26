@@ -500,6 +500,75 @@ body,
   font-size: 13px;
 }
 
+/* Phones: ← (一覧に戻る) and × (閉じる) at the ends of the name row. */
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-title h2 {
+  flex: 1;
+  min-width: 0;
+}
+
+.icon-btn {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin: -8px; /* a big tap target without widening the row */
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: #b0245c;
+  font: inherit;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.icon-btn:first-child {
+  margin-right: 0;
+}
+
+.icon-btn.close {
+  margin-left: 0;
+}
+
+/* The place's header photo: a wide strip under its name, edge to edge. */
+.page-photo {
+  position: relative;
+  margin: 8px 0 0;
+}
+
+.page-photo img,
+.photo-placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2 / 1;
+  object-fit: cover;
+}
+
+/* The credit sits on the photo's lower right corner, white on a faint dark tab. */
+.page-photo figcaption {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 2px 8px;
+  border-top-left-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 11px;
+}
+
+.photo-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--line);
+  color: var(--mute);
+  font-size: 13px;
+}
+
 /* Sections are set apart by a band; the features inside one have no lines between them
    (each row starts with its photo). */
 .place-page section + section {
@@ -521,8 +590,12 @@ body,
    them, so the place name and the features (both dark) don't run together. More space above
    than below: it reads as the heading of the features under it. */
 .place-page h3.main-heading {
-  padding-top: 20px;
   font-size: 16px;
+}
+
+/* Right under the name (no header photo between them), extra space keeps the two apart. */
+.page-head + section > .main-heading {
+  padding-top: 20px;
 }
 
 .main-heading + .page-features > .page-feature:first-child {
@@ -670,11 +743,11 @@ body,
 }
 
 .sheet {
-  /* The row just under the grab bar: a place page's 一覧に戻る / 閉じる and the list's count
-     line (with the full list's 閉じる) start --sheet-head-pad below the grab bar and are
-     --sheet-head-line tall, so the 閉じる buttons sit at the same place. */
-  --sheet-head-pad: 2px;
-  --sheet-head-line: 25px;
+  /* The first row under the grab bar, a place page's name row or the list's count line, starts
+     --sheet-row-top below the grab bar and is --sheet-row-h tall (the name's line height), so
+     their × buttons sit at the same place. */
+  --sheet-row-top: 4px;
+  --sheet-row-h: 28px;
   position: absolute;
   left: 0;
   right: 0;
@@ -722,42 +795,17 @@ body,
   background: #d6d3d1;
 }
 
-/* The sheet's button row: 一覧に戻る on the left, 閉じる on the right. */
-.sheet-head {
-  flex: none;
-  display: flex;
-}
-
-.sheet-back,
-.sheet-close {
-  flex: none;
-  border: 0;
-  background: none;
-  padding: var(--sheet-head-pad) 16px 6px;
-  font: inherit;
-  font-size: 15px;
-  line-height: var(--sheet-head-line);
-  font-weight: 700;
-  color: #b0245c;
-  cursor: pointer;
-}
-
-.sheet-close {
-  margin-left: auto;
-}
-
-/* Phones: the count line is a sheet header row too (see .sheet): it starts as close under the
-   grab bar as a place page's buttons, and at full height ends with the list's 閉じる. */
+/* Phones: the count line is the sheet's first row (see .sheet) and, on the full list, ends with
+   the same × as a place page (lowers the list to peek). */
 .phone .list-count {
   display: flex;
   align-items: center;
-  padding-top: var(--sheet-head-pad);
-  line-height: var(--sheet-head-line);
+  padding-top: var(--sheet-row-top);
+  line-height: var(--sheet-row-h);
 }
 
-.list-count .sheet-close {
-  margin-right: -16px; /* the button's own padding stands in for the row's */
-  padding-block: 0;
+.phone .list-count > span {
+  flex: 1;
 }
 
 .sheet-content {
@@ -782,7 +830,11 @@ body,
 }
 
 .phone .page-head {
-  padding-top: 4px;
+  padding-top: var(--sheet-row-top);
+}
+
+.sheet .page-title {
+  min-height: var(--sheet-row-h);
 }
 
 /* ---------- debug mode (dev builds only) */

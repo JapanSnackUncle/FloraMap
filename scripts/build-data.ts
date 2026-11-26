@@ -1,4 +1,5 @@
-// data/ (YAML + CSV) -> public/data/places.json, photos-species/ -> public/photos/pins/
+// data/ (YAML + CSV) -> public/data/places.json, photos-species/ -> public/photos/pins/,
+// photos/places/ -> public/photos/places/
 //
 //   node scripts/build-data.ts           validate and write the JSON and pin photos
 //   node scripts/build-data.ts --check   validate only
@@ -28,12 +29,19 @@ import {
   type PublicPlace,
   type StatusRow,
 } from '../src/lib/schema.ts';
-import { PIN_URL_DIR, pinFileName, writePinPhotos, type PinJob } from './pin-photos.ts';
+import {
+  HEADER_URL_DIR,
+  PIN_URL_DIR,
+  photoFileName,
+  writePhotos,
+  type PhotoJob,
+} from './pin-photos.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const DATA_DIR = join(ROOT, 'data');
 export const OUT_FILE = join(ROOT, 'public', 'data', 'places.json');
 export const PIN_OUT_DIR = join(ROOT, 'public', 'photos', 'pins');
+export const HEADER_OUT_DIR = join(ROOT, 'public', 'photos', 'places');
 
 const STATUS_COLUMNS = [
   'planting_id',
@@ -51,12 +59,15 @@ export interface BuildResult {
   data: PublicData | null;
   errors: string[];
   /** Pin squares to make from photos-species/ (see pin-photos.ts). */
-  pinJobs: PinJob[];
+  pinJobs: PhotoJob[];
+  /** Header photos to make from photos/places/. */
+  headerJobs: PhotoJob[];
 }
 
 export function buildData(
   dataDir: string = DATA_DIR,
   pinPhotoDir: string = join(dataDir, '..', 'photos-species'),
+  placePhotoDir: string = join(dataDir, '..', 'photos', 'places'),
 ): BuildResult {
   const errors: string[] = [];
   const rel = (p: string) => relative(dataDir, p).split(sep).join('/');
@@ -179,10 +190,10 @@ export function buildData(
 
   // ---------- pin photos: every pin_photo file must exist in photos-species/
 
-  const pinJobs = new Map<string, PinJob>();
+  const pinJobs = new Map<string, PhotoJob>();
   /** URL of a pin_photo's square, or undefined (and an error) if its file is missing. */
   function pinSrc(
-    p: { file: string; crop?: PinJob['crop'] } | undefined,
+    p: { file: string; crop?: PhotoJob['crop'] } | undefined,
     file: string,
     id: string,
   ): string | undefined {
@@ -192,8 +203,9 @@ export function buildData(
       err(file, `${id}: pin_photo "${p.file}" not found in photos-species/`);
       return undefined;
     }
-    const out = pinFileName(source, p.crop);
-    if (!pinJobs.has(out)) pinJobs.set(out, { source, crop: p.crop, out, where: `${file}: ${id}` });
+    const out = photoFileName(source, 'pin', p.crop);
+    if (!pinJobs.has(out))
+      pinJobs.set(out, { source, shape: 'pin', crop: p.crop, out, where: `${file}: ${id}` });
     return `${PIN_URL_DIR}/${out}`;
   }
   const speciesPinSrc = new Map<string, string | undefined>();
@@ -307,7 +319,29 @@ export function buildData(
     for (const p of doc.plantings ?? [])
       plantingPinSrc.set(p.id, pinSrc(p.pin_photo, file, p.id) ?? speciesPinSrc.get(p.species));
 
-  if (errors.length || !speciesDoc || !sourcesDoc) return { data: null, errors, pinJobs: [] };
+  // ---------- header photos: a place's first photo, from photos/places/<place-id>/
+
+  const headerJobs: PhotoJob[] = [];
+  const headerPhoto = new Map<string, PublicPlace['header_photo']>();
+  for (const { file, doc } of places) {
+    const first = doc.photos?.[0];
+    if (!first) continue;
+    const source = join(placePhotoDir, doc.id, first.file);
+    if (!existsSync(source)) {
+      err(file, `photo "${first.file}" not found in photos/places/${doc.id}/`);
+      continue;
+    }
+    const out = photoFileName(source, 'header');
+    headerJobs.push({ source, shape: 'header', out, where: file });
+    headerPhoto.set(doc.id, {
+      src: `${HEADER_URL_DIR}/${out}`,
+      credit: first.credit,
+      license: first.license,
+    });
+  }
+
+  if (errors.length || !speciesDoc || !sourcesDoc)
+    return { data: null, errors, pinJobs: [], headerJobs: [] };
 
   // ---------- assemble the public JSON
 
@@ -321,10 +355,18 @@ export function buildData(
 
   const publicPlaces = places
     .map(({ doc }) => {
-      const { municipality_slug: _slug, plantings = [], illuminations = [], ...rest } = doc;
+      const {
+        municipality_slug: _slug,
+        photos: _photos,
+        plantings = [],
+        illuminations = [],
+        ...rest
+      } = doc;
       void _slug;
+      void _photos;
       return stripPrivate({
         ...rest,
+        header_photo: headerPhoto.get(doc.id),
         plantings: plantings.map((p) => ({
           ...p,
           starting_days: speciesById.get(p.species)!.starting_days,
@@ -351,7 +393,7 @@ export function buildData(
   // stripPrivate removes schema_version everywhere; put the top-level one back.
   data.schema_version = SCHEMA_VERSION;
 
-  return { data, errors, pinJobs: [...pinJobs.values()] };
+  return { data, errors, pinJobs: [...pinJobs.values()], headerJobs };
 }
 
 // ---------- helpers
@@ -428,10 +470,13 @@ export function parseCsv(text: string): string[][] {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const checkOnly = process.argv.includes('--check');
-  const { data, errors: dataErrors, pinJobs } = buildData();
+  const { data, errors: dataErrors, pinJobs, headerJobs } = buildData();
   const errors = dataErrors.length
     ? dataErrors
-    : await writePinPhotos(pinJobs, PIN_OUT_DIR, checkOnly);
+    : [
+        ...(await writePhotos(pinJobs, PIN_OUT_DIR, checkOnly)),
+        ...(await writePhotos(headerJobs, HEADER_OUT_DIR, checkOnly)),
+      ];
   if (errors.length) {
     console.error(`Data check failed: ${errors.length} problem${errors.length === 1 ? '' : 's'}\n`);
     for (const e of errors) console.error(`  ${e}`);
@@ -444,6 +489,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   } else {
     mkdirSync(dirname(OUT_FILE), { recursive: true });
     writeFileSync(OUT_FILE, JSON.stringify(data));
-    console.log(`Wrote ${relative(ROOT, OUT_FILE)}: ${summary}, ${pinJobs.length} pin photos`);
+    console.log(
+      `Wrote ${relative(ROOT, OUT_FILE)}: ${summary}, ${pinJobs.length} pin photos, ${headerJobs.length} header photos`,
+    );
   }
 }

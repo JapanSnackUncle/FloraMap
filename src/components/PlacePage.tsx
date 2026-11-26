@@ -4,6 +4,8 @@ import { featureName, fullAddress, placeName, stageColor, stageLabel } from '../
 import type { PublicSource, Species } from '../lib/schema';
 import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
+import { siteUrl } from '../config';
+import { DEBUG } from '../debugDate';
 import { featurePhoto } from '../pins';
 
 interface Props {
@@ -12,6 +14,10 @@ interface Props {
   sources: PublicSource[];
   today: string;
   lang: Lang;
+  /** Phones: ← in the name row (一覧に戻る), when there's a list to go back to. */
+  onBack?: () => void;
+  /** Phones: × in the name row (閉じる: back to the map). */
+  onClose?: () => void;
 }
 
 /** English when R has translated it, else the Japanese (CLAUDE.md, "Bilingual fields"). */
@@ -104,22 +110,60 @@ function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureS
 
 /** The place page (CLAUDE.md, "Place page"): status first, practical info, シーズン外 last. */
 export default function PlacePage(props: Props) {
-  const { ps, today, lang } = props;
+  const { ps, today, lang, onBack, onClose } = props;
   const p = ps.place;
   const current = ps.features.filter((s) => !isOff(s));
   const off = ps.features.filter(isOff);
   return (
     <aside className="place-page" aria-label={placeName(ps, lang)}>
-      {/* Header photo: only a photo taken at this place (none yet). Species close-ups never go here. */}
       {/* data-peek: a phone's sheet at peek height shows only this header (name, 本日休園). */}
       <header className="page-head" data-peek="">
-        <h2>
-          {placeName(ps, lang)}
-          {ps.closed && <span className="pill-closed">{t('closedToday', lang)}</span>}
-        </h2>
+        <div className="page-title">
+          {onBack && (
+            <button
+              type="button"
+              className="icon-btn"
+              aria-label={t('back', lang)}
+              onClick={onBack}
+            >
+              ←
+            </button>
+          )}
+          <h2>
+            {placeName(ps, lang)}
+            {ps.closed && <span className="pill-closed">{t('closedToday', lang)}</span>}
+          </h2>
+          {onClose && (
+            <button
+              type="button"
+              className="icon-btn close"
+              aria-label={t('close', lang)}
+              onClick={onClose}
+            >
+              ×
+            </button>
+          )}
+        </div>
         {/* English mode: the Japanese name, to match signs or type into a navigation app. */}
         {lang === 'en' && p.name_en && <p className="page-sub">{p.name_ja}</p>}
       </header>
+
+      {/* Header photo: only a photo taken at this place, never a species close-up. Below the
+          name, so the name alone fills a phone's peek. Debug builds show where it will go. */}
+      {p.header_photo ? (
+        <figure className="page-photo">
+          <img src={siteUrl(p.header_photo.src)} alt="" />
+          <figcaption>
+            {t('photoBy', lang)}: {p.header_photo.credit} · {p.header_photo.license}
+          </figcaption>
+        </figure>
+      ) : (
+        DEBUG && (
+          <figure className="page-photo">
+            <div className="photo-placeholder">{t('photoPlaceholder', lang)}</div>
+          </figure>
+        )
+      )}
 
       {/* Everything not シーズン外 (まもなく included), under the same name as the default
           filter. The page's main section, so its heading stands out from the others. */}

@@ -1,9 +1,10 @@
-// Species close-ups (photos-species/) -> small square WebP files in public/photos/pins/.
+// Photos -> small WebP files the app downloads instead of the originals:
+// - species close-ups (photos-species/) -> squares in public/photos/pins/;
+// - place header photos (photos/places/<place-id>/) -> HEADER_WIDTH wide in public/photos/places/.
 //
-// The originals are full-size phone photos (MBs each); pins and feature rows are about 44 px, so
-// the app only ever downloads these squares. Each output name carries a hash of the source bytes,
-// the crop and the output settings, so an unchanged photo is never redone and a changed one gets
-// a new URL (no stale copy in a browser cache).
+// The originals are full-size phone photos (MBs each). Each output name carries a hash of the
+// source bytes, the crop and the output settings, so an unchanged photo is never redone and a
+// changed one gets a new URL (no stale copy in a browser cache).
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
@@ -16,24 +17,30 @@ export type Crop = NonNullable<z.infer<typeof pinPhoto>['crop']>;
 
 /** Output side in pixels: 38 px of photo in a 48 px pin, 1.3× when selected (about 49 px), on a 3–4× screen. */
 export const PIN_SIZE = 192;
+/** Header photo width in pixels: a 400 px panel on a 2× screen. Never enlarged. */
+export const HEADER_WIDTH = 800;
 const QUALITY = 80;
 export const PIN_URL_DIR = '/photos/pins';
+export const HEADER_URL_DIR = '/photos/places';
 
-export interface PinJob {
+export interface PhotoJob {
   /** Absolute path of the original. */
   source: string;
+  /** A pin square (cut by `crop`), or a header photo (whole photo, HEADER_WIDTH wide). */
+  shape: 'pin' | 'header';
   crop?: Crop;
-  /** Output file name inside public/photos/pins/. */
+  /** Output file name inside the output folder. */
   out: string;
   /** Where the photo is named, for error messages. */
   where: string;
 }
 
 /** Output file name for a photo: `<stem>-<hash>.webp`. Reads the source to hash it. */
-export function pinFileName(source: string, crop: Crop | undefined): string {
+export function photoFileName(source: string, shape: PhotoJob['shape'], crop?: Crop): string {
+  const settings = shape === 'pin' ? { crop: crop ?? null, PIN_SIZE } : { HEADER_WIDTH };
   const h = createHash('sha1')
     .update(readFileSync(source))
-    .update(JSON.stringify({ crop: crop ?? null, PIN_SIZE, QUALITY }))
+    .update(JSON.stringify({ ...settings, QUALITY }))
     .digest('hex')
     .slice(0, 10);
   return `${parse(source).name}-${h}.webp`;
@@ -72,8 +79,8 @@ export function cropBox(
  * Write every missing output and delete outputs no job needs. With `checkOnly`, write nothing:
  * only check that each crop fits. Returns problems as "file: message" strings.
  */
-export async function writePinPhotos(
-  jobs: PinJob[],
+export async function writePhotos(
+  jobs: PhotoJob[],
   outDir: string,
   checkOnly = false,
 ): Promise<string[]> {
@@ -84,6 +91,14 @@ export async function writePinPhotos(
     if (!checkOnly && existsSync(target)) continue;
     // Apply the phone's rotation flag first, so width/height and the crop match the photo as seen.
     const upright = await sharp(job.source).rotate().toBuffer({ resolveWithObject: true });
+    if (job.shape === 'header') {
+      if (checkOnly) continue;
+      await sharp(upright.data)
+        .resize({ width: HEADER_WIDTH, withoutEnlargement: true })
+        .webp({ quality: QUALITY })
+        .toFile(target);
+      continue;
+    }
     const box = cropBox(upright.info.width, upright.info.height, job.crop);
     if ('error' in box) {
       errors.push(`${job.where}: ${box.error}`);

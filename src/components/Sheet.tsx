@@ -9,8 +9,6 @@ interface Props {
   onSnap: (s: Snap) => void;
   /** The heights a drag or the grab bar can reach, lowest first (the list skips half). */
   snaps: readonly Snap[];
-  /** Above the scrolling content, under the grab bar (a place page's 一覧に戻る / 閉じる). */
-  header?: ReactNode;
   /** Changes when the content is replaced (list ↔ a place page): scrolls back to the top. */
   contentKey: string;
   /** The sheet's height in px each time it comes to rest. */
@@ -40,7 +38,6 @@ export default function Sheet({
   snap,
   onSnap,
   snaps,
-  header,
   contentKey,
   onRest,
   handleLabel,
@@ -226,7 +223,6 @@ export default function Sheet({
         aria-label={handleLabel}
         onClick={() => onSnap(next)}
       />
-      {header}
       <div ref={content} className="sheet-content">
         {children}
       </div>

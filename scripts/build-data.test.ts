@@ -356,6 +356,46 @@ describe('pin photos', () => {
   });
 });
 
+// ---------- place header photos
+
+/** PLACE with two photos; the first is the header. */
+const PLACE_WITH_PHOTOS = PLACE.replace(
+  'closures:\n',
+  'photos:\n  - file: "gate.jpg"\n    credit: "R"\n    license: "own"\n' +
+    '  - file: "pond.jpg"\n    credit: "R"\n    license: "own"\n' +
+    'closures:\n',
+);
+
+describe('place header photos', () => {
+  it("uses the place's first photo from photos/places/<place-id>/; no photos → none", () => {
+    const d = dataset({ 'places/ibaraki/mito/test-park.yaml': PLACE_WITH_PHOTOS });
+    const placePhotos = join(d, 'place-photos');
+    mkdirSync(join(placePhotos, 'test-park'), { recursive: true });
+    writeFileSync(join(placePhotos, 'test-park', 'gate.jpg'), 'gate');
+
+    const r = buildData(d, join(d, 'photos'), placePhotos);
+    expect(r.errors).toEqual([]);
+    expect(r.headerJobs).toHaveLength(1);
+    const place = r.data!.places[0]!;
+    expect(place.header_photo).toEqual({
+      src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/),
+      credit: 'R',
+      license: 'own',
+    });
+    // The raw photo list (file names) isn't in the public JSON.
+    expect(place).not.toHaveProperty('photos');
+
+    const none = buildData(dataset(), join(d, 'photos'), placePhotos);
+    expect(none.data!.places[0]!.header_photo).toBeUndefined();
+  });
+
+  it("fails when the header photo's file is missing", () => {
+    const d = dataset({ 'places/ibaraki/mito/test-park.yaml': PLACE_WITH_PHOTOS });
+    const r = buildData(d, join(d, 'photos'), join(d, 'place-photos'));
+    expect(r.errors.join('\n')).toContain('photo "gate.jpg" not found in photos/places/test-park/');
+  });
+});
+
 // ---------- CSV parsing
 
 describe('parseCsv', () => {

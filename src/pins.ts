@@ -2,7 +2,7 @@
 // pin; the map only places the element. No status text and no kanji on the pin itself.
 
 import type { CSSProperties } from 'react';
-import { PIN_SELECTED_SCALE, PIN_TIP_TUCK_PX, type PinSize } from './config';
+import { PIN_SELECTED_SCALE, PIN_TIP_TUCK_PX, siteUrl, type PinSize } from './config';
 import type { Lang } from './i18n';
 import { stageColor, stageLabel } from './labels';
 import {
@@ -38,8 +38,7 @@ export interface PinLook {
 export function featurePhoto(pin: FeatureState, ps: PlaceStatus): string {
   if (pin.type === 'illumination') return placeholderPhoto({ type: 'illumination' });
   const planting = ps.place.plantings.find((p) => p.id === pin.id);
-  // pin_src starts at the site's top folder; BASE_URL ends in "/" (see config.ts).
-  if (planting?.pin_src) return `${import.meta.env.BASE_URL}${planting.pin_src.slice(1)}`;
+  if (planting?.pin_src) return siteUrl(planting.pin_src);
   return placeholderPhoto({ type: 'planting', species: planting?.species ?? '', kind: pin.kind });
 }
 

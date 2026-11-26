@@ -156,6 +156,11 @@ export const placeFile = z.strictObject({
   parking_ja: text.optional(),
   parking_en: text.optional(),
   official_urls: z.array(url).optional(),
+  /**
+   * On-location photos of the place, files in photos/places/<place-id>/. The first is the place
+   * page's header photo. Never a species close-up (CLAUDE.md, "Photos").
+   */
+  photos: z.array(photo).optional(),
   closures: closures.optional(),
   plantings: z.array(planting).optional(),
   illuminations: z.array(illumination).optional(),
@@ -277,8 +282,10 @@ export type PublicPlanting = Public<Planting> & {
   /** URL of the resized pin square (planting override, else species close-up); none → placeholder. */
   pin_src?: string;
 };
-export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_slug'> & {
+export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_slug' | 'photos'> & {
   plantings: PublicPlanting[];
+  /** The first of the place's `photos`, resized by build-data (`src`: its URL). */
+  header_photo?: { src: string; credit: string; license: string };
   illuminations: Public<Illumination>[];
   one_off_closures: Public<Omit<ClosureRow, 'place_id'>>[];
   festival_ids: string[];

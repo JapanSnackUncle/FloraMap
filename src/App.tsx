@@ -105,18 +105,25 @@ export default function App() {
   const sheetSnaps = selectedStatus || debugOpen ? ALL_SNAPS : LIST_SNAPS;
   const sheetSnap = sheetSnaps.includes(snap) ? snap : 'full';
 
-  // Phones: the sheet's button row. A place page: 閉じる (back to the map), plus 一覧に戻る when
-  // there's a list to go back to (the page was opened from the full list; at peek the list shows
-  // no rows, so a page opened then came from a pin or a link). The full list, which hides the
-  // map: 閉じる on its count line lowers it to peek.
-  const onSheetClose = selectedStatus
-    ? () => closeTo('peek')
-    : sheetSnap === 'full'
-      ? () => setSnap('peek')
-      : null;
-  const sheetClose = phone && !debugOpen && onSheetClose && (
-    <button type="button" className="sheet-close" onClick={onSheetClose}>
-      × {t('close', lang)}
+  // Phones: closing buttons. A place page has × (閉じる: back to the map) in its name row, and ←
+  // (一覧に戻る) when there's a list to go back to: the page was opened from the full list (at
+  // peek the list shows no rows, so a page opened then came from a pin or a link). The full list,
+  // which hides the map, has the same × on its count line: it lowers the list to peek.
+  const pageActions =
+    phone && !debugOpen
+      ? {
+          onBack: listSnap === 'full' ? () => closeTo('full') : undefined,
+          onClose: () => closeTo('peek'),
+        }
+      : {};
+  const listClose = phone && !debugOpen && !selectedStatus && sheetSnap === 'full' && (
+    <button
+      type="button"
+      className="icon-btn close"
+      aria-label={t('close', lang)}
+      onClick={() => setSnap('peek')}
+    >
+      ×
     </button>
   );
 
@@ -131,6 +138,7 @@ export default function App() {
         sources={data.sources}
         today={date}
         lang={lang}
+        {...pageActions}
       />
     ) : (
       <PlaceList
@@ -140,7 +148,7 @@ export default function App() {
         today={date}
         lang={lang}
         onSelect={open}
-        countAction={sheetClose}
+        countAction={listClose}
       />
     ));
 
@@ -227,19 +235,6 @@ export default function App() {
             onRest={setSheetH}
             handleLabel={t('sheetHandle', lang)}
             contentKey={debugOpen ? 'debug' : (selected ?? 'list')}
-            header={
-              selectedStatus &&
-              sheetClose && (
-                <div className="sheet-head">
-                  {listSnap === 'full' && (
-                    <button type="button" className="sheet-back" onClick={() => closeTo('full')}>
-                      ← {t('back', lang)}
-                    </button>
-                  )}
-                  {sheetClose}
-                </div>
-              )
-            }
           >
             {panel}
           </Sheet>

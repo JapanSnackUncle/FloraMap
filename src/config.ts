@@ -8,6 +8,9 @@
  * BASE_URL is the folder the site is served from: "/" normally, "/FloraMap/" on GitHub Pages
  * (set by `vite build --base`). Every file the app loads from its own site starts with it.
  */
+/** A file build-data wrote under public/ ("/photos/…"), as a URL on this site (BASE_URL ends in "/"). */
+export const siteUrl = (path: string): string => `${import.meta.env.BASE_URL}${path.slice(1)}`;
+
 export const TILES_URL: string =
   import.meta.env.VITE_TILES_URL ?? `${import.meta.env.BASE_URL}tiles/ibaraki.pmtiles`;
 
