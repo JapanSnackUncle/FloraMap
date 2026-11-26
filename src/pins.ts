@@ -101,7 +101,7 @@ export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1
     (count > 1 ? `<span class="pin-count">${count}</span>` : '') +
     '</div><span class="pin-tip"></span></div><span class="pin-label"><span></span></span>';
   el.classList.toggle('group', count > 1);
-  (el.querySelector('.pin') as HTMLElement).style.background = look.ring;
+  (el.querySelector('.pin') as HTMLElement).style.setProperty('--ring', look.ring);
   (el.querySelector('.pin-tip') as HTMLElement).style.borderTopColor = look.tip;
   // The pin's name: the only place it's drawn. MapView decides when it shows (collisions);
   // styles.css shows it on hover and for the selected pin too. It sits outside .pin so the

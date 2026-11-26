@@ -4,6 +4,10 @@
   --line: #e7e5e4;
   --bg: #fafaf9;
   --panel-w: 400px; /* list / place page, as in the prototype */
+  /* Layout edges in front of the map sit on multiples of 4 CSS px, so the map (and its pins)
+     starts on a whole screen pixel at every common display scaling (100%, 125%, 150%, 200%…).
+     A half-pixel start makes pin rings and photos round unevenly. */
+  --panel-max: round(down, 45%, 4px);
   font-family:
     'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
   color: var(--ink);
@@ -28,11 +32,13 @@ body,
 }
 
 .app-header {
+  flex: none;
+  height: 48px; /* a multiple of 4: see --panel-max */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   border-bottom: 1px solid var(--line);
   background: #fff;
 }
@@ -87,9 +93,12 @@ body,
 /* ---------- filters */
 
 .filter-bar {
+  flex: none;
+  height: 48px; /* a multiple of 4: see --panel-max */
   display: flex;
+  align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   overflow-x: auto;
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -137,9 +146,9 @@ body,
 
 .pin-marker {
   cursor: pointer;
-  /* MapLibre centres the marker with translate(-50%): an even width keeps that on whole
-     pixels (a thin pin alone is 49 px, which would put the pin and its label half a pixel off
-     and blur the text). */
+  /* MapLibre centres the marker with translate(-50%): a fixed even width keeps that on whole
+     pixels whatever the pin inside (full 54 px, thin 50 px), so the pin and its label never
+     sit half a pixel off (which blurs the text). */
   width: 54px;
 }
 
@@ -148,13 +157,23 @@ body,
 }
 
 .pin {
-  --pz: 54px; /* full pin size: (pz-10) of photo inside the 4px ring and 1px white gap */
+  --pz: 54px; /* full pin size: (pz-8) of photo inside the 4px ring */
   --rw: 4px; /* ring width */
   position: relative;
   width: var(--pz);
   height: var(--pz);
   padding: var(--rw);
   border-radius: 50%;
+  /* The ring (--ring: a colour, or a conic gradient while 咲き始め fills; set per pin) with a
+     white disc inside it, under the photo. Both are layers of this one element, so they
+     round to screen pixels together and the ring stays even. */
+  background:
+    radial-gradient(
+      circle closest-side,
+      #fff calc(100% - var(--rw)),
+      transparent calc(100% - var(--rw) + 0.75px)
+    ),
+    var(--ring, transparent);
 }
 
 /* Circle + taper. The shadow follows both shapes; the hover zoom grows from the tip. */
@@ -181,11 +200,13 @@ body,
   border-top-width: 10px;
 }
 
-/* Estimate: same photo size, thinner ring, so the pin is smaller. */
+/* Estimate: same photo size, thinner ring, so the pin is smaller. 2 px (not 1.5) keeps the
+   thin pin an even 4 px smaller than the full one, so it centres in its marker on a whole
+   pixel. */
 .pin.thin {
-  --rw: 1.5px;
-  width: calc(var(--pz) - 5px);
-  height: calc(var(--pz) - 5px);
+  --rw: 2px;
+  width: calc(var(--pz) - 4px);
+  height: calc(var(--pz) - 4px);
 }
 
 /* The hovered pin and its name go above every other pin; the pin zooms very slightly. */
@@ -201,10 +222,12 @@ body,
   display: block;
   width: 100%;
   height: 100%;
-  padding: 1px;
   border-radius: 50%;
-  background: #fff;
   object-fit: cover;
+  /* The photo's very edge fades to the white disc behind it (.pin) over 2 px: a soft white
+     edge against the ring, instead of a separate 1 px white gap, which rounded unevenly on
+     screens with fractional scaling. */
+  mask-image: radial-gradient(circle closest-side, #000 calc(100% - 2px), transparent 100%);
 }
 
 .photo-grey {
@@ -320,7 +343,7 @@ body,
 
 .place-list {
   width: var(--panel-w);
-  max-width: 45%;
+  max-width: var(--panel-max);
   overflow-y: auto;
   border-right: 1px solid var(--line);
   background: #fff;
@@ -450,7 +473,7 @@ body,
 
 .place-page {
   width: var(--panel-w);
-  max-width: 45%;
+  max-width: var(--panel-max);
   overflow-y: auto;
   border-right: 1px solid var(--line);
   background: #fff;
@@ -571,7 +594,7 @@ body,
 
 /* Lined up with the side panel below (on the left, like Google Maps). */
 .page-bar .back {
-  width: min(var(--panel-w), 45%);
+  width: min(var(--panel-w), var(--panel-max));
   margin-left: -1rem;
   border: 0;
   border-radius: 0;
@@ -590,21 +613,32 @@ body,
 /* ---------- debug mode (dev builds only) */
 
 .debug-bar {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 1rem;
+  /* 28 px rows, 4 px apart, 6 px padding: 40 px for one row, 72 for two, always a multiple
+     of 4 (see --panel-max). The bottom line is a shadow, not a border: a 1 px border is drawn
+     as one screen pixel (0.8 px at 125%) and would throw the height off. */
+  gap: 4px 0.35rem;
+  padding: 6px 1rem;
   background: #fef3c7;
-  border-bottom: 1px solid #f59e0b;
+  box-shadow: inset 0 -1px #f59e0b;
   font-size: 0.85rem;
+}
+
+.debug-bar > * {
+  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 .debug-bar button,
 .debug-bar input,
 .debug-bar select {
   font: inherit;
-  padding: 0.15rem 0.45rem;
+  height: 28px;
+  padding: 0 0.45rem;
 }
 
 .debug-tag {
@@ -627,7 +661,7 @@ body,
 
 .debug-panel {
   width: var(--panel-w);
-  max-width: 45%;
+  max-width: var(--panel-max);
   overflow-y: auto;
   border-right: 1px solid var(--line);
   background: #fff;
@@ -676,7 +710,7 @@ body,
 }
 
 .debug-swatch.thin {
-  border-width: 1.5px;
+  border-width: 2px;
 }
 
 .debug-chip {

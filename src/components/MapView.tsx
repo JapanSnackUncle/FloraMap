@@ -140,15 +140,15 @@ export type ViewBounds = [number, number, number, number];
 const NAMES_SOURCE = 'pin-names';
 
 /**
- * Each pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; thin is 49 px;
+ * Each pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; thin is 50 px;
  * the selected pin is scaled 1.3× from its tip). MapLibre can't see the HTML pins, so each
  * name feature carries an invisible image this size above its point: names then avoid pins.
  */
 const HOLES = {
   full: [54, 62],
-  thin: [49, 58],
+  thin: [50, 59],
   'full-sel': [70, 81],
-  'thin-sel': [64, 75],
+  'thin-sel': [65, 77],
 } as const;
 
 function holeImage(thin: boolean, selected: boolean): string {
