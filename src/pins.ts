@@ -10,6 +10,8 @@ export interface PinLook {
   photo: string;
   /** CSS background for the ring: a colour, or a conic gradient for 咲き始め. */
   ring: string;
+  /** Colour of the taper under the circle: the stage colour (solid even while 咲き始め fills). */
+  tip: string;
   /** Thin ring = estimate (usual window, forecast, stale, last season's dates). */
   thin: boolean;
   /** Photo treatment: grey for まもなく / シーズン外 / unlit, part-faded for 見頃過ぎ. */
@@ -47,6 +49,7 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
   return {
     photo: photoFor(pin, ps),
     ring,
+    tip: color,
     thin: !pin.confirmed || noInfo,
     photoFilter: greyed ? 'grey' : faded ? 'faded' : 'none',
     festival: ps.festivals.length > 0,
@@ -60,8 +63,9 @@ const CLOCK_SVG =
   '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 
 /**
- * Create or update a pin's DOM. `el` is the marker element MapLibre positions (it sets a
- * transform on it), so the visible pin is an inner element that can scale on hover.
+ * Create or update a pin's DOM: a photo circle with a taper whose tip is the place's point (the
+ * marker is anchored at its bottom). `el` is the element MapLibre positions (it sets a transform
+ * on it), so the visible pin is an inner element that can scale on hover.
  */
 export function drawPin(el: HTMLElement, look: PinLook, name: string): void {
   el.classList.add('pin-marker');
@@ -69,13 +73,14 @@ export function drawPin(el: HTMLElement, look: PinLook, name: string): void {
   el.setAttribute('role', 'img');
   el.setAttribute('aria-label', look.ariaLabel);
   el.innerHTML =
+    `<div class="pin-body${look.thin ? ' thin' : ''}">` +
     `<div class="pin${look.thin ? ' thin' : ''}">` +
     `<img alt="" src="${look.photo}" class="photo-${look.photoFilter}">` +
     (look.festival ? '<span class="pin-fest"></span>' : '') +
     (look.clock ? `<span class="pin-clock">${CLOCK_SVG}</span>` : '') +
-    '</div><span class="pin-label"></span>';
-  const pin = el.firstElementChild as HTMLElement;
-  pin.style.background = look.ring;
+    '</div><span class="pin-tip"></span></div><span class="pin-label"></span>';
+  (el.querySelector('.pin') as HTMLElement).style.background = look.ring;
+  (el.querySelector('.pin-tip') as HTMLElement).style.borderTopColor = look.tip;
   // Name on hover only (step 5.8 adds names by zoom level). It sits outside .pin so the
   // pin's hover zoom doesn't scale the text.
   el.querySelector('.pin-label')!.textContent = name;

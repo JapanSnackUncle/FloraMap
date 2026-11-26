@@ -146,8 +146,30 @@ body,
   height: var(--pz);
   padding: var(--rw);
   border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+}
+
+/* Circle + taper. The shadow follows both shapes; the hover zoom grows from the tip. */
+.pin-body {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  transform-origin: 50% 100%;
   transition: transform 0.15s;
+}
+
+.pin-tip {
+  display: block;
+  width: 0;
+  height: 0;
+  margin: -3px auto 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 11px solid;
+}
+
+.pin-body.thin .pin-tip {
+  margin-top: -1px;
+  border-left-width: 5px;
+  border-right-width: 5px;
+  border-top-width: 10px;
 }
 
 /* Estimate: same photo size, thinner ring, so the pin is smaller. */
@@ -162,7 +184,7 @@ body,
   z-index: 1000 !important;
 }
 
-.pin-marker:hover .pin {
+.pin-marker:hover .pin-body {
   transform: scale(1.06);
 }
 

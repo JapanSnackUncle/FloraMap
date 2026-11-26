@@ -138,7 +138,8 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
       seen.add(ps.place.id);
       let marker = markers.current.get(ps.place.id);
       if (!marker) {
-        marker = new maplibregl.Marker({ element: document.createElement('div') })
+        // Anchored at the bottom: the taper's tip sits on the point.
+        marker = new maplibregl.Marker({ element: document.createElement('div'), anchor: 'bottom' })
           .setLngLat([ps.place.lng, ps.place.lat])
           .addTo(map);
         markers.current.set(ps.place.id, marker);
