@@ -232,6 +232,127 @@ body,
   opacity: 1;
 }
 
+/* ---------- list (CLAUDE.md, "List") */
+
+.place-list {
+  width: 340px;
+  max-width: 45%;
+  overflow-y: auto;
+  border-left: 1px solid var(--line);
+  background: #fff;
+  font-size: 0.85rem;
+}
+
+.place-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list-count {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  background: #fff;
+  color: var(--mute);
+  font-size: 0.8rem;
+}
+
+.list-empty {
+  margin: 0;
+  padding: 1rem 0.75rem;
+  color: var(--mute);
+}
+
+.list-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.list-row:hover {
+  background: var(--bg);
+}
+
+.list-pin {
+  --pz: 40px;
+  flex: none;
+}
+
+.list-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.list-name,
+.list-feature {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.stage-tag {
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+.stage-tag.muted {
+  background: var(--line);
+  color: var(--mute);
+}
+
+.list-status {
+  color: var(--mute);
+  font-size: 0.8rem;
+}
+
+/* Aging report: the age is shown prominently. */
+.list-status.aging {
+  color: #b45309;
+  font-weight: 700;
+}
+
+.list-fest {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.list-fest::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f97316;
+}
+
+.pill-closed {
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  border: 1px solid #9b1c1c;
+  color: #9b1c1c;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
 /* ---------- debug mode (dev builds only) */
 
 .debug-bar {

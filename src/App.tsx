@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import DebugBar from './components/DebugBar';
 import DebugPanel from './components/DebugPanel';
 import FilterBar from './components/FilterBar';
-import MapView from './components/MapView';
+import MapView, { type ViewBounds } from './components/MapView';
+import PlaceList from './components/PlaceList';
 import { useData } from './data';
 import { DEBUG, useAppDate } from './debugDate';
 import { t, type Lang } from './i18n';
@@ -12,8 +13,10 @@ export default function App() {
   const [lang, setLang] = useState<Lang>('ja');
   const { data, error } = useData();
   const { date, isOverride, setDate } = useAppDate();
-  const [panelOpen, setPanelOpen] = useState(DEBUG);
-  const [focus, setFocus] = useState<{ id: string; n: number } | null>(null);
+  // Debug only: the Why panel takes the list's place while it's open.
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [bounds, setBounds] = useState<ViewBounds | null>(null);
+  const [focus, setFocus] = useState<{ lng: number; lat: number; n: number } | null>(null);
   const [filter, setFilter] = useState<Filter>('in-season');
 
   // Every place's status on `date`: the single source for pins, list and place page.
@@ -30,6 +33,12 @@ export default function App() {
         .map((ps) => ({ ...ps, pin: pinForFilter(ps, filter) })),
     [statuses, filter],
   );
+
+  // Debug panel only: fly to a place. The list never moves the map (step 5.7 adds selection).
+  const flyTo = (id: string) => {
+    const p = data?.places.find((x) => x.id === id);
+    if (p) setFocus((f) => ({ lng: p.lng, lat: p.lat, n: (f?.n ?? 0) + 1 }));
+  };
 
   return (
     <div className="app" lang={lang}>
@@ -56,7 +65,7 @@ export default function App() {
       <FilterBar filter={filter} setFilter={setFilter} lang={lang} />
       <div className="main">
         <div className="map-area">
-          <MapView statuses={visible} lang={lang} focus={focus} />
+          <MapView statuses={visible} lang={lang} focus={focus} onViewChange={setBounds} />
           {data && visible.length === 0 && (
             <p className="map-notice">
               {t('noMatches', lang)}{' '}
@@ -66,14 +75,18 @@ export default function App() {
             </p>
           )}
         </div>
-        {DEBUG && panelOpen && data && (
-          <DebugPanel
-            statuses={statuses}
-            species={data.species}
-            lang={lang}
-            onSelect={(id) => setFocus((f) => ({ id, n: (f?.n ?? 0) + 1 }))}
-          />
-        )}
+        {data &&
+          (DEBUG && panelOpen ? (
+            <DebugPanel statuses={statuses} species={data.species} lang={lang} onSelect={flyTo} />
+          ) : (
+            <PlaceList
+              places={visible}
+              bounds={bounds}
+              species={data.species}
+              today={date}
+              lang={lang}
+            />
+          ))}
       </div>
     </div>
   );

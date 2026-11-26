@@ -27,13 +27,13 @@ v1 has to work with zero users and fit around a day job. Everything deferred dep
 
 **Deferred to v2+**
 
-User reports and accounts, push notifications, a forecasting model, an AI auto-repair agent for the watcher, native apps, a park admin page, monetisation, other prefectures, route planning, general events (markets and other non-seasonal events).
+User reports and accounts, push notifications, a forecasting model, an AI auto-repair agent for the watcher, native apps, a park admin page, monetization, other prefectures, route planning, general events (markets and other non-seasonal events).
 
 ## Why the rules are the way they are
 
 **Five stage levels.** Most sources only use three words (咲き始め / 見頃 / 見頃後半), so more in-bloom levels couldn't be filled reliably; five read without a legend; the 見頃 boundary matches how parks and JMA define it (7分, about 80% open). The number of levels is the costly thing to change later, so it's fixed.
 
-**Leaves share the levels and ring colours.** The ring shows the stage, not the plant; the photo shows red or yellow leaves. Kochia is two species: `kochia-green` (summer, bloom labels) and `kochia-red` (October, leaf labels). Roses get two windows (spring, autumn).
+**Leaves (i.e. autumn leaves) share the levels and ring colors.** As with flowers, the ring shows the stage, the photo shows red or yellow leaves. Kochia is two species: `kochia-green` (summer, bloom labels) and `kochia-red` (October, leaf labels). Roses get two windows (spring, autumn).
 
 **Short lead window (14 days).** Showing まもなく months ahead fills the map with grey pins that say nothing. Per-flower lead values can come later if one setting proves wrong.
 
@@ -41,13 +41,13 @@ User reports and accounts, push notifications, a forecasting model, an AI auto-r
 
 **Freshness limits by stage.** まもなく changes slowly; 咲き始め moves fast toward peak; peaks last about 1–10 days; past peak falls off quickly. Per-species overrides (roses longer, cherry shorter) can come later.
 
-**Thin ring for estimates.** Dashed rings were noisy at pin size; a faded ring is ruled out because a faded 見頃 reads as 咲き始め. Thin keeps the colour and the photo size.
+**Thin ring for estimates.** Dashed rings were noisy at pin size; a faded ring is ruled out because a faded 見頃 reads as 咲き始め. Thin keeps the color and the photo size.
 
 **Illuminations outrank a flower at peak** (changed 25 Nov) during their run: after dark, the light-up is the reason to go.
 
 **Closures belong to the venue, with no rule engine.** A closed park closes its flowers and its lights alike, so one closures block per place. Patterns like 祝日なら翌日 or "2月第1火曜〜金曜" are written out as dates when each season's leaflet is entered, because a runtime rule engine is where silent bugs live. A helper script may suggest the dates from a Japanese holiday library; a person checks them before saving. Upkeep: re-read each venue's leaflet when it's published (about 5–6 venues, roughly 15 minutes a season).
 
-**Featured tie-break in v1.** It may never be used, but the logic is cheap to add now and awkward to retrofit into ranking tests later. Candidates: コキア紅葉 and ネモフィラ at ひたち海浜公園.
+**Featured-species tie-break in v1.** It may never be used, but the logic is cheap to add now and awkward to retrofit into ranking tests later. Candidates: コキア紅葉 and ネモフィラ at ひたち海浜公園.
 
 **Append-only status log.** It becomes the record of actual peak dates, which is the raw material for a forecasting model in v2. Split by year (`statuses/2027.csv`) only if it grows large.
 
@@ -55,7 +55,7 @@ User reports and accounts, push notifications, a forecasting model, an AI auto-r
 
 **Daily routine in season (target: under ~15 minutes).**
 
-- One **morning digest** by email or LINE rather than an alert per place.
+- One **morning digest** by email or LINE rather than an alert per place. (preferably via Claude somehow?)
 - **Triggers:** a status goes stale while the place is in season (usual window open, or a forecast says it should be blooming); no update for 3 weeks after the last report; the watcher sees a source page change; a closures block is past its `valid_until`.
 - **Each entry shows:** place and flower, last stage and 分咲き figure, days since, source link, and why it's flagged (e.g. "筑波山梅林: no update for 6 days, usually at peak now").
 - **R's action:** check the source or the park's social media, then add a status row. If nothing has changed, add a row with the same level and today's date: that confirms it and resets freshness.
@@ -69,7 +69,7 @@ Official pages stay the main source; social accounts only through official APIs.
 - **X:** pay-per-use API ($0.005 per post read; roughly ¥700–2,500 a month at peak for 30–50 accounts, near zero off-season). Before applying, read the Developer Agreement clause on "tracking, alerting, or monitoring" and describe the use case to match.
 - **Instagram:** Graph API Business Discovery reads public posts of Business/Creator accounts. Still to confirm it returns caption and timestamp (test one park account in the Graph API Explorer). Needs our own professional account, a Facebook Page and Meta app review.
 - **Open question:** whether storing anything from X/Instagram is needed at all. The use would be reading posts and photos to judge stage; only the derived level would be kept.
-- **Photo-based stage estimates** (a vision model reading a photo) only on photos we own or are sent: local reporters, later a park admin page. These are stored as `admin` status rows, as are R's own observations.
+- **Photo-based stage estimates** (a vision model reading a photo) only on photos we own or are sent: local reporters, later a park admin page. These are stored as `admin` status rows, as are R's own observations. I don't see why a vision model can't be used on a photo that R manually pulls from social media. Essentially, it's the same as R making a judgment based on the photo, which seems legal.
 - **Why not Google Maps photos:** no dates on them, and the Maps Platform terms ban extracting or creating content from them.
 
 ## Roadmap
@@ -102,9 +102,9 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [x] 5.3 Status wiring and a basic debug bar: date picker, ±1/±7 days, season presets, each place's pin and `why` (25 Nov). The debug date is kept in the address bar (`?date=2027-04-16`); the bar is left out of production builds. Season offset and simulated scraper outage wait until there are real status rows to shift.
   - [x] 5.4 Ring pins: placeholder photo, stage colour, 咲き始め fill, full vs thin ring, gold lit, festival dot, clock badge (25 Nov). HTML markers; all places shown until the filters in 5.5.
   - [x] 5.5 Filters: the five chips, シーズン中 by default (25 Nov). A notice with a すべて表示 button shows when nothing matches.
-  - [ ] 5.6 List: visible places with stage, source and age, 分咲き, dates, 本日休園, festival tags.
+  - [x] 5.6 List: visible places with stage, source and age, 分咲き, dates, 本日休園, festival tags.
   - [ ] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
-  - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle. Also when multiple pins overlap excessively on the map, group into a single pin with an indicator on the edge of the pin with the number of pins in the group. Clicking the pin will zoom in the map without popping up details.
+  - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle. Also when multiple pins overlap excessively on the map, group into a single pin (showing the marquee Place) with an indicator on the edge of the pin with the number of pins in the group. Clicking the pin will zoom in the map without popping up details.
   - [ ] 5.9 Phone pass: narrow layout, tested on a phone over Wi-Fi.
 
 ### Phase 2 – App complete (weeks 4–6)
@@ -139,15 +139,16 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Cherry, nemophila, azalea, roses: the highest-traffic test.
 - [ ] Contact parks with a live product to show (starts the v2 park admin page).
 - [ ] Decide on v2 from the numbers.
+- [ ] Add more blooms for less crowded seasons, like chrysanthemum in the fall.
 
 ## Ideas parked for later
 
 Not v1 unless a real place needs it.
 
-- **Map:** smaller ring pins or clusters when zoomed out; the pin photo switching to the leading flower (needs a photo per planting); check partial arcs are readable at pin size; photo points at the best viewing spots.
 - **Closures:** a 明日休園 pill the day before.
 - **Stages:** per-flower LEAD values; per-species freshness limits; official vs user report conflicts (v2, once user reports exist).
 - **Data:** the 32 `in_v1: no` places; 桜川市総合運動公園 and SAKURAフェスティバル (parked: no plantings); general events via the `kind` field; other prefectures (the folder layout is ready for them).
+- **Look-ahead**: similar to the debug mode, users can select a date in the future, up to a reasonable limit (couple weeks to a month), to see what's happening on that date. UI will indicate that blooms are predictions.
 
 ## Success metrics and risk
 

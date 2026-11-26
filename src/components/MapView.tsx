@@ -51,12 +51,24 @@ const MAX_BOUNDS: [[number, number], [number, number]] = [
 interface Props {
   statuses: PlaceStatus[];
   lang: Lang;
-  /** Fly to this place; `n` changes on every request so the same place can be chosen twice. */
-  focus?: { id: string; n: number } | null;
+  /**
+   * Fly here; `n` changes on every request so the same point can be chosen twice. Only a new
+   * request moves the map: filter or date changes never do.
+   */
+  focus?: { lng: number; lat: number; n: number } | null;
+  /** Called with the visible area [west, south, east, north] once the map stops moving. */
+  onViewChange?: (bounds: ViewBounds) => void;
 }
 
-export default function MapView({ statuses, lang, focus }: Props) {
+export type ViewBounds = [number, number, number, number];
+
+export default function MapView({ statuses, lang, focus, onViewChange }: Props) {
   const container = useRef<HTMLDivElement>(null);
+  // Latest callback in a ref, so the map's event listener never needs re-attaching.
+  const onView = useRef(onViewChange);
+  useEffect(() => {
+    onView.current = onViewChange;
+  }, [onViewChange]);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
   const markers = useRef(new Map<string, maplibregl.Marker>());
@@ -97,7 +109,16 @@ export default function MapView({ statuses, lang, focus }: Props) {
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-    map.on('load', () => setLoaded(true));
+    const reportView = () => {
+      const b = map.getBounds();
+      onView.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    };
+    map.on('load', () => {
+      setLoaded(true);
+      reportView();
+    });
+    // "moveend" fires once a pan, zoom or fly-to finishes, not on every frame.
+    map.on('moveend', reportView);
     mapRef.current = map;
     return () => {
       mapRef.current = null;
@@ -144,10 +165,9 @@ export default function MapView({ statuses, lang, focus }: Props) {
 
   useEffect(() => {
     const map = mapRef.current;
-    const p = focus && statuses.find((x) => x.place.id === focus.id)?.place;
-    if (!map || !p) return;
-    map.flyTo({ center: [p.lng, p.lat], zoom: Math.max(map.getZoom(), 13) });
-  }, [focus, statuses]);
+    if (!map || !focus) return;
+    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 13) });
+  }, [focus]);
 
   return <div ref={container} className="map" />;
 }

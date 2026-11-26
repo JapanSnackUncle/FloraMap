@@ -1,24 +1,13 @@
 import type { Lang } from '../i18n';
 import type { Species } from '../lib/schema';
-import { stageColor, stageLabel } from '../labels';
-import { rank, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
+import { featureName, stageColor, stageLabel } from '../labels';
+import { rank, RING_COLORS, type PlaceStatus } from '../lib/status';
 
 interface Props {
   statuses: PlaceStatus[];
   species: Species[];
   lang: Lang;
   onSelect: (placeId: string) => void;
-}
-
-function featureName(s: FeatureState, ps: PlaceStatus, species: Species[], lang: Lang): string {
-  if (s.type === 'illumination') {
-    const il = ps.place.illuminations.find((x) => x.id === s.id);
-    return (lang === 'en' && il?.name_en) || il?.name_ja || s.id;
-  }
-  const pl = ps.place.plantings.find((x) => x.id === s.id);
-  const sp = species.find((x) => x.id === pl?.species);
-  const name = sp ? sp[lang === 'en' ? 'name_en' : 'name_ja'] : (pl?.species ?? s.id);
-  return pl?.species_variety ? `${name}（${pl.species_variety}）` : name;
 }
 
 /** Dev-only: every place's pin choice and the reason for it, best pins first. */
