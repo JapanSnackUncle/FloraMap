@@ -18,7 +18,8 @@ checked_against: ["https://weathernews.jp/illumi/spot/1702003/"]
 illuminations:
   - id: hitachi-civic-illumination
     kind: illumination
-    name_ja: "Hitachi Starlight Illumination 2026"
+    name_ja: "ヒタチ スターライト イルミネーション 2026"
+    name_en: "Hitachi Starlight Illumination 2026"
     editions:
       - season: "2026-27"
         from: "2026-11-14"
