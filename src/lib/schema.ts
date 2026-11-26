@@ -64,6 +64,17 @@ export const photo = z.strictObject({
   license: text,
 });
 
+const percent = z.number().min(0).max(100);
+
+/**
+ * A species close-up (file in photos-species/). Optional `crop` picks the square used for pins and
+ * feature rows: `x`, `y` = its centre in % of the photo's width and height, `size` = its side in %
+ * of the photo's shorter side. Without `crop`, the largest centred square is used.
+ */
+export const pinPhoto = photo.extend({
+  crop: z.strictObject({ x: percent, y: percent, size: z.number().gt(0).max(100) }).optional(),
+});
+
 export const planting = z.strictObject({
   id: slug,
   kind: z.enum(['bloom', 'foliage']),
@@ -75,7 +86,7 @@ export const planting = z.strictObject({
   window_raw: text.optional(),
   official_urls: z.array(url).optional(),
   /** Pin image override when the species close-up doesn't fit (e.g. 河津桜). */
-  pin_photo: photo.optional(),
+  pin_photo: pinPhoto.optional(),
   /** Place-specific photos, for the place page. */
   photos: z.array(photo).optional(),
   ...privateFields,
@@ -201,8 +212,8 @@ export const species = z.strictObject({
   kind: z.enum(['bloom', 'foliage']),
   /** Days of 咲き始め (色づき始め for leaves) shown before the usual window when there's no report. */
   starting_days: z.number().int().min(0).max(60),
-  /** Close-up used as the pin image for this species' plantings. */
-  pin_photo: photo.optional(),
+  /** Close-up used as the pin image for this species' plantings. Never a place's header photo. */
+  pin_photo: pinPhoto.optional(),
   name_ja: text,
   name_en: text,
 });
@@ -263,6 +274,8 @@ export type PublicPlanting = Public<Planting> & {
   statuses: PublicStatus[];
   /** Copied from the planting's species by build-data. */
   starting_days: number;
+  /** URL of the resized pin square (planting override, else species close-up); none → placeholder. */
+  pin_src?: string;
 };
 export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_slug'> & {
   plantings: PublicPlanting[];

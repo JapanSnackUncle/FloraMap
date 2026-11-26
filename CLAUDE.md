@@ -45,6 +45,7 @@ data/
   closures.csv                # append-only one-off venue closures
 scripts/
   build-data.ts               # YAML/CSV -> public/data/places.json, with validation
+  pin-photos.ts               # photos-species/ -> cropped 192 px squares in public/photos/pins/
   clean_sheet.py              # retired: load/save for the staging sheet
   build-clean-sheet.py        # retired one-off: original sheet -> staging sheet
   import-sheet.py             # retired one-off: staging sheet -> data/ (run 2026-11-25; locked)
@@ -58,6 +59,7 @@ reference/                    # exports listed above
     draft-list.xlsx           # original claude.ai export
     draft-list-clean.xlsx     # retired 2026-11-25: archive only, never edit or re-import
     import-report.md          # data to-do list from the import: tick off items as data/ is fixed
+photos-species/               # species close-up originals (pin_photo files)
 GLOSSARY.md                   # project terms
 ```
 
@@ -75,8 +77,11 @@ GLOSSARY.md                   # project terms
   - **bloom/foliage:** broad `species` (from species.yaml) + optional free-text `species_variety`, plus `usual_window` as month + third (`"04-2"` = mid-April): the typical **見頃** period, as sources state it (例年の見頃). The sheet only gives text like "4月上旬". Convert it, and mark every converted window `provisional: true` until checked against past data. Optional `featured: true` marks a place's flagship flora (see Pin choice).
   - Windows are a list, so roses (spring, autumn) can have two. Species-varieties that bloom weeks apart at one place (河津桜 and ソメイヨシノ) are separate plantings. Kochia is two species, `kochia-green` (bloom) and `kochia-red` (foliage), each with its own planting.
   - **illumination:** an edition per season with `from`/`to` dates, nightly `hours` by date range (かわち's change on 1/13), and `dates_announced: true|false`. Closed days are not stored here (see Closures). Rain cancellation (きらくやま) is a note only.
-- **Photos** (each with required `credit` and `license`; pin close-ups in `photos-pin/`, other photos under `photos/`; resized at build time — pipeline not built yet):
-  - **Pin images are species close-ups**, not location shots: `pin_photo` in species.yaml. A planting can override with its own `pin_photo` where its variety looks different (河津桜, 八重桜). Order: planting override → species photo for its kind → code-drawn placeholder.
+- **Photos** (each with required `credit` and `license`; species close-ups in `photos-species/`, other photos under `photos/`):
+  - **Pin images are species close-ups**, not location shots: `pin_photo` in species.yaml. A planting can override with its own `pin_photo` where its variety looks different (河津桜, 八重桜). Order: planting override → species photo for its kind → code-drawn placeholder. The same square is used on the pin, the list row and the feature row on the place page.
+  - **Species close-ups never appear as a place's header photo**: they weren't taken at that place. The header shows only an on-location photo of the place (none yet, so no header).
+  - **Crop:** a `pin_photo` may have `crop: { x, y, size }`: the square's centre at x%, y% of the photo's width and height, its side as size% of the shorter side. Without it, the largest centred square. A square that runs off the photo fails the build.
+  - **Resizing:** `build-data.ts` (via `scripts/pin-photos.ts`, using sharp) writes each crop as a 192 px WebP to `public/photos/pins/` (git-ignored, regenerated on build) and puts its URL in the planting's `pin_src`. The app never loads the originals. Place-specific `photos` aren't resized yet.
   - **Illuminations use their own on-location `photos`**; the first is the pin image, else the placeholder.
   - **Plantings' `photos`** are place-specific shots for the place page, falling back to the species close-up.
 - **Bilingual fields:** `name_ja`, `name_en`, `name_kana` for places; optional `name_en` for festivals and illuminations; hours, closed days, fees, parking and night events as free text per language (`*_ja`, optional `*_en`, translated by R, never machine-translated); English mode falls back to the Japanese text while `*_en` is empty. Fees that change during a festival go on the festival edition.

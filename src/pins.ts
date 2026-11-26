@@ -24,10 +24,15 @@ export interface PinLook {
   ariaLabel: string;
 }
 
-/** A feature's photo: its own, else its species close-up, else the drawn placeholder. */
+/**
+ * A feature's pin/row photo: the planting's pin_photo override, else its species close-up (both
+ * resolved by build-data into `pin_src`), else the drawn placeholder. Illuminations: placeholder
+ * until they have on-location photos.
+ */
 export function featurePhoto(pin: FeatureState, ps: PlaceStatus): string {
   if (pin.type === 'illumination') return placeholderPhoto({ type: 'illumination' });
   const planting = ps.place.plantings.find((p) => p.id === pin.id);
+  if (planting?.pin_src) return planting.pin_src;
   return placeholderPhoto({ type: 'planting', species: planting?.species ?? '', kind: pin.kind });
 }
 

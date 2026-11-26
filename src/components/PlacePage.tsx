@@ -110,8 +110,7 @@ export default function PlacePage(props: Props) {
   const off = ps.features.filter(isOff);
   return (
     <aside className="place-page" aria-label={placeName(ps, lang)}>
-      {/* Photo slot: the place's own photo once there is one; until then the front feature's. */}
-      {ps.pin && <img alt="" src={featurePhoto(ps.pin, ps)} className="page-hero" />}
+      {/* Header photo: only a photo taken at this place (none yet). Species close-ups never go here. */}
       <header className="page-head">
         <h2>
           {placeName(ps, lang)}

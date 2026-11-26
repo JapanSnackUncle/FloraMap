@@ -1,6 +1,6 @@
-// data/ (YAML + CSV) -> public/data/places.json
+// data/ (YAML + CSV) -> public/data/places.json, photos-species/ -> public/photos/pins/
 //
-//   node scripts/build-data.ts           validate and write the JSON
+//   node scripts/build-data.ts           validate and write the JSON and pin photos
 //   node scripts/build-data.ts --check   validate only
 //
 // Every problem is listed with its file and field; any problem fails the build,
@@ -28,10 +28,12 @@ import {
   type PublicPlace,
   type StatusRow,
 } from '../src/lib/schema.ts';
+import { PIN_URL_DIR, pinFileName, writePinPhotos, type PinJob } from './pin-photos.ts';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const DATA_DIR = join(ROOT, 'data');
 export const OUT_FILE = join(ROOT, 'public', 'data', 'places.json');
+export const PIN_OUT_DIR = join(ROOT, 'public', 'photos', 'pins');
 
 const STATUS_COLUMNS = [
   'planting_id',
@@ -48,9 +50,14 @@ const CLOSURE_COLUMNS = ['place_id', 'date', 'reason', 'source'];
 export interface BuildResult {
   data: PublicData | null;
   errors: string[];
+  /** Pin squares to make from photos-species/ (see pin-photos.ts). */
+  pinJobs: PinJob[];
 }
 
-export function buildData(dataDir: string = DATA_DIR): BuildResult {
+export function buildData(
+  dataDir: string = DATA_DIR,
+  pinPhotoDir: string = join(dataDir, '..', 'photos-species'),
+): BuildResult {
   const errors: string[] = [];
   const rel = (p: string) => relative(dataDir, p).split(sep).join('/');
   const err = (file: string, msg: string) => errors.push(`${file}: ${msg}`);
@@ -170,14 +177,28 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
   );
   const plantingIds = new Set([...plantingPlace.keys()].filter((id) => featureIds.has(id)));
 
-  // ---------- pin photos: every species pin_photo file must exist in photos-pin/
+  // ---------- pin photos: every pin_photo file must exist in photos-species/
 
-  const pinPhotoDir = join(dataDir, '..', 'photos-pin');
-  for (const s of speciesDoc?.species ?? []) {
-    const f = s.pin_photo?.file;
-    if (f && !existsSync(join(pinPhotoDir, f)))
-      err('species.yaml', `${s.id}: pin_photo "${f}" not found in photos-pin/`);
+  const pinJobs = new Map<string, PinJob>();
+  /** URL of a pin_photo's square, or undefined (and an error) if its file is missing. */
+  function pinSrc(
+    p: { file: string; crop?: PinJob['crop'] } | undefined,
+    file: string,
+    id: string,
+  ): string | undefined {
+    if (!p) return undefined;
+    const source = join(pinPhotoDir, p.file);
+    if (!existsSync(source)) {
+      err(file, `${id}: pin_photo "${p.file}" not found in photos-species/`);
+      return undefined;
+    }
+    const out = pinFileName(source, p.crop);
+    if (!pinJobs.has(out)) pinJobs.set(out, { source, crop: p.crop, out, where: `${file}: ${id}` });
+    return `${PIN_URL_DIR}/${out}`;
   }
+  const speciesPinSrc = new Map<string, string | undefined>();
+  for (const s of speciesDoc?.species ?? [])
+    speciesPinSrc.set(s.id, pinSrc(s.pin_photo, 'species.yaml', s.id));
 
   // ---------- places
 
@@ -281,7 +302,12 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
       err(`closures.csv row ${i + 1}`, `unknown place "${c.place_id}"`);
   });
 
-  if (errors.length || !speciesDoc || !sourcesDoc) return { data: null, errors };
+  const plantingPinSrc = new Map<string, string | undefined>();
+  for (const { file, doc } of places)
+    for (const p of doc.plantings ?? [])
+      plantingPinSrc.set(p.id, pinSrc(p.pin_photo, file, p.id) ?? speciesPinSrc.get(p.species));
+
+  if (errors.length || !speciesDoc || !sourcesDoc) return { data: null, errors, pinJobs: [] };
 
   // ---------- assemble the public JSON
 
@@ -302,6 +328,7 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
         plantings: plantings.map((p) => ({
           ...p,
           starting_days: speciesById.get(p.species)!.starting_days,
+          pin_src: plantingPinSrc.get(p.id),
           statuses: statuses.filter((s) => s.planting_id === p.id).sort(byDate),
         })),
         illuminations,
@@ -324,7 +351,7 @@ export function buildData(dataDir: string = DATA_DIR): BuildResult {
   // stripPrivate removes schema_version everywhere; put the top-level one back.
   data.schema_version = SCHEMA_VERSION;
 
-  return { data, errors };
+  return { data, errors, pinJobs: [...pinJobs.values()] };
 }
 
 // ---------- helpers
@@ -401,7 +428,10 @@ export function parseCsv(text: string): string[][] {
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const checkOnly = process.argv.includes('--check');
-  const { data, errors } = buildData();
+  const { data, errors: dataErrors, pinJobs } = buildData();
+  const errors = dataErrors.length
+    ? dataErrors
+    : await writePinPhotos(pinJobs, PIN_OUT_DIR, checkOnly);
   if (errors.length) {
     console.error(`Data check failed: ${errors.length} problem${errors.length === 1 ? '' : 's'}\n`);
     for (const e of errors) console.error(`  ${e}`);
@@ -414,6 +444,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   } else {
     mkdirSync(dirname(OUT_FILE), { recursive: true });
     writeFileSync(OUT_FILE, JSON.stringify(data));
-    console.log(`Wrote ${relative(ROOT, OUT_FILE)}: ${summary}`);
+    console.log(`Wrote ${relative(ROOT, OUT_FILE)}: ${summary}, ${pinJobs.length} pin photos`);
   }
 }

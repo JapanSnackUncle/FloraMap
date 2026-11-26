@@ -28,3 +28,6 @@ __pycache__/
 
 # basemap tiles (large; downloaded with pmtiles, see README)
 tiles/
+
+# resized pin photos (made from photos-species/ by build-data)
+public/photos/
