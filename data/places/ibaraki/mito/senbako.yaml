@@ -7,8 +7,8 @@ prefecture: ibaraki
 municipality: "水戸市"
 municipality_slug: mito
 address_ja: "千波町3081"
-lat: 36.37125
-lng: 140.4543
+lat: 36.369890
+lng: 140.460092
 geocode_precision: lot
 hours_ja: "散策自由"
 fee_ja: "無料"
