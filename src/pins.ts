@@ -3,7 +3,13 @@
 
 import type { Lang } from './i18n';
 import { stageColor, stageLabel } from './labels';
-import { RING_COLORS, rank, type FeatureState, type PlaceStatus } from './lib/status';
+import {
+  DEFAULT_STARTING_PCT,
+  RING_COLORS,
+  rank,
+  type FeatureState,
+  type PlaceStatus,
+} from './lib/status';
 import { placeholderPhoto } from './placeholders';
 
 export interface PinLook {
@@ -12,8 +18,6 @@ export interface PinLook {
   ring: string;
   /** Colour of the taper under the circle: the stage colour (solid even while 咲き始め fills). */
   tip: string;
-  /** Thin ring = estimate (usual window, forecast, stale, last season's dates). */
-  thin: boolean;
   /** Photo treatment: grey for まもなく / シーズン外 / unlit, part-faded for 見頃過ぎ. */
   photoFilter: 'none' | 'grey' | 'faded';
   festival: boolean;
@@ -41,7 +45,10 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
   if (!pin) return null;
   const noInfo = pin.type === 'planting' && pin.noRecentInfo;
   const color = noInfo ? RING_COLORS.track : stageColor(pin);
-  const pct = pin.type === 'planting' && pin.level === 1 && !noInfo ? (pin.bloomPct ?? 33) : null;
+  const pct =
+    pin.type === 'planting' && pin.level === 1 && !noInfo
+      ? (pin.bloomPct ?? DEFAULT_STARTING_PCT)
+      : null;
   const ring =
     pct === null ? color : `conic-gradient(${color} 0 ${pct}%, ${RING_COLORS.track} ${pct}% 100%)`;
 
@@ -56,7 +63,6 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
     photo: featurePhoto(pin, ps),
     ring,
     tip: color,
-    thin: !pin.confirmed || noInfo,
     photoFilter: greyed ? 'grey' : faded ? 'faded' : 'none',
     festival: ps.festivals.length > 0,
     clock: pin.peakSoon,
@@ -93,8 +99,8 @@ export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1
   el.setAttribute('role', 'img');
   el.setAttribute('aria-label', look.ariaLabel);
   el.innerHTML =
-    `<div class="pin-body${look.thin ? ' thin' : ''}">` +
-    `<div class="pin${look.thin ? ' thin' : ''}">` +
+    '<div class="pin-body">' +
+    '<div class="pin">' +
     `<img alt="" src="${look.photo}" class="photo-${look.photoFilter}">` +
     (look.festival ? '<span class="pin-fest"></span>' : '') +
     (look.clock ? `<span class="pin-clock">${CLOCK_SVG}</span>` : '') +

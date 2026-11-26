@@ -35,7 +35,10 @@ export default function PlaceList({ places, bounds, species, today, lang, onSele
     .replace('{m}', String(places.length));
   return (
     <aside className="place-list" aria-label={t('listLabel', lang)}>
-      <p className="list-count">{count}</p>
+      {/* data-peek: a phone's sheet at peek height shows down to here. */}
+      <p className="list-count" data-peek="">
+        {count}
+      </p>
       {rows.length === 0 && (
         <p className="list-empty">{t(places.length ? 'listEmpty' : 'noMatches', lang)}</p>
       )}
@@ -49,7 +52,7 @@ export default function PlaceList({ places, bounds, species, today, lang, onSele
             <li key={ps.place.id}>
               <button type="button" className="list-row" onClick={() => onSelect?.(ps.place.id)}>
                 <span
-                  className={`pin list-pin${look.thin ? ' thin' : ''}`}
+                  className="pin list-pin"
                   style={{ '--ring': look.ring } as React.CSSProperties}
                   aria-hidden="true"
                 >

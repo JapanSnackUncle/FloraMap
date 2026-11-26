@@ -13,7 +13,9 @@ import {
   IBARAKI_BOUNDS,
   JAPANESE_FONTS,
   MAP_ATTRIBUTION,
+  PAN_MARGIN_PX,
   RAIL_URL,
+  SHEET_HALF,
   SPRITE_URL,
   TILE_BOUNDS,
   TILES_URL,
@@ -92,12 +94,45 @@ function basemapLayers(): maplibregl.LayerSpecification[] {
 }
 
 /** Let the map pan and zoom out past the tiles (grey beyond them) so all of Ibaraki fits any screen. */
-const PAN_MARGIN = 1.5;
+const BOUNDS_MARGIN_DEG = 1.5;
 const [w, s, e, n] = TILE_BOUNDS;
 const MAX_BOUNDS: [[number, number], [number, number]] = [
-  [w - PAN_MARGIN, s - PAN_MARGIN],
-  [e + PAN_MARGIN, n + PAN_MARGIN],
+  [w - BOUNDS_MARGIN_DEG, s - BOUNDS_MARGIN_DEG],
+  [e + BOUNDS_MARGIN_DEG, n + BOUNDS_MARGIN_DEG],
 ];
+
+/**
+ * Phones: how much of the map is covered at the top (the chip row) and bottom (the sheet at
+ * rest), in CSS px. "Centre" then means the middle of the part between them.
+ */
+export interface MapInsets {
+  top: number;
+  bottom: number;
+}
+
+/** Half a full pin's height: the pin's middle sits this far above its point (the tip). */
+const PIN_MIDDLE_PX = 31;
+
+/** easeTo/flyTo `offset` that puts the target in the middle of the uncovered area. */
+const centreOffset = (ins: MapInsets | null | undefined): [number, number] =>
+  ins ? [0, (ins.top - ins.bottom) / 2] : [0, 0];
+
+/**
+ * Phones (CLAUDE.md, "Phone layout"): after opening a place, the sheet is at half height. If
+ * the pin is under it or within PAN_MARGIN_PX of an edge of the part above it, pan (no zoom
+ * change) to put the pin in the middle of that part.
+ */
+function revealPin(map: maplibregl.Map, lngLat: [number, number], top: number) {
+  const W = map.getContainer().clientWidth;
+  const H = map.getContainer().clientHeight;
+  const bottom = Math.round(H * SHEET_HALF);
+  const p = map.project(lngLat);
+  const y = p.y - PIN_MIDDLE_PX;
+  const m = PAN_MARGIN_PX;
+  const clear = p.x >= m && p.x <= W - m && y >= top + m && y <= H - bottom - m;
+  if (clear) return;
+  map.panBy([p.x - W / 2, y - (top + (H - top - bottom) / 2)]);
+}
 
 interface Props {
   statuses: PlaceStatus[];
@@ -116,6 +151,8 @@ interface Props {
   onEmptyClick?: () => void;
   /** Read once: where to open when the address has a place but no map view (shared link). */
   initialCenter?: { lng: number; lat: number } | null;
+  /** Phones only: the parts of the map covered by the chips and the sheet. */
+  insets?: MapInsets | null;
 }
 
 /** A map click this soon after a pin click is that same click, not a click on empty map. */
@@ -140,20 +177,16 @@ export type ViewBounds = [number, number, number, number];
 const NAMES_SOURCE = 'pin-names';
 
 /**
- * Each pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; thin is 50 px;
- * the selected pin is scaled 1.3× from its tip). MapLibre can't see the HTML pins, so each
- * name feature carries an invisible image this size above its point: names then avoid pins.
+ * A pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; the selected pin is
+ * scaled 1.3× from its tip). MapLibre can't see the HTML pins, so each name feature carries an
+ * invisible image this size above its point: names then avoid pins.
  */
 const HOLES = {
-  full: [54, 62],
-  thin: [50, 59],
-  'full-sel': [70, 81],
-  'thin-sel': [65, 77],
+  pin: [54, 62],
+  'pin-sel': [70, 81],
 } as const;
 
-function holeImage(thin: boolean, selected: boolean): string {
-  return `hole-${thin ? 'thin' : 'full'}${selected ? '-sel' : ''}`;
-}
+const holeImage = (selected: boolean): string => `hole-pin${selected ? '-sel' : ''}`;
 
 /** The map's name layers: pin outlines and names. Neither is visible (see addNameLayers). */
 const HOLES_LAYER = 'pin-holes';
@@ -305,6 +338,7 @@ export default function MapView({
   onPinClick,
   onEmptyClick,
   initialCenter,
+  insets,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   // Latest callbacks in refs, so the map's event listeners never need re-attaching.
@@ -317,6 +351,10 @@ export default function MapView({
     onEmpty.current = onEmptyClick;
   }, [onViewChange, onPinClick, onEmptyClick]);
   const startCenter = useRef(initialCenter);
+  const insetsRef = useRef(insets);
+  useEffect(() => {
+    insetsRef.current = insets;
+  }, [insets]);
   const lastPinClick = useRef(-Infinity);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
@@ -348,7 +386,20 @@ export default function MapView({
               center: [startCenter.current.lng, startCenter.current.lat] as [number, number],
               zoom: PLACE_LINK_ZOOM,
             }
-          : { bounds: IBARAKI_BOUNDS, fitBoundsOptions: { padding: 16 } })),
+          : {
+              bounds: IBARAKI_BOUNDS,
+              // Phones: all of Ibaraki between the chips and the sheet at peek.
+              fitBoundsOptions: {
+                padding: insetsRef.current
+                  ? {
+                      top: insetsRef.current.top + 8,
+                      bottom: insetsRef.current.bottom + 8,
+                      left: 16,
+                      right: 16,
+                    }
+                  : 16,
+              },
+            })),
       maxBounds: MAX_BOUNDS,
       minZoom: 6,
       maxZoom: 18,
@@ -362,6 +413,12 @@ export default function MapView({
       touchPitch: false,
       maxPitch: 0,
     });
+    // Phones: a place link opens with the sheet at half, so its place goes in the middle of
+    // the part above the sheet, not the middle of the screen.
+    if (!OPENED_WITH_VIEW && startCenter.current && insetsRef.current) {
+      const half = Math.round(container.current.clientHeight * SHEET_HALF);
+      map.panBy([0, (half - insetsRef.current.top) / 2], { animate: false });
+    }
     map.touchZoomRotate.disableRotation();
     map.keyboard.disableRotation();
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
@@ -473,7 +530,13 @@ export default function MapView({
     if (!map || !g) return;
     void (map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource)
       .getClusterExpansionZoom(g.clusterId)
-      .then((zoom) => map.easeTo({ center: [g.lng, g.lat], zoom: zoom + 1 }));
+      .then((zoom) =>
+        map.easeTo({
+          center: [g.lng, g.lat],
+          zoom: zoom + 1,
+          offset: centreOffset(insetsRef.current),
+        }),
+      );
   };
   const zoomInto = useRef(zoomIntoGroup);
   useEffect(() => {
@@ -533,7 +596,7 @@ export default function MapView({
           pid: id,
           // Group pins have no name below them, but still keep other names off their pin.
           name: g ? '' : name(ps),
-          hole: holeImage(look.thin, selected),
+          hole: holeImage(selected),
           // Lower keys are placed first and win collisions: the selected place, then by rank.
           sort: selected ? -1 : i,
         },
@@ -588,8 +651,25 @@ export default function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !focus) return;
-    map.flyTo({ center: [focus.lng, focus.lat], zoom: Math.max(map.getZoom(), 13) });
+    map.flyTo({
+      center: [focus.lng, focus.lat],
+      zoom: Math.max(map.getZoom(), 13),
+      offset: centreOffset(insetsRef.current),
+    });
   }, [focus]);
+
+  // Phones: opening a place (or switching to another) may pan the map so its pin isn't hidden
+  // by the sheet. Desktop never moves the map on open (CLAUDE.md).
+  const prevSelected = useRef(selectedId);
+  useEffect(() => {
+    const was = prevSelected.current;
+    prevSelected.current = selectedId;
+    const map = mapRef.current;
+    const ins = insetsRef.current;
+    if (!map || !ins || !selectedId || selectedId === was) return;
+    const ps = statuses.find((x) => x.place.id === selectedId);
+    if (ps) revealPin(map, [ps.place.lng, ps.place.lat], ins.top);
+  }, [selectedId, statuses]);
 
   return <div ref={container} className="map" />;
 }

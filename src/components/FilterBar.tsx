@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { t, type Lang, type StringKey } from '../i18n';
 import type { Filter } from '../lib/status';
 
@@ -15,10 +16,12 @@ interface Props {
   lang: Lang;
   /** While a place page is open: a back-to-list button replaces the chips. */
   openPlace?: { onBack: () => void } | null;
+  /** After the chips (phones: the language button, until 5.10 gives it a place). */
+  extra?: ReactNode;
 }
 
 /** The five filters (CLAUDE.md): シーズン中 is the default. One is always on. */
-export default function FilterBar({ filter, setFilter, lang, openPlace }: Props) {
+export default function FilterBar({ filter, setFilter, lang, openPlace, extra }: Props) {
   if (openPlace) {
     // Same row height as the chips (no map jump); the button sits right above the side panel.
     return (
@@ -42,6 +45,7 @@ export default function FilterBar({ filter, setFilter, lang, openPlace }: Props)
           {t(f.label, lang)}
         </button>
       ))}
+      {extra}
     </div>
   );
 }

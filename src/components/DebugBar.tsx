@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { addDays, todayJst } from '../lib/dates';
 
 // Season presets: a typical day in each season of the 2026–27 plan.
@@ -18,20 +19,44 @@ interface Props {
   setDate: (d: string | null) => void;
   panelOpen: boolean;
   setPanelOpen: (open: boolean) => void;
+  /** Phones: folded to the tag, the date and ±1 until the tag is tapped. */
+  compact?: boolean;
 }
 
 /** Dev-only date override (CLAUDE.md, "Debug mode"). Never rendered in production builds. */
-export default function DebugBar({ date, isOverride, setDate, panelOpen, setPanelOpen }: Props) {
+export default function DebugBar({
+  date,
+  isOverride,
+  setDate,
+  panelOpen,
+  setPanelOpen,
+  compact,
+}: Props) {
+  const [expanded, setExpanded] = useState(false);
+  const full = !compact || expanded;
   const weekday = new Date(`${date}T00:00:00Z`).toLocaleDateString('en-GB', {
     weekday: 'short',
     timeZone: 'UTC',
   });
   return (
     <div className="debug-bar" role="toolbar" aria-label="Debug date">
-      <span className="debug-tag">DEBUG</span>
-      <button type="button" onClick={() => setDate(addDays(date, -7))}>
-        −7
-      </button>
+      {compact ? (
+        <button
+          type="button"
+          className="debug-tag"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          DEBUG {expanded ? '▴' : '▾'}
+        </button>
+      ) : (
+        <span className="debug-tag">DEBUG</span>
+      )}
+      {full && (
+        <button type="button" onClick={() => setDate(addDays(date, -7))}>
+          −7
+        </button>
+      )}
       <button type="button" onClick={() => setDate(addDays(date, -1))}>
         −1
       </button>
@@ -41,36 +66,49 @@ export default function DebugBar({ date, isOverride, setDate, panelOpen, setPane
         onChange={(e) => e.target.value && setDate(e.target.value)}
         aria-label="Date"
       />
-      <span className="debug-weekday">{weekday}</span>
+      {full && <span className="debug-weekday">{weekday}</span>}
       <button type="button" onClick={() => setDate(addDays(date, 1))}>
         +1
       </button>
-      <button type="button" onClick={() => setDate(addDays(date, 7))}>
-        +7
-      </button>
-      <button type="button" onClick={() => setDate(null)} disabled={!isOverride} title={todayJst()}>
-        Today
-      </button>
-      <select
-        value=""
-        onChange={(e) => e.target.value && setDate(e.target.value)}
-        aria-label="Season preset"
-      >
-        <option value="">Season…</option>
-        {PRESETS.map((p) => (
-          <option key={p.date} value={p.date}>
-            {p.label} ({p.date.slice(5)})
-          </option>
-        ))}
-      </select>
-      <label className="debug-toggle">
-        <input
-          type="checkbox"
-          checked={panelOpen}
-          onChange={(e) => setPanelOpen(e.target.checked)}
-        />
-        Why panel
-      </label>
+      {full && (
+        <button type="button" onClick={() => setDate(addDays(date, 7))}>
+          +7
+        </button>
+      )}
+      {full && (
+        <button
+          type="button"
+          onClick={() => setDate(null)}
+          disabled={!isOverride}
+          title={todayJst()}
+        >
+          Today
+        </button>
+      )}
+      {full && (
+        <select
+          value=""
+          onChange={(e) => e.target.value && setDate(e.target.value)}
+          aria-label="Season preset"
+        >
+          <option value="">Season…</option>
+          {PRESETS.map((p) => (
+            <option key={p.date} value={p.date}>
+              {p.label} ({p.date.slice(5)})
+            </option>
+          ))}
+        </select>
+      )}
+      {full && (
+        <label className="debug-toggle">
+          <input
+            type="checkbox"
+            checked={panelOpen}
+            onChange={(e) => setPanelOpen(e.target.checked)}
+          />
+          Why panel
+        </label>
+      )}
     </div>
   );
 }

@@ -41,7 +41,7 @@ User reports and accounts, push notifications, a forecasting model, an AI auto-r
 
 **Freshness limits by stage.** まもなく changes slowly; 咲き始め moves fast toward peak; peaks last about 1–10 days; past peak falls off quickly. Per-species overrides (roses longer, cherry shorter) can come later.
 
-**Thin ring for estimates.** Dashed rings were noisy at pin size; a faded ring is ruled out because a faded 見頃 reads as 咲き始め. Thin keeps the color and the photo size.
+**One ring width; confirmed vs estimate on the place page** (changed 26 Nov). At first estimates had a thin ring (dashed was noisy at pin size; faded is ruled out because a faded 見頃 reads as 咲き始め). In use the two widths didn't read as a meaning on the map, and pins of two sizes looked uneven, so every ring is now 3 px and the place page says whether each status is confirmed or an estimate. Cost: the map alone no longer shows which pins are backed by a report.
 
 **Illuminations outrank a flower at peak** (changed 25 Nov) during their run: after dark, the light-up is the reason to go.
 
@@ -109,10 +109,16 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Build notes: MapLibre GeoJSON clustering and a symbol layer for names; ring pins stay HTML markers, and each point reserves its pin's area so names avoid pins. The closest pair (平和通り / 日立シビックセンター, 170 m) splits around zoom 15, hence no grouping above 16. No split animation in v1.
     - 27 Nov: grouping switched from our own greedy rule (best pin takes everything within 54 px of itself) to MapLibre's built-in clustering. The greedy rule let a place jump groups when zooming (弘道館 left 偕楽園 for ひたち海浜公園, a 2-2 split); chaining overlapping pins was rejected because a dense area (Tokyo) would merge into one huge group. MapLibre builds groups from the zoomed-in level outwards, so groups only merge. Cost: groups change at whole zoom levels only, so just below a level they can be up to twice as spread out as needed. R then lowered the radius from 54 to 45: pins may overlap slightly, but groups don't form as early at quarter and half zoom steps, which looked jarring.
   - [ ] 5.9 Phone pass: Not side-by-side, list and place page below like Google Maps and https://platinumaps.jp/d/kyoto-smart-navi
+    - Decided 26 Nov (grill-me; rules in CLAUDE.md, Phone layout). Why: three heights cover "looking at the map" (peek), "browsing the list near here" (half) and "reading" (full) without a toggle. The whole sheet drags because that's what phone users try first; handle-only feels broken. The title bar goes because title + chips took 96 px of a 667 px iPhone SE screen. The list counts the whole map screen so it doesn't reshuffle on every drag, and still works at full height when the map is hidden. Phones break "opening never moves the map": on a phone the half sheet would cover a pin tapped in the lower half, so the map pans like Google Maps, but only when the pin is covered or near an edge, so a clearly visible pin doesn't jump. Desktop keeps the old rule (Google Maps desktop doesn't move either). Start at peek: map first. Closing returns to the earlier height so browsing pin by pin from peek doesn't mean dragging down after each place.
+    - Build notes: phone breakpoint 768 px, so a phone held sideways (~844 px) keeps the side panel. Centring and panning use MapLibre's `padding` equal to the sheet's height. A `?place=` link opens at half, centred in the uncovered area at about zoom 12. The debug bar folds into a small toggle on phones. Not yet decided: where the language switch ends up (5.10; for now at the end of the chip row).
   - [ ] 5.10 English/Japanese language switcher
-- [ ] 6. Other to-do items regarding the map (UI, display, logic) that I need to think about
-  - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections.
+- [ ] 6. Other to-do items regarding the map (UI, display, logic, data) that I need to think about
+  - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections. 11/26: it seems like active illuminations are always on top now, no matter what. 
   - [ ] 6.2 Pin border legend (stage, illumination, etc)
+  - [ ] 6.3 Small visual issue: when de-selecting a pin, the pin's text and background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
+  - [ ] 6.4 偕楽園 has 桜 listed, but it's not in the park proper. It's outside of the park, across the train tracks, in a place called 偕楽園 桜山. 
+  - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
+  - [ ] 6.6 Place page: show whether each feature's status is confirmed or an estimate (the map no longer does: every ring is 3 px since 26 Nov)
 
 ### Phase 2 – App complete (weeks 4–6)
 

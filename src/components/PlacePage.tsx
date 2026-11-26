@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
-import { featureName, placeName, stageColor, stageLabel } from '../labels';
+import { featureName, fullAddress, placeName, stageColor, stageLabel } from '../labels';
 import type { PublicSource, Species } from '../lib/schema';
 import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
@@ -45,7 +45,15 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureState }) {
+function Feature({
+  s,
+  ps,
+  species,
+  sources,
+  today,
+  lang,
+  peek,
+}: Props & { s: FeatureState; peek?: boolean }) {
   const color = stageColor(s);
   const status = rowText(s, today, lang);
   const planting = s.type === 'planting' ? ps.place.plantings.find((p) => p.id === s.id) : null;
@@ -70,7 +78,7 @@ function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureS
         className={`feature-photo${isOff(s) ? ' photo-grey' : ''}`}
       />
       <span className="feature-body">
-        <span className="list-feature">
+        <span className="list-feature" data-peek={peek ? '' : undefined}>
           <strong>{featureName(s, ps, species, lang)}</strong>
           <span
             className={`stage-tag${color === RING_COLORS.track ? ' muted' : ''}`}
@@ -111,22 +119,28 @@ export default function PlacePage(props: Props) {
   return (
     <aside className="place-page" aria-label={placeName(ps, lang)}>
       {/* Header photo: only a photo taken at this place (none yet). Species close-ups never go here. */}
-      <header className="page-head">
+      {/* data-peek: a phone's sheet at peek height shows the name, 本日休園 and the top
+          feature's stage line; without a feature in season, the header. */}
+      <header className="page-head" data-peek={current.length ? undefined : ''}>
         <h2>
           {placeName(ps, lang)}
           {ps.closed && <span className="pill-closed">{t('closedToday', lang)}</span>}
         </h2>
-        {lang === 'ja' && p.name_kana && <p className="page-sub">{p.name_kana}</p>}
+        {/* English mode: the Japanese name, to match signs or type into a navigation app. */}
         {lang === 'en' && p.name_en && <p className="page-sub">{p.name_ja}</p>}
-        <p className="page-sub">{p.municipality}</p>
       </header>
 
+      {/* Everything not シーズン外 (まもなく included), under the same name as the default
+          filter. The page's main section, so its heading stands out from the others. */}
       {current.length > 0 && (
-        <ul className="page-features">
-          {current.map((s) => (
-            <Feature key={s.id} s={s} {...props} />
-          ))}
-        </ul>
+        <section>
+          <h3 className="main-heading">{t('filterInSeason', lang)}</h3>
+          <ul className="page-features">
+            {current.map((s, i) => (
+              <Feature key={s.id} s={s} {...props} peek={i === 0} />
+            ))}
+          </ul>
+        </section>
       )}
 
       {ps.festivals.length > 0 && (
@@ -167,7 +181,9 @@ export default function PlacePage(props: Props) {
           <Info label={t('closedDays', lang)}>{pick(lang, p.closed_ja, p.closed_en)}</Info>
           <Info label={t('fees', lang)}>{pick(lang, p.fee_ja, p.fee_en)}</Info>
           <Info label={t('parking', lang)}>{pick(lang, p.parking_ja, p.parking_en)}</Info>
-          <Info label={t('address', lang)}>{p.address_ja}</Info>
+          {/* The reading and the address: what you type or say to get there. */}
+          <Info label={t('reading', lang)}>{lang === 'ja' ? p.name_kana : null}</Info>
+          <Info label={t('address', lang)}>{fullAddress(p)}</Info>
           <Info label={t('officialSite', lang)}>
             {p.official_urls?.length ? <Links urls={p.official_urls} /> : null}
           </Info>

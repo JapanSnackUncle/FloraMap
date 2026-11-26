@@ -111,8 +111,8 @@ GLOSSARY.md                   # project terms
 - Fresh: solid ring. Aging: solid ring, with the age shown prominently.
 - Stale fallback order:
   1. a forecast newer than the last report;
-  2. else the last confirmed stage, shown with a thin ring;
-  3. the usual window only if there's been no report this season: `starting_days` before the window = 咲き始め (about a third filled), the 14 days before that = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, then シーズン外. All thin.
+  2. else the last confirmed stage, shown as an estimate;
+  3. the usual window only if there's been no report this season: `starting_days` before the window = 咲き始め (half filled), the 14 days before that = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, then シーズン外. All estimates.
 - **Season:** a planting's usual window plus its 咲き始め and まもなく periods before and the following month after. For an illumination, the season is its edition. Reports from outside the current season never carry into it.
 - **Never go backwards** within a season. Never advance a stale status on a guess: only a forecast, or the usual window when there's no report, may set the level. After 3 weeks of silence, show "no recent info". Statuses older than 60 days are ignored.
 - A status's date is the source's own "as of" date, else its publish date, else the fetch date; record which.
@@ -125,8 +125,8 @@ GLOSSARY.md                   # project terms
 
 - **Pin choice per place** (one function, fixed order): illumination in its run > 見頃 > 咲き始め > 見頃過ぎ > まもなく (sooner start first; includes illuminations before their start) > シーズン外. Tie-break within a rank: `featured` first, then more of that stage still ahead (見頃: later peak end; 咲き始め: higher %; 見頃過ぎ: later season end). `featured` never moves a feature to a different rank. Venue closed days never affect the pin.
 - **Place page order:** illuminations in their run, then plantings and illuminations in a rolling year from today: in season first (earliest start on top), then upcoming by start date, finished ones last. On 4/15 at ひたち海浜公園: スイセン first, 梅 last.
-- **Place page** (opened by tapping a pin or a list row): replaces the list in the side panel, which sits left of the map. Top to bottom: name with 本日休園 pill; features in season in page order (stage, status line, usual window, source name linked for report-based statuses); festivals on; practical info (hours, closed days, fees, parking, address, official links); シーズン外 features last.
-- **Opening a place never moves the map.** The selected pin is about 1.3× larger, on top, with its name shown. While a page is open the filter bar's row shows 「← 一覧に戻る」 above the panel instead of the chips (no filter changes, no map jump).
+- **Place page** (opened by tapping a pin or a list row): replaces the list in the side panel, which sits left of the map. Top to bottom: name with 本日休園 pill (English mode adds the Japanese name below; no reading or city in the header); features in season (まもなく included) in page order under a シーズン中 heading, set larger than the other section headings (stage, confirmed or estimate, status line, usual window, source name linked for report-based statuses); festivals on; practical info (hours, closed days, fees, parking, よみ in Japanese mode only, full address as 茨城県 + municipality + `address_ja`, official links); シーズン外 features last.
+- **Opening a place never moves the map** (desktop; phones: see Phone layout). The selected pin is about 1.3× larger, on top, with its name shown. While a page is open the filter bar's row shows 「← 一覧に戻る」 above the panel instead of the chips (desktop; no filter changes, no map jump).
 - An open page has its own address (`?place=<id>`): browser Back closes it; switching to another place replaces the address, so one Back always returns to the list. A link with no map view opens centred on the place (about zoom 12); a link to a place the default filter hides switches the filter to すべて表示.
 - Clicking an empty part of the map, ←, Esc or browser Back clears the selection.
 - **Clock badge** ("peak within ~5 days"): only where an **official report**, or an illumination's **announced** dates, backs it. Never from a usual window alone.
@@ -135,9 +135,9 @@ GLOSSARY.md                   # project terms
 
 **Map UI:**
 
-- Photo pins. **The ring colour is the stage**: まもなく #E7E5E4 (empty track, greyed photo), 咲き始め #E58FAD (fills clockwise with bloom % from the 分咲き figure; about a third when the source gives words only, which is the norm for leaves), 見頃 #B0245C, 見頃過ぎ #9E7F89 (photo partly faded). Leaves: #E9A23B / #C2410C / #8C6A4F. Lit illumination: gold #D4A017.
+- Photo pins. **The ring colour is the stage**: まもなく #E7E5E4 (empty track, greyed photo), 咲き始め #E58FAD (fills clockwise with bloom % from the 分咲き figure; half when the source gives words only, which is the norm for leaves), 見頃 #B0245C, 見頃過ぎ #9E7F89 (photo partly faded). Leaves: #E9A23B / #C2410C / #8C6A4F. Lit illumination: gold #D4A017.
 - **Place names** below pins: every pin tries to show its name at every zoom; a name is dropped if it would bump into another pin or name (MapLibre label collision), and the better-ranked pin (Pin choice order) keeps its name. The selected place's name always shows. On desktop, hovering shows a dropped name. Names are one line and look the same in every case; hover and the selected pin add a white pill behind the name, nothing else changes.
-- **Full ring = confirmed; thin ring = estimate** (usual window, forecast, stale fallback, or last season's illumination dates). Same photo size, smaller pin. Not dashed, not faded (a faded 見頃 reads as 咲き始め).
+- **One ring for every pin: 3 px**, confirmed or estimate alike (estimate = usual window, forecast, stale fallback, or last season's illumination dates). The map doesn't distinguish them; **the place page shows whether each feature's status is confirmed or an estimate** (how is still to be designed). Rings are never dashed or faded (a faded 見頃 reads as 咲き始め).
 - **Grouped pins:** MapLibre's built-in point clustering (Supercluster) with radius `GROUP_RADIUS_PX` (45, a bit under one 54 px pin width, in `src/config.ts`). It builds groups from the most zoomed-in level outwards, so zooming out only merges whole groups: a place never moves from one group to another, and no long chains form. Groups change at whole zoom levels. A group pin sits at the middle of its places and shows the best-ranked place's photo and ring (same ranking as Pin choice), a count badge on its edge (the number of places in the group), and the orange dot if any place in it has a festival on. No clock badge, no name below. Hover shows the best place's name and the rest as 「偕楽園 +2件」 / "Kairakuen +2". Tapping a group centres on it and zooms to one level past where it splits; it opens no details. No grouping from zoom 17 (`GROUP_MAX_ZOOM` = 16 is the last grouped level).
   - **The selected place never joins a group:** it keeps its own enlarged pin, and the group's count drops by one.
   - The list is unaffected: it still lists each place in the visible area on its own.
@@ -145,13 +145,25 @@ GLOSSARY.md                   # project terms
 - **No status text and no kanji on pins** (place names aside).
 - Source, age, 分咲き figure and dates go in the list and on the place page.
 
+**Phone layout** (viewport under 768 px wide, `PHONE_MAX_WIDTH` in `src/config.ts`):
+
+- The list and place page sit in a bottom sheet over a full-screen map, not a side panel. No title bar; the filter chips float over the top of the map. No zoom buttons (pinch). The OSM credit stays visible above the sheet.
+- Three resting heights: peek (grab bar + count line), half (~50%), full (up to just below the chips). The whole sheet drags; at full the content scrolls, and pulling down from its top lowers the sheet. Starts at peek; a `?place=` link starts at half.
+- The list's visible area is the whole map screen, whatever the sheet's height.
+- Opening a place (pin or row) raises the sheet to half. If the pin is under the sheet or within `PAN_MARGIN_PX` (80) of the uncovered area's edges, the map pans (no zoom change) to put it in the middle of the uncovered area. Same when switching places.
+- At peek, a place page shows its name, 本日休園 pill and top feature's stage line.
+- While a page is open the chips are hidden and the sheet header has a close button. Closing returns the list to the height it had before the first place was opened, and the button says where that is: 「× 閉じる」 when the list was at peek (back to the map), else 「← 一覧に戻る」.
+- "Centre on" (group tap, shared link) means the middle of the uncovered area.
+- No hover on touch: dropped names and group hover text don't show.
+- Sheet height is not kept in the address or history.
+
 **Details settled in `status.ts`** (2026-11-25; change here first if any is wrong):
 
 - "The following month" after a usual window = 30 days (`SEASON_TAIL_DAYS`); "first third of a month after" = 10 days.
 - A forecast row's `date` is the day it applies to; "newer than the last report" compares that date. Future-dated rows don't count yet.
 - Clock badge on a planting: the latest report is `official` and fresh or aging, below 見頃, and a forecast row with a `source_id` puts 見頃 within 5 days. No forecast rows → no badge.
-- After 3 weeks of silence the last stage still shows (thin) with `noRecentInfo` set; the UI draws the "no recent info" style.
-- An unannounced illumination edition borrows last season's dates one year on (thin, no countdown). Festivals don't: no dates → no orange dot.
+- After 3 weeks of silence the last stage still shows (as an estimate) with `noRecentInfo` set; the UI draws the "no recent info" style.
+- An unannounced illumination edition borrows last season's dates one year on (an estimate, no countdown). Festivals don't: no dates → no orange dot.
 - 見頃のみ shows places with any planting at 見頃, not only where 見頃 fronts the pin.
 - Under 見頃のみ the pin is that 見頃 planting, and under イルミネーション it's the illumination, using the same ranking among just those features (`pinForFilter`). Other filters use the normal pin.
 

@@ -70,6 +70,8 @@ body,
   flex: 1;
   min-width: 0;
   display: flex;
+  /* Its own stacking layer: pins' z-indexes (hover, selected) stay under the phone sheet. */
+  isolation: isolate;
 }
 
 .map {
@@ -147,8 +149,7 @@ body,
 .pin-marker {
   cursor: pointer;
   /* MapLibre centres the marker with translate(-50%): a fixed even width keeps that on whole
-     pixels whatever the pin inside (full 54 px, thin 50 px), so the pin and its label never
-     sit half a pixel off (which blurs the text). */
+     pixels, so the pin and its label never sit half a pixel off (which blurs the text). */
   width: 54px;
 }
 
@@ -157,8 +158,9 @@ body,
 }
 
 .pin {
-  --pz: 54px; /* full pin size: (pz-8) of photo inside the 4px ring */
-  --rw: 4px; /* ring width */
+  --pz: 54px; /* pin size: (pz-6) of photo inside the 3px ring */
+  /* Ring width: the same for every pin, confirmed or estimate (the place page says which). */
+  --rw: 3px;
   position: relative;
   width: var(--pz);
   height: var(--pz);
@@ -193,29 +195,24 @@ body,
   border-top: 11px solid;
 }
 
-.pin-body.thin .pin-tip {
-  margin-top: -1px;
-  border-left-width: 5px;
-  border-right-width: 5px;
-  border-top-width: 10px;
-}
+/* The hovered pin and its name go above every other pin; the pin zooms very slightly. Only
+   on devices that hover: a phone would keep :hover stuck on the last pin tapped. */
+@media (hover: hover) {
+  .pin-marker:hover {
+    z-index: 1000 !important;
+  }
 
-/* Estimate: same photo size, thinner ring, so the pin is smaller. 2 px (not 1.5) keeps the
-   thin pin an even 4 px smaller than the full one, so it centres in its marker on a whole
-   pixel. */
-.pin.thin {
-  --rw: 2px;
-  width: calc(var(--pz) - 4px);
-  height: calc(var(--pz) - 4px);
-}
+  .pin-marker:hover .pin-body {
+    transform: scale(1.06);
+  }
 
-/* The hovered pin and its name go above every other pin; the pin zooms very slightly. */
-.pin-marker:hover {
-  z-index: 1000 !important;
-}
+  .pin-marker:hover .pin-label {
+    display: flex;
+  }
 
-.pin-marker:hover .pin-body {
-  transform: scale(1.06);
+  .pin-marker:hover .pin-label > span {
+    background: rgba(255, 255, 255, 0.85);
+  }
 }
 
 .pin img {
@@ -297,12 +294,10 @@ body,
 }
 
 .pin-marker.name-shown .pin-label,
-.pin-marker:hover .pin-label,
 .pin-marker.selected .pin-label {
   display: flex;
 }
 
-.pin-marker:hover .pin-label > span,
 .pin-marker.selected .pin-label > span {
   background: rgba(255, 255, 255, 0.85);
 }
@@ -390,8 +385,10 @@ body,
   cursor: pointer;
 }
 
-.list-row:hover {
-  background: var(--bg);
+@media (hover: hover) {
+  .list-row:hover {
+    background: var(--bg);
+  }
 }
 
 .list-pin {
@@ -482,8 +479,7 @@ body,
 }
 
 .page-head {
-  padding: 16px;
-  border-bottom: 1px solid var(--line);
+  padding: 16px 16px 4px;
 }
 
 .page-head h2 {
@@ -502,8 +498,14 @@ body,
   font-size: 13px;
 }
 
-.place-page section {
-  border-bottom: 1px solid var(--line);
+/* Sections are set apart by a band; the features inside one have no lines between them
+   (each row starts with its photo). */
+.place-page section + section {
+  border-top: 8px solid #f5f5f4;
+}
+
+.place-page section:last-child {
+  padding-bottom: 8px;
 }
 
 .place-page h3 {
@@ -511,6 +513,13 @@ body,
   padding: 14px 16px 0;
   font-size: 13px;
   color: var(--mute);
+}
+
+/* シーズン中: the page's main section, a step above 施設情報 and シーズン外. */
+.place-page h3.main-heading {
+  padding-top: 12px;
+  font-size: 16px;
+  color: var(--ink);
 }
 
 .page-features {
@@ -524,8 +533,7 @@ body,
   grid-template-columns: 44px minmax(0, 1fr);
   gap: 12px;
   align-items: start;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--line);
+  padding: 10px 16px;
 }
 
 /* Festivals have no photo column. */
@@ -547,10 +555,6 @@ body,
   flex-direction: column;
   gap: 3px;
   min-width: 0;
-}
-
-.place-page section .page-feature:last-child {
-  border-bottom: 0;
 }
 
 .page-info {
@@ -610,6 +614,139 @@ body,
   text-decoration: underline;
 }
 
+/* ---------- phone layout (CLAUDE.md, "Phone layout"; App sets .phone below PHONE_MAX_WIDTH) */
+
+.phone .main {
+  position: relative;
+}
+
+/* Chips float over the top of the map, in a 56 px row (SHEET_TOP_PX: the sheet's full height
+   stops under it). */
+.phone .filter-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 56px;
+  padding: 0 12px;
+  background: none;
+  border: 0;
+  pointer-events: none;
+}
+
+.phone .filter-bar > * {
+  pointer-events: auto;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  border-color: transparent;
+}
+
+.phone .filter-bar .lang-toggle {
+  flex: none;
+  height: 2rem;
+}
+
+.phone .map-notice {
+  top: 64px;
+}
+
+/* No zoom buttons on phones (pinch). The OSM credit rides just above the sheet. */
+.phone .maplibregl-ctrl-top-right .maplibregl-ctrl-group {
+  display: none;
+}
+
+.phone .maplibregl-ctrl-bottom-right,
+.phone .maplibregl-ctrl-bottom-left {
+  bottom: var(--sheet-h, 0px);
+  transition: bottom 0.25s ease;
+}
+
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px 14px 0 0;
+  background: #fff;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.18);
+  transition: transform 0.25s ease;
+  /* Below full the sheet takes every vertical swipe itself (Sheet.tsx). */
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+.sheet.dragging,
+.phone .main:has(.sheet.dragging) .maplibregl-ctrl-bottom-right,
+.phone .main:has(.sheet.dragging) .maplibregl-ctrl-bottom-left {
+  transition: none;
+  user-select: none;
+}
+
+.sheet.sheet-full {
+  touch-action: pan-y;
+}
+
+.sheet-grab {
+  flex: none;
+  height: 20px;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: grab;
+}
+
+.sheet-grab::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  margin: 0 auto;
+  border-radius: 2px;
+  background: #d6d3d1;
+}
+
+.sheet-back {
+  flex: none;
+  align-self: flex-start;
+  border: 0;
+  background: none;
+  padding: 2px 16px 6px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: #b0245c;
+  cursor: pointer;
+}
+
+.sheet-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: hidden;
+}
+
+.sheet-full .sheet-content {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* The side-panel components fill the sheet instead (the sheet does the scrolling). */
+.phone .place-list,
+.phone .place-page,
+.phone .debug-panel {
+  width: auto;
+  max-width: none;
+  overflow: visible;
+  border-right: 0;
+}
+
+.phone .page-head {
+  padding-top: 4px;
+}
+
 /* ---------- debug mode (dev builds only) */
 
 .debug-bar {
@@ -642,6 +779,10 @@ body,
 }
 
 .debug-tag {
+  font: inherit;
+  border: 0;
+  background: none;
+  padding: 0;
   font-weight: 700;
   color: #92400e;
   letter-spacing: 0.05em;

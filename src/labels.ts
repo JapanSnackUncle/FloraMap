@@ -38,6 +38,18 @@ export function featureName(
   return pl?.species_variety ? `${name}（${pl.species_variety}）` : name;
 }
 
+/** Prefecture folder slugs (CLAUDE.md, "Folders") and their Japanese names. */
+const PREFECTURES: Record<string, string> = { ibaraki: '茨城県' };
+
+/**
+ * The full address as you'd type it into a map or car navigation: 茨城県筑西市宮山504. The
+ * YAML's address_ja starts after the municipality. Empty when the place has no address.
+ */
+export function fullAddress(place: PlaceStatus['place']): string {
+  if (!place.address_ja) return '';
+  return `${PREFECTURES[place.prefecture] ?? ''}${place.municipality}${place.address_ja}`;
+}
+
 /** The place's display name in the current language. */
 export const placeName = (ps: PlaceStatus, lang: Lang): string =>
   (lang === 'en' && ps.place.name_en) || ps.place.name_ja;

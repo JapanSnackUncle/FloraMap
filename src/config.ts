@@ -45,5 +45,22 @@ export const GROUP_RADIUS_PX = 45;
 /** The last zoom level with groups (MapLibre's clusterMaxZoom): from 17 every pin stands alone. */
 export const GROUP_MAX_ZOOM = 16;
 
+// ---------- phone layout (CLAUDE.md, "Phone layout")
+
+/** Below this viewport width (CSS px) the list and place page sit in a bottom sheet. */
+export const PHONE_MAX_WIDTH = 768;
+
+/** The sheet at full height stops this far below the top of the map: under the chip row. */
+export const SHEET_TOP_PX = 56;
+
+/** The sheet's half height, as a share of the map's height. */
+export const SHEET_HALF = 0.5;
+
+/**
+ * Opening a place on a phone pans the map when the pin is under the sheet or this close to an
+ * edge of the map area above it.
+ */
+export const PAN_MARGIN_PX = 80;
+
 export const MAP_ATTRIBUTION =
   '<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';

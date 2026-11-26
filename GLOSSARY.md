@@ -66,8 +66,8 @@ What words mean **in this project**. Definitions only: the rules that use them a
 
 | Term | Meaning |
 |---|---|
-| **confirmed** | Shown from an official, admin (later, user) status that isn't stale. Drawn with a full ring. |
-| **estimate** | Shown from anything else: a forecast, a stale fallback, the usual window, or last season's illumination dates. Drawn with a thin ring. |
+| **confirmed** | Shown from an official, admin (later, user) status that isn't stale. The place page marks it as confirmed. |
+| **estimate** | Shown from anything else: a forecast, a stale fallback, the usual window, or last season's illumination dates. The place page marks it as an estimate; the map draws the same 3 px ring as for confirmed. |
 | **fresh / aging / stale** | A status's age against its stage's limits: fresh within the first limit, aging up to the second, stale beyond it. |
 | **fallback** | What a stale status is replaced with: newer forecast, then last confirmed stage, then the usual window. |
 | **never backwards** | Within a season, the stage shown can't be earlier than the last confirmed report. |
@@ -76,21 +76,23 @@ What words mean **in this project**. Definitions only: the rules that use them a
 
 ## Map and UI
 
-| Term | Meaning |
-|---|---|
-| **pin** | A place's photo circle on the map. One per place, fronted by one feature. |
-| **ring** | The circle around the pin photo. Its colour is the stage; its fill shows bloom %. |
-| **track** | The empty grey ring under a partial fill. |
-| **full ring / thin ring** | Confirmed / estimate. |
-| **pin choice** | The one function that picks which feature fronts a place's pin. |
-| **festival dot** | Orange dot on a pin while a festival is on. |
-| **clock badge** | "Peak within ~5 days" mark, only when backed by an official report or announced illumination dates. |
-| **本日休園 pill** | "Closed today" label beside the place name in the list and place page. Never on the map. |
-| **list** | The bottom list of places that match the current filter. |
-| **place page** | The detail view for one place: all its features in rolling-year order, sources, ages, dates. |
-| **rolling year** | Ordering from today forward: in season first, then upcoming, then finished. |
-| **filters** | シーズン中, 見頃のみ, 開催中のイベント, イルミネーション, すべて表示. |
-| **debug mode** | Dev-only date override bar from the prototype. |
+| Term                      | Meaning                                                                                                                                |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **pin**                   | A place's photo circle on the map. One per place, fronted by one feature.                                                              |
+| **ring**                  | The circle around the pin photo. Its colour is the stage; its fill shows bloom %.                                                      |
+| **track**                 | The empty grey ring under a partial fill.                                                                                              |
+| **pin choice**            | The one function that picks which feature fronts a place's pin.                                                                        |
+| **festival dot**          | Orange dot on a pin while a festival is on.                                                                                            |
+| **clock badge**           | "Peak within ~5 days" mark, only when backed by an official report or announced illumination dates.                                    |
+| **本日休園 pill**             | "Closed today" label beside the place name in the list and place page. Never on the map.                                               |
+| **list**                  | The list of places that match the current filter and sit in the map view: in the side panel on desktop, in the sheet on phones.        |
+| **side panel**            | Desktop: the column left of the map holding the list or place page.                                                                    |
+| **sheet**                 | Phones: the bottom panel over the map holding the list or place page. Rests at **peek** (grab bar + count line), **half** or **full**. |
+| **uncovered area**        | Phones: the part of the map above the sheet. "Centre" and the open-place pan use it.                                                   |
+| **place page**            | The detail view for one place: all its features in rolling-year order, sources, ages, dates.                                           |
+| **rolling year**          | Ordering from today forward: in season first, then upcoming, then finished.                                                            |
+| **filters**               | シーズン中, 見頃のみ, 開催中のイベント, イルミネーション, すべて表示.                                                                                                |
+| **debug mode**            | Dev-only date override bar from the prototype.                                                                                         |
 
 ## Sources and operations
 
@@ -113,3 +115,110 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **Issues tab** | The staging sheet's list of problems to resolve; a row's cell is highlighted until it's marked resolved. |
 | **reference** | The claude.ai exports in `reference/`. Read-only background. |
 | **soft launch** | Going live for the 2027 plum season (late Jan–Feb). |
+
+## Web development
+
+General web terms and tools, and where this project uses them. *(Planned)* means it isn't in the project yet.
+
+Three words also mean something else above: a MapLibre **source** is not a status source, MapLibre **clustering** is what makes our grouped pins, and **glyphs** here are font files, not pin art.
+
+### Languages and file formats
+
+| Term | Meaning |
+|---|---|
+| **HTML / CSS** | A page's structure and its styling. `index.html` is the one page; styles are in `src/styles.css`. |
+| **TypeScript (TS)** | JavaScript with static types. The build strips the types, because browsers only run JavaScript. |
+| **TSX** | TypeScript that can contain HTML-like markup (JSX). Used for React components. |
+| **JSON / GeoJSON** | JSON is the data format the app loads (`places.json`). GeoJSON is JSON for map shapes and points (`public/rail.geojson`). |
+| **YAML / CSV** | The hand-edited formats in `data/`. The app never reads them directly. |
+| **WebP** | A compact image format for the web. Pin photos are resized to it. |
+
+### Tools and libraries
+
+| Term | Meaning |
+|---|---|
+| **Node.js** | Runs JavaScript outside the browser: our scripts and dev tools. Version in `.node-version`. |
+| **npm** | Node's package manager. `package.json` lists the libraries and commands (`npm run dev`); `package-lock.json` pins exact versions; installed files go in `node_modules/`. |
+| **dependency / dev dependency** | A library the app itself uses, as opposed to one only needed to build or check it. |
+| **Vite** | The dev server and build tool. Config: `vite.config.ts`. |
+| **Vite plugin** | Extra behaviour added to Vite. Ours rebuild data when it changes and serve the local map tiles. |
+| **React** | The UI library: the screen is described as a function of the current data and state. |
+| **MapLibre GL JS** | The library that draws the interactive map. |
+| **Protomaps** | The basemap: map data in PMTiles plus a ready-made light style (`@protomaps/basemaps`). |
+| **zod** | Checks that data matches a schema, and derives the TypeScript types from it (`src/lib/schema.ts`). |
+| **sharp** | Image library used to crop and resize pin photos at build time. |
+| **Vitest** | Runs the unit tests (`*.test.ts`). |
+| **ESLint** | The linter: flags likely mistakes in code. |
+| **Prettier** | The code formatter. |
+
+### Building and running
+
+| Term | Meaning |
+|---|---|
+| **dev server** | The local server from `npm run dev`, for working on the site. `.claude/launch.json` lets Claude start it. |
+| **hot reload (HMR)** | The dev server updates the open page when a file is saved, usually without a full reload. |
+| **build** | `npm run build`: check data and types, then produce the files that get published. |
+| **bundle** | The JavaScript and CSS the build combines and shrinks from many source files. |
+| **type check** | TypeScript verifying types without running the code (`tsc`). Vite alone doesn't do this. |
+| **build time / runtime** | While the site is being built, as opposed to while it's running in someone's browser. |
+| **dist/** | The build's output folder: the whole published site. |
+| **public/** | Files copied into `dist/` unchanged and served from the site root. |
+| **preview (`npm run preview`)** | Serves the built `dist/` locally. Different from a preview URL. |
+| **environment variable** | A setting passed in from outside the code. `VITE_TILES_URL` sets where the map tiles load from. Anything prefixed `VITE_` is visible to site visitors, so never a secret. |
+
+### Frontend concepts
+
+| Term | Meaning |
+|---|---|
+| **component** | A reusable piece of React UI (`src/components/`). |
+| **state** | Values that change while the app runs; React redraws what depends on them. |
+| **hook** | A React function starting with `use`, for state and other behaviour (`usePhone`). |
+| **pure function** | Same inputs always give the same output, with no side effects. `status.ts` is built this way. |
+| **fetch** | The browser's way of requesting a file or data over the network. |
+| **History API** | Lets the app change the address and respond to Back without reloading the page (`selectedPlace.ts`). |
+| **query parameter** | The `?name=value` part of an address (`?place=<id>`). |
+| **media query** | A test of the screen, such as width under 768 px, used to switch layouts. |
+| **viewport** | The visible area of the page in the browser. |
+| **dev tools** | The browser's built-in inspector (F12): console, network requests, element styles, phone emulation. |
+| **console** | The dev tools tab where errors and log messages appear. |
+
+### Map terms
+
+| Term | Meaning |
+|---|---|
+| **basemap** | The background map: roads, coastline, names. |
+| **vector tiles** | The map cut into squares per zoom level, sent as shapes and drawn by the browser rather than as pictures. |
+| **PMTiles** | A whole tile set in one file. The browser fetches only the parts it needs. |
+| **HTTP range request** | A request for only some bytes of a file. PMTiles depends on it. |
+| **style** | MapLibre's description of how the map looks: which data is drawn, in what order and colours. |
+| **source / layer** | In MapLibre, a source is a set of map data; a layer is one way of drawing it. |
+| **symbol layer** | A layer of text and icons. It handles label collision. |
+| **label collision** | MapLibre hiding a name that would overlap another. |
+| **clustering (Supercluster)** | MapLibre's built-in merging of nearby points. Behind grouped pins. |
+| **HTML marker** | A map item made of ordinary page elements placed over the map, as our pins are. |
+| **glyphs / sprite** | Font files for map labels, and one image holding the map's small icons. |
+| **zoom level** | How far in the map is. Each step up doubles the scale. |
+| **geocoder** | A service that turns an address into coordinates (we used GSI's). |
+| **OSM / ODbL** | OpenStreetMap, the source of the basemap data, and its licence, which requires visible credit. |
+
+### Hosting and delivery
+
+| Term | Meaning |
+|---|---|
+| **static site** | Plain files served as they are, with no server code or database. |
+| **Cloudflare Pages** *(planned)* | The host. Builds and publishes the site on each push to `main`. |
+| **Cloudflare R2** *(planned)* | File storage where the large map tile file will live. |
+| **deploy** | Publishing a new version of the site. |
+| **preview URL** *(planned)* | A temporary address Cloudflare gives a branch other than `main`. |
+| **cache** | A saved copy reused to avoid downloading again. |
+| **TTL** | How long a cached copy is used before it's checked again. |
+| **CORS** | A browser rule: a page may read files from another domain only if that domain allows it. Will matter for tiles on R2. |
+| **CDN** | A network of servers that delivers files from somewhere near the visitor. |
+| **PWA** *(planned)* | A website that can be installed like an app. |
+| **web app manifest** *(planned)* | A file giving the installed app its name, icon and display settings. |
+| **service worker** *(planned)* | A background script that intercepts requests, so the app can open offline. |
+| **app shell** *(planned)* | The page, code and styles needed to open the app, without the data. |
+| **GitHub Actions / cron** *(planned)* | GitHub's automated job runner, and a timed schedule for it. Will run the watcher. |
+| **API** | A defined way for one program to request data from another (X API, Instagram Graph API). |
+| **robots.txt** | A site's file saying what automated programs may fetch. |
+| **user agent** | The name a browser or program sends to identify itself. |

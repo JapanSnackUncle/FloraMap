@@ -19,12 +19,18 @@ export const strings = {
   },
   closedToday: { ja: '本日休園', en: 'Closed today' },
   back: { ja: '一覧に戻る', en: 'Back to list' },
+  /** Phones: closes a place page opened while the list was at peek (back to the map). */
+  close: { ja: '閉じる', en: 'Close' },
+  /** Phones: the sheet's grab bar (screen readers; tapping it changes the sheet's height). */
+  sheetHandle: { ja: 'パネルの高さを変える', en: 'Resize panel' },
   source: { ja: '情報源', en: 'Source' },
   visitorInfo: { ja: '施設情報', en: 'Visitor info' },
   hours: { ja: '営業時間', en: 'Hours' },
   closedDays: { ja: '休業日', en: 'Closed' },
   fees: { ja: '料金', en: 'Fees' },
   parking: { ja: '駐車場', en: 'Parking' },
+  /** The place name's reading (Japanese mode only). */
+  reading: { ja: 'よみ', en: 'Reading' },
   address: { ja: '住所', en: 'Address' },
   officialSite: { ja: '公式サイト', en: 'Official site' },
   nightEvents: { ja: '夜の催し', en: 'Evening events' },
