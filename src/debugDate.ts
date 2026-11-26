@@ -29,7 +29,7 @@ export function useAppDate(): {
     const url = new URL(window.location.href);
     if (next) url.searchParams.set('date', next);
     else url.searchParams.delete('date');
-    window.history.replaceState(null, '', url);
+    window.history.replaceState(window.history.state, '', url);
   }, []);
 
   return { date: override ?? todayJst(), isOverride: override !== null, setDate };

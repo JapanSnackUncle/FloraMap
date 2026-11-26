@@ -106,17 +106,54 @@ interface Props {
   focus?: { lng: number; lat: number; n: number } | null;
   /** Called with the visible area [west, south, east, north] once the map stops moving. */
   onViewChange?: (bounds: ViewBounds) => void;
+  /** The place whose page is open: its pin is drawn larger, on top, with its name. */
+  selectedId?: string | null;
+  onPinClick?: (placeId: string) => void;
+  /** A click on the map that hit no pin. */
+  onEmptyClick?: () => void;
+  /** Read once: where to open when the address has a place but no map view (shared link). */
+  initialCenter?: { lng: number; lat: number } | null;
+}
+
+/** A map click this soon after a pin click is that same click, not a click on empty map. */
+const PIN_CLICK_MS = 300;
+
+/** Zoom for a shared place link without a map view: the town around the place. */
+const PLACE_LINK_ZOOM = 12;
+
+/** MapLibre's own #zoom/lat/lng format (same rounding), so writing it back doesn't move the map. */
+function viewHash(map: maplibregl.Map): string {
+  const zoom = map.getZoom();
+  const precision = Math.ceil((zoom * Math.LN2 + Math.log(512 / 360 / 0.5)) / Math.LN10);
+  const m = 10 ** precision;
+  const c = map.getCenter();
+  return `#${Math.round(zoom * 100) / 100}/${Math.round(c.lat * m) / m}/${Math.round(c.lng * m) / m}`;
 }
 
 export type ViewBounds = [number, number, number, number];
 
-export default function MapView({ statuses, lang, focus, onViewChange }: Props) {
+export default function MapView({
+  statuses,
+  lang,
+  focus,
+  onViewChange,
+  selectedId,
+  onPinClick,
+  onEmptyClick,
+  initialCenter,
+}: Props) {
   const container = useRef<HTMLDivElement>(null);
-  // Latest callback in a ref, so the map's event listener never needs re-attaching.
+  // Latest callbacks in refs, so the map's event listeners never need re-attaching.
   const onView = useRef(onViewChange);
+  const onPin = useRef(onPinClick);
+  const onEmpty = useRef(onEmptyClick);
   useEffect(() => {
     onView.current = onViewChange;
-  }, [onViewChange]);
+    onPin.current = onPinClick;
+    onEmpty.current = onEmptyClick;
+  }, [onViewChange, onPinClick, onEmptyClick]);
+  const startCenter = useRef(initialCenter);
+  const lastPinClick = useRef(-Infinity);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
   const markers = useRef(new Map<string, maplibregl.Marker>());
@@ -141,7 +178,13 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
         layers: basemapLayers(),
       },
       // Open on all of Ibaraki, unless the address bar already holds a view.
-      ...(OPENED_WITH_VIEW ?? { bounds: IBARAKI_BOUNDS, fitBoundsOptions: { padding: 16 } }),
+      ...(OPENED_WITH_VIEW ??
+        (startCenter.current
+          ? {
+              center: [startCenter.current.lng, startCenter.current.lat] as [number, number],
+              zoom: PLACE_LINK_ZOOM,
+            }
+          : { bounds: IBARAKI_BOUNDS, fitBoundsOptions: { padding: 16 } })),
       maxBounds: MAX_BOUNDS,
       minZoom: 6,
       maxZoom: 18,
@@ -168,8 +211,22 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
     });
     // "moveend" fires once a pan, zoom or fly-to finishes, not on every frame.
     map.on('moveend', reportView);
+    map.on('click', () => {
+      // MapLibre reports the same click on the map right after the pin's own listener ran
+      // (by then the redraw may have removed the clicked element, so its target can't tell).
+      if (performance.now() - lastPinClick.current > PIN_CLICK_MS) onEmpty.current?.();
+    });
+    // Browser Back/Forward restores the hash saved with that history entry, and MapLibre would
+    // jump to it. Write the current view over it first: history steps never move the map.
+    const keepView = () => {
+      const url = new URL(window.location.href);
+      url.hash = viewHash(map);
+      window.history.replaceState(window.history.state, '', url);
+    };
+    window.addEventListener('popstate', keepView);
     mapRef.current = map;
     return () => {
+      window.removeEventListener('popstate', keepView);
       mapRef.current = null;
       setLoaded(false);
       map.remove();
@@ -188,7 +245,13 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
       let marker = markers.current.get(ps.place.id);
       if (!marker) {
         // Anchored at the bottom: the taper's tip sits on the point.
-        marker = new maplibregl.Marker({ element: document.createElement('div'), anchor: 'bottom' })
+        const el = document.createElement('div');
+        const id = ps.place.id;
+        el.addEventListener('click', () => {
+          lastPinClick.current = performance.now();
+          onPin.current?.(id);
+        });
+        marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat([ps.place.lng, ps.place.lat])
           .addTo(map);
         markers.current.set(ps.place.id, marker);
@@ -203,6 +266,13 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
       }
     }
   }, [loaded, statuses, lang]);
+
+  // The selected pin: larger, on top, name shown (styles.css, .pin-marker.selected).
+  useEffect(() => {
+    for (const [id, marker] of markers.current) {
+      marker.getElement().classList.toggle('selected', id === selectedId);
+    }
+  }, [selectedId, statuses, loaded]);
 
   // The map is recreated on remount (dev); drop the old markers with it.
   useEffect(() => {

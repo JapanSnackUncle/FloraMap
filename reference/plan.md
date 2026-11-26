@@ -103,11 +103,12 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [x] 5.4 Ring pins: placeholder photo, stage colour, 咲き始め fill, full vs thin ring, gold lit, festival dot, clock badge (25 Nov). HTML markers; all places shown until the filters in 5.5.
   - [x] 5.5 Filters: the five chips, シーズン中 by default (25 Nov). A notice with a すべて表示 button shows when nothing matches.
   - [x] 5.6 List: visible places with stage, source and age, 分咲き, dates, 本日休園, festival tags.
-  - [ ] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
+  - [x] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
   - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle. Also when multiple pins overlap excessively on the map, group into a single pin (showing the marquee Place) with an indicator on the edge of the pin with the number of pins in the group. Clicking the pin will zoom in the map without popping up details.
-  - [ ] 5.9 Phone pass: narrow layout, tested on a phone over Wi-Fi.
+  - [ ] 5.9 Phone pass: Not side-by-side, list and place page below like Google Maps and https://platinumaps.jp/d/kyoto-smart-navi
 - [ ] 6. Other to-do items regarding the map (UI, display, logic) that I need to think about
   - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections.
+  - [ ] 6.2 Pin border legend (stage, illumination, etc)
 
 ### Phase 2 – App complete (weeks 4–6)
 

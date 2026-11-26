@@ -86,6 +86,7 @@ export const illuminationHours = z.strictObject({
   to: isoDate,
   hours_ja: text,
   note_ja: text.optional(),
+  note_en: text.optional(),
 });
 
 export const illuminationEdition = z.strictObject({
@@ -95,6 +96,7 @@ export const illuminationEdition = z.strictObject({
   dates_announced: z.boolean(),
   hours: z.array(illuminationHours).optional(),
   fee_ja: text.optional(),
+  fee_en: text.optional(),
   editor_notes: text.optional(),
 });
 
@@ -133,10 +135,15 @@ export const placeFile = z.strictObject({
   lng: z.number().min(122).max(154),
   geocode_precision: z.enum(['lot', 'block', 'manual', 'approximate']),
   point_note: text.optional(),
+  // Practical info: Japanese, plus R's English translation when there is one.
   hours_ja: text.optional(),
+  hours_en: text.optional(),
   closed_ja: text.optional(),
+  closed_en: text.optional(),
   fee_ja: text.optional(),
+  fee_en: text.optional(),
   parking_ja: text.optional(),
+  parking_en: text.optional(),
   official_urls: z.array(url).optional(),
   closures: closures.optional(),
   plantings: z.array(planting).optional(),
@@ -161,8 +168,11 @@ export const festivalFile = z.strictObject({
   place_ids: z.array(slug).min(1),
   planting_ids: z.array(slug).optional(),
   fee_ja: text.optional(),
+  fee_en: text.optional(),
   parking_ja: text.optional(),
+  parking_en: text.optional(),
   night_events_ja: text.optional(),
+  night_events_en: text.optional(),
   official_urls: z.array(url).optional(),
   editions: z.array(festivalEdition).min(1),
   ...privateFields,
