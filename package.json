@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "build-rail": "node scripts/build-rail.ts"
   },
   "dependencies": {
     "@protomaps/basemaps": "^5.7.2",
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@mapbox/vector-tile": "^3.0.0",
     "@types/node": "^26.6.10",
     "@types/react": "^19.3.2",
     "@types/react-dom": "^19.3.0",
@@ -34,6 +36,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.8",
     "globals": "^17.14.0",
+    "pbf": "^5.2.0",
     "prettier": "^3.10.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.74.0",

@@ -4,3 +4,4 @@ reference
 data
 package-lock.json
 *.md
+public/rail.geojson

@@ -7,6 +7,12 @@
 export const TILES_URL: string = import.meta.env.VITE_TILES_URL ?? '/tiles/ibaraki.pmtiles';
 
 /**
+ * Main railway lines, drawn at every zoom (the tiles have none below zoom 12). Made from the
+ * tiles by scripts/build-rail.ts and committed, since the tile file isn't in git.
+ */
+export const RAIL_URL = '/rail.geojson';
+
+/**
  * Label fonts (non-Japanese glyphs) and map icons for the Protomaps style.
  * Hosted by Protomaps for now; to self-host before launch (see plan.md).
  * Japanese text is drawn with the device's own fonts (localIdeographFontFamily), so no

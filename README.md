@@ -38,6 +38,12 @@ pmtiles extract https://build.protomaps.com/20261125.pmtiles tiles/ibaraki.pmtil
 
 Add `--dry-run` first to see the size without downloading. The data is © OpenStreetMap contributors (ODbL): the map must show that attribution.
 
+The tiles have no railways below zoom 12, so the main lines are also copied into `public/rail.geojson`, which the map draws at every zoom. That file is committed (the live build has no tile file to make it from). After downloading a new basemap, refresh it:
+
+```
+npm run build-rail
+```
+
 ## Deploy (Cloudflare Pages)
 
 Connect the GitHub repo in the Cloudflare dashboard (Workers & Pages → Create → Pages → Connect to Git) with:

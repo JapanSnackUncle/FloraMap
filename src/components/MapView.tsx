@@ -11,6 +11,7 @@ import {
   IBARAKI_BOUNDS,
   JAPANESE_FONTS,
   MAP_ATTRIBUTION,
+  RAIL_URL,
   SPRITE_URL,
   TILE_BOUNDS,
   TILES_URL,
@@ -38,6 +39,53 @@ function parseView(hash: string): { zoom: number; center: [number, number] } | n
   const [z, lat, lng] = hash.replace(/^#/, '').split('/').map(Number);
   if ([z, lat, lng].some((n) => n === undefined || Number.isNaN(n))) return null;
   return { zoom: z!, center: [lng!, lat!] };
+}
+
+/**
+ * Protomaps' light style, with railway lines made easy to see (people orient by stations).
+ * Main lines come from public/rail.geojson (scripts/build-rail.ts), because the tiles have no
+ * railways below zoom 12; they get the Japanese paper-map look: a dark line with a white dash
+ * inside. Sidings, yards and crossovers (`service` tag) stay faint, drawn from the tiles.
+ */
+function basemapLayers(): maplibregl.LayerSpecification[] {
+  const base = layers('protomaps', namedFlavor('light'), { lang: 'ja' });
+  const i = base.findIndex((l) => l.id === 'roads_rail');
+  const original = base[i] as maplibregl.LineLayerSpecification;
+  const width = (scale: number): maplibregl.ExpressionSpecification => [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    6,
+    0.8 * scale,
+    8,
+    1.2 * scale,
+    12,
+    2.5 * scale,
+    15,
+    4 * scale,
+    18,
+    7 * scale,
+  ];
+  const rail: maplibregl.LayerSpecification[] = [
+    {
+      ...original,
+      id: 'roads_rail_service',
+      filter: ['all', ['==', ['get', 'kind'], 'rail'], ['has', 'service']],
+    },
+    {
+      id: 'rail_main',
+      type: 'line',
+      source: 'rail',
+      paint: { 'line-color': '#7f898d', 'line-width': width(1) },
+    },
+    {
+      id: 'rail_main_dash',
+      type: 'line',
+      source: 'rail',
+      paint: { 'line-color': '#ffffff', 'line-width': width(0.5), 'line-dasharray': [3, 3] },
+    },
+  ];
+  return [...base.slice(0, i), ...rail, ...base.slice(i + 1)];
 }
 
 /** Let the map pan and zoom out past the tiles (grey beyond them) so all of Ibaraki fits any screen. */
@@ -88,8 +136,9 @@ export default function MapView({ statuses, lang, focus, onViewChange }: Props) 
             url: `pmtiles://${new URL(TILES_URL, window.location.href).href}`,
             attribution: MAP_ATTRIBUTION,
           },
+          rail: { type: 'geojson', data: RAIL_URL },
         },
-        layers: layers('protomaps', namedFlavor('light'), { lang: 'ja' }),
+        layers: basemapLayers(),
       },
       // Open on all of Ibaraki, unless the address bar already holds a view.
       ...(OPENED_WITH_VIEW ?? { bounds: IBARAKI_BOUNDS, fitBoundsOptions: { padding: 16 } }),
