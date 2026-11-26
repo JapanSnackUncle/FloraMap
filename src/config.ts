@@ -36,9 +36,11 @@ export const IBARAKI_BOUNDS: [[number, number], [number, number]] = [
 
 /**
  * Grouped pins (CLAUDE.md, "Grouped pins"): pins whose centres are closer than this many screen
- * pixels merge into one group pin. One pin width (a full pin is 54 px).
+ * pixels merge into one group pin. A bit under one pin width (a full pin is 54 px): pins may
+ * overlap slightly before grouping, which keeps groups from forming too early between whole
+ * zoom levels (MapLibre only regroups at whole levels).
  */
-export const GROUP_RADIUS_PX = 54;
+export const GROUP_RADIUS_PX = 45;
 
 /** The last zoom level with groups (MapLibre's clusterMaxZoom): from 17 every pin stands alone. */
 export const GROUP_MAX_ZOOM = 16;
