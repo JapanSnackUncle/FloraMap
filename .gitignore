@@ -26,8 +26,9 @@ __pycache__/
 # Cloudflare
 .wrangler/
 
-# basemap tiles (large; downloaded with pmtiles, see README)
-tiles/
+# basemap tiles: only the app's own file is committed (see README)
+tiles/*
+!tiles/ibaraki.pmtiles
 
 # resized pin photos (made from photos-species/ by build-data)
 public/photos/

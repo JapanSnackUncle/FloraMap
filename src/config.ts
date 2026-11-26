@@ -2,15 +2,20 @@
 
 /**
  * Where the basemap tiles live. In `npm run dev` the dev server serves tiles/ at /tiles/.
- * For the live site set VITE_TILES_URL to the file on Cloudflare R2.
+ * The GitHub Pages test site has a copy beside the app. For the live site set VITE_TILES_URL
+ * to the file on Cloudflare R2.
+ *
+ * BASE_URL is the folder the site is served from: "/" normally, "/FloraMap/" on GitHub Pages
+ * (set by `vite build --base`). Every file the app loads from its own site starts with it.
  */
-export const TILES_URL: string = import.meta.env.VITE_TILES_URL ?? '/tiles/ibaraki.pmtiles';
+export const TILES_URL: string =
+  import.meta.env.VITE_TILES_URL ?? `${import.meta.env.BASE_URL}tiles/ibaraki.pmtiles`;
 
 /**
  * Main railway lines, drawn at every zoom (the tiles have none below zoom 12). Made from the
- * tiles by scripts/build-rail.ts and committed, since the tile file isn't in git.
+ * tiles by scripts/build-rail.ts and committed.
  */
-export const RAIL_URL = '/rail.geojson';
+export const RAIL_URL = `${import.meta.env.BASE_URL}rail.geojson`;
 
 /**
  * Label fonts (non-Japanese glyphs) and map icons for the Protomaps style.

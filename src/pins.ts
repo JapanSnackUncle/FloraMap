@@ -36,7 +36,8 @@ export interface PinLook {
 export function featurePhoto(pin: FeatureState, ps: PlaceStatus): string {
   if (pin.type === 'illumination') return placeholderPhoto({ type: 'illumination' });
   const planting = ps.place.plantings.find((p) => p.id === pin.id);
-  if (planting?.pin_src) return planting.pin_src;
+  // pin_src starts at the site's top folder; BASE_URL ends in "/" (see config.ts).
+  if (planting?.pin_src) return `${import.meta.env.BASE_URL}${planting.pin_src.slice(1)}`;
   return placeholderPhoto({ type: 'planting', species: planting?.species ?? '', kind: pin.kind });
 }
 
