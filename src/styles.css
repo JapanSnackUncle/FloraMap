@@ -149,11 +149,13 @@ body,
 .pin-marker {
   cursor: pointer;
   /* MapLibre centres the marker with translate(-50%): a fixed even width keeps that on whole
-     pixels, so the pin and its label never sit half a pixel off (which blurs the text). */
-  width: 54px;
+     pixels, so the pin and its label never sit half a pixel off (which blurs the text).
+     --pin-*: the map pin's sizes, set on .app from config.ts (pins.ts pinStyle). */
+  width: var(--pin-size);
 }
 
 .pin-marker .pin {
+  --pz: var(--pin-size);
   margin-inline: auto;
 }
 
@@ -189,10 +191,10 @@ body,
   display: block;
   width: 0;
   height: 0;
-  margin: -3px auto 0;
-  border-left: 7px solid transparent;
-  border-right: 7px solid transparent;
-  border-top: 11px solid;
+  margin: calc(-1 * var(--pin-tip-tuck)) auto 0;
+  border-left: var(--pin-tip-w) solid transparent;
+  border-right: var(--pin-tip-w) solid transparent;
+  border-top: var(--pin-tip-h) solid;
 }
 
 /* The hovered pin and its name go above every other pin; the pin zooms very slightly. Only
@@ -325,29 +327,13 @@ body,
   cursor: zoom-in;
 }
 
-/* Phones: smaller map pins (config.ts PHONE_PIN_SIZE_PX; MapView's pinBox must match: 44 px
-   circle + 9 px taper tucked 3 px under it). Badges and names keep their size. */
-.phone .pin-marker {
-  width: 44px;
-}
-
-.phone .pin-marker .pin {
-  --pz: 44px;
-}
-
-.phone .pin-marker .pin-tip {
-  border-left-width: 6px;
-  border-right-width: 6px;
-  border-top-width: 9px;
-}
-
 /* The place whose page is open. */
 .pin-marker.selected {
   z-index: 2000 !important;
 }
 
 .pin-marker.selected .pin-body {
-  transform: scale(1.3);
+  transform: scale(var(--pin-selected-scale));
 }
 
 /* ---------- list (CLAUDE.md, "List") */
@@ -684,10 +670,9 @@ body,
 }
 
 .sheet {
-  /* The rows just under the grab bar line up on these: a place page's 一覧に戻る / 閉じる, the
-     full list's 閉じる and the list's count line all start --sheet-head-pad below the grab bar
-     and are --sheet-head-line tall, so their texts share one centre line. */
-  --sheet-grab-h: 20px;
+  /* The row just under the grab bar: a place page's 一覧に戻る / 閉じる and the list's count
+     line (with the full list's 閉じる) start --sheet-head-pad below the grab bar and are
+     --sheet-head-line tall, so the 閉じる buttons sit at the same place. */
   --sheet-head-pad: 2px;
   --sheet-head-line: 25px;
   position: absolute;
@@ -719,7 +704,7 @@ body,
 
 .sheet-grab {
   flex: none;
-  height: var(--sheet-grab-h);
+  height: 20px;
   width: 100%;
   border: 0;
   padding: 0;
@@ -761,20 +746,18 @@ body,
   margin-left: auto;
 }
 
-/* The full list's 閉じる: where a place page's sits (just under the grab bar), over the right
-   end of the count line, so it takes no row of its own. */
-.sheet-head-over {
-  position: absolute;
-  top: var(--sheet-grab-h);
-  right: 0;
-  z-index: 2;
-}
-
-/* Phones: the count line is a sheet header row too (see .sheet), so its text lines up with the
-   full list's 閉じる. */
+/* Phones: the count line is a sheet header row too (see .sheet): it starts as close under the
+   grab bar as a place page's buttons, and at full height ends with the list's 閉じる. */
 .phone .list-count {
+  display: flex;
+  align-items: center;
   padding-top: var(--sheet-head-pad);
   line-height: var(--sheet-head-line);
+}
+
+.list-count .sheet-close {
+  margin-right: -16px; /* the button's own padding stands in for the row's */
+  padding-block: 0;
 }
 
 .sheet-content {

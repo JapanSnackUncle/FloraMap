@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
 import { featureName, placeName, stageColor, stageLabel } from '../labels';
 import type { Species } from '../lib/schema';
@@ -16,6 +17,8 @@ interface Props {
   lang: Lang;
   /** Row tapped (step 5.7: select the place). The list never moves the map. */
   onSelect?: (placeId: string) => void;
+  /** At the end of the count line (phones: the full list's 閉じる). */
+  countAction?: ReactNode;
 }
 
 const inside = (ps: PlaceStatus, [w, s, e, n]: ViewBounds) =>
@@ -28,7 +31,15 @@ function listedPlaces(places: PlaceStatus[], bounds: ViewBounds | null): PlaceSt
     .sort((a, b) => compareFeatures(a.pin!, b.pin!));
 }
 
-export default function PlaceList({ places, bounds, species, today, lang, onSelect }: Props) {
+export default function PlaceList({
+  places,
+  bounds,
+  species,
+  today,
+  lang,
+  onSelect,
+  countAction,
+}: Props) {
   const rows = listedPlaces(places, bounds);
   const count = t('listCount', lang)
     .replace('{n}', String(rows.length))
@@ -36,9 +47,10 @@ export default function PlaceList({ places, bounds, species, today, lang, onSele
   return (
     <aside className="place-list" aria-label={t('listLabel', lang)}>
       {/* data-peek: a phone's sheet at peek height shows down to here. */}
-      <p className="list-count" data-peek="">
-        {count}
-      </p>
+      <div className="list-count" data-peek="">
+        <span>{count}</span>
+        {countAction}
+      </div>
       {rows.length === 0 && (
         <p className="list-empty">{t(places.length ? 'listEmpty' : 'noMatches', lang)}</p>
       )}

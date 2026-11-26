@@ -7,9 +7,9 @@ export type Snap = 'peek' | 'half' | 'full';
 interface Props {
   snap: Snap;
   onSnap: (s: Snap) => void;
-  /** The heights this content may rest at, lowest first (the list skips half). */
+  /** The heights a drag or the grab bar can reach, lowest first (the list skips half). */
   snaps: readonly Snap[];
-  /** Above the scrolling content, under the grab bar (the place page's back button). */
+  /** Above the scrolling content, under the grab bar (a place page's 一覧に戻る / 閉じる). */
   header?: ReactNode;
   /** Changes when the content is replaced (list ↔ a place page): scrolls back to the top. */
   contentKey: string;
@@ -102,14 +102,9 @@ export default function Sheet({
     if (snap !== 'full' && content.current) content.current.scrollTop = 0;
   }, [snap]);
 
-  // New content that doesn't use the current height (a place page at half closing to the
-  // list): move to the nearest height it does use.
+  // The allowed height nearest to a drag's end.
   const nearest = (aim: number): Snap =>
     snaps.reduce((a, b) => (Math.abs(heights[b] - aim) < Math.abs(heights[a] - aim) ? b : a));
-  const allowed = snaps.includes(snap);
-  useEffect(() => {
-    if (!allowed) onSnap(nearest(heights[snap]));
-  });
 
   // Latest values for the native listeners below.
   const live = useRef({ snap, h, heights, onSnap, nearest });

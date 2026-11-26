@@ -1,6 +1,8 @@
 // Pin appearance (CLAUDE.md, "Map UI"). One function turns a place's status into the look of its
 // pin; the map only places the element. No status text and no kanji on the pin itself.
 
+import type { CSSProperties } from 'react';
+import { PIN_SELECTED_SCALE, PIN_TIP_TUCK_PX, type PinSize } from './config';
 import type { Lang } from './i18n';
 import { stageColor, stageLabel } from './labels';
 import {
@@ -114,4 +116,15 @@ export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1
   // styles.css shows it on hover and for the selected pin too. It sits outside .pin so the
   // pin's hover zoom doesn't scale the text.
   el.querySelector('.pin-label > span')!.textContent = label;
+}
+
+/** The map pin's sizes as CSS variables (styles.css: .pin-marker, .pin-tip, selected pin). */
+export function pinStyle(pin: PinSize): CSSProperties {
+  return {
+    '--pin-size': `${pin.size}px`,
+    '--pin-tip-w': `${pin.tipHalfW}px`,
+    '--pin-tip-h': `${pin.tipH}px`,
+    '--pin-tip-tuck': `${PIN_TIP_TUCK_PX}px`,
+    '--pin-selected-scale': String(PIN_SELECTED_SCALE),
+  } as CSSProperties;
 }

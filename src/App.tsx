@@ -6,11 +6,12 @@ import MapView, { type ViewBounds } from './components/MapView';
 import PlaceList from './components/PlaceList';
 import PlacePage from './components/PlacePage';
 import Sheet, { type Snap } from './components/Sheet';
-import { SHEET_TOP_PX } from './config';
+import { PHONE_PIN, PIN, SHEET_TOP_PX } from './config';
 import { useData } from './data';
 import { DEBUG, useAppDate } from './debugDate';
 import { t, type Lang } from './i18n';
 import { passesFilter, pinForFilter, placeStatus, type Filter } from './lib/status';
+import { pinStyle } from './pins';
 import { OPENED_WITH_PLACE, useSelectedPlace } from './selectedPlace';
 import { useIsPhone } from './usePhone';
 
@@ -98,9 +99,30 @@ export default function App() {
 
   const linkPlace = data?.places.find((p) => p.id === OPENED_WITH_PLACE);
 
+  const debugOpen = DEBUG && panelOpen;
+  // The list never rests at half (CLAUDE.md, "Phone layout"). The one way the list can meet a
+  // half sheet is closing the debug panel there: it shows at full.
+  const sheetSnaps = selectedStatus || debugOpen ? ALL_SNAPS : LIST_SNAPS;
+  const sheetSnap = sheetSnaps.includes(snap) ? snap : 'full';
+
+  // Phones: the sheet's button row. A place page: 閉じる (back to the map), plus 一覧に戻る when
+  // there's a list to go back to (the page was opened from the full list; at peek the list shows
+  // no rows, so a page opened then came from a pin or a link). The full list, which hides the
+  // map: 閉じる on its count line lowers it to peek.
+  const onSheetClose = selectedStatus
+    ? () => closeTo('peek')
+    : sheetSnap === 'full'
+      ? () => setSnap('peek')
+      : null;
+  const sheetClose = phone && !debugOpen && onSheetClose && (
+    <button type="button" className="sheet-close" onClick={onSheetClose}>
+      × {t('close', lang)}
+    </button>
+  );
+
   const panel =
     data &&
-    (DEBUG && panelOpen ? (
+    (debugOpen ? (
       <DebugPanel statuses={statuses} species={data.species} lang={lang} onSelect={flyTo} />
     ) : selectedStatus ? (
       <PlacePage
@@ -118,6 +140,7 @@ export default function App() {
         today={date}
         lang={lang}
         onSelect={open}
+        countAction={sheetClose}
       />
     ));
 
@@ -132,7 +155,11 @@ export default function App() {
   );
 
   return (
-    <div className={`app${phone ? ' phone' : ''}`} lang={lang}>
+    <div
+      className={`app${phone ? ' phone' : ''}`}
+      lang={lang}
+      style={pinStyle(phone ? PHONE_PIN : PIN)}
+    >
       {/* Phones have no title bar: the map starts right under the debug bar. */}
       {!phone && (
         <header className="app-header">
@@ -194,36 +221,24 @@ export default function App() {
         )}
         {phone && panel && (
           <Sheet
-            snap={snap}
+            snap={sheetSnap}
             onSnap={setSnap}
-            snaps={selectedStatus || (DEBUG && panelOpen) ? ALL_SNAPS : LIST_SNAPS}
+            snaps={sheetSnaps}
             onRest={setSheetH}
             handleLabel={t('sheetHandle', lang)}
-            contentKey={DEBUG && panelOpen ? 'debug' : (selected ?? 'list')}
+            contentKey={debugOpen ? 'debug' : (selected ?? 'list')}
             header={
-              DEBUG && panelOpen ? null : selectedStatus ? (
-                // 一覧に戻る only when there's a list to go back to: the page was opened from the
-                // full list (at peek the list shows no rows, so a page opened then came from a
-                // pin or a link).
+              selectedStatus &&
+              sheetClose && (
                 <div className="sheet-head">
                   {listSnap === 'full' && (
                     <button type="button" className="sheet-back" onClick={() => closeTo('full')}>
                       ← {t('back', lang)}
                     </button>
                   )}
-                  <button type="button" className="sheet-close" onClick={() => closeTo('peek')}>
-                    × {t('close', lang)}
-                  </button>
+                  {sheetClose}
                 </div>
-              ) : snap === 'full' ? (
-                // The full list hides the map: 閉じる lowers it to peek. It sits on the count
-                // line's row, not a row of its own.
-                <div className="sheet-head sheet-head-over">
-                  <button type="button" className="sheet-close" onClick={() => setSnap('peek')}>
-                    × {t('close', lang)}
-                  </button>
-                </div>
-              ) : null
+              )
             }
           >
             {panel}

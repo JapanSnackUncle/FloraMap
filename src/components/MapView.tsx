@@ -15,8 +15,10 @@ import {
   MAP_ATTRIBUTION,
   PAN_MARGIN_PX,
   PHONE_GROUP_RADIUS_PX,
-  PHONE_PIN_SIZE_PX,
-  PIN_SIZE_PX,
+  PHONE_PIN,
+  PIN,
+  PIN_SELECTED_SCALE,
+  PIN_TIP_TUCK_PX,
   RAIL_URL,
   SHEET_HALF,
   SPRITE_URL,
@@ -113,12 +115,13 @@ export interface MapInsets {
   bottom: number;
 }
 
-/**
- * A map pin's outline in CSS px: the circle plus its taper below (styles.css: .pin-tip is 11 px
- * tall on desktop, 9 px on phones, tucked 3 px under the circle).
- */
-const pinBox = (phone: boolean): [number, number] =>
-  phone ? [PHONE_PIN_SIZE_PX, PHONE_PIN_SIZE_PX + 6] : [PIN_SIZE_PX, PIN_SIZE_PX + 8];
+/** A map pin's outline in CSS px: the circle plus the part of its taper below it. */
+function pinBox(phone: boolean): [number, number] {
+  const pin = phone ? PHONE_PIN : PIN;
+  return [pin.size, pin.size + pin.tipH - PIN_TIP_TUCK_PX];
+}
+
+const groupRadius = (phone: boolean) => (phone ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX);
 
 /** easeTo/flyTo `offset` that puts the target in the middle of the uncovered area. */
 const centreOffset = (ins: MapInsets | null | undefined): [number, number] =>
@@ -129,9 +132,9 @@ const centreOffset = (ins: MapInsets | null | undefined): [number, number] =>
  * the pin is under it or within PAN_MARGIN_PX of an edge of the part above it, pan (no zoom
  * change) to put the pin in the middle of that part.
  */
-function revealPin(map: maplibregl.Map, lngLat: [number, number], top: number) {
-  // The pin's middle sits half its height above its point (the tip). revealPin runs on phones.
-  const middle = pinBox(true)[1] / 2;
+function revealPin(map: maplibregl.Map, lngLat: [number, number], top: number, phone: boolean) {
+  // The pin's middle sits half its height above its point (the tip).
+  const middle = pinBox(phone)[1] / 2;
   const W = map.getContainer().clientWidth;
   const H = map.getContainer().clientHeight;
   const bottom = Math.round(H * SHEET_HALF);
@@ -188,24 +191,18 @@ export type ViewBounds = [number, number, number, number];
 const NAMES_SOURCE = 'pin-names';
 
 /**
- * A pin's outline (pinBox; the selected pin is scaled 1.3× from its tip). MapLibre can't see
- * the HTML pins, so each name feature carries an invisible image this size above its point:
- * names then avoid pins. One pair for desktop pins, one for the smaller phone pins.
+ * MapLibre can't see the HTML pins, so each name feature carries an invisible image the size of
+ * its pin (pinBox, scaled for the selected pin) above its point: names then avoid pins. One pair
+ * for desktop pins, one for the smaller phone pins.
  */
-const SELECTED_SCALE = 1.3;
-const HOLES: Record<string, [number, number]> = Object.fromEntries(
-  [false, true].flatMap((phone) => {
-    const [w, h] = pinBox(phone);
-    const key = phone ? 'phone-pin' : 'pin';
-    return [
-      [key, [w, h]],
-      [`${key}-sel`, [Math.round(w * SELECTED_SCALE), Math.round(h * SELECTED_SCALE)]],
-    ];
-  }),
-);
-
 const holeImage = (selected: boolean, phone: boolean): string =>
   `hole-${phone ? 'phone-' : ''}pin${selected ? '-sel' : ''}`;
+
+function holeSize(selected: boolean, phone: boolean): [number, number] {
+  const k = selected ? PIN_SELECTED_SCALE : 1;
+  const [w, h] = pinBox(phone);
+  return [Math.round(w * k), Math.round(h * k)];
+}
 
 /** The map's name layers: pin outlines and names. Neither is visible (see addNameLayers). */
 const HOLES_LAYER = 'pin-holes';
@@ -220,8 +217,12 @@ const TEXT_LAYER = 'pin-name-text';
  * matches the HTML label (12 px, one line) so its collision box is the label's box.
  */
 function addNameLayers(map: maplibregl.Map) {
-  for (const [key, [width, height]] of Object.entries(HOLES)) {
-    map.addImage(`hole-${key}`, { width, height, data: new Uint8Array(width * height * 4) });
+  for (const phone of [false, true]) {
+    for (const selected of [false, true]) {
+      const [width, height] = holeSize(selected, phone);
+      const data = new Uint8Array(width * height * 4);
+      map.addImage(holeImage(selected, phone), { width, height, data });
+    }
   }
   map.addSource(NAMES_SOURCE, {
     type: 'geojson',
@@ -448,7 +449,7 @@ export default function MapView({
       onView.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
     };
     map.on('load', () => {
-      addClusterSource(map, phoneRef.current ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX);
+      addClusterSource(map, groupRadius(phoneRef.current));
       addNameLayers(map);
       setLoaded(true);
       reportView();
@@ -524,7 +525,7 @@ export default function MapView({
     // `cluster` must be passed again: MapLibre turns clustering off when it's left out.
     void (map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource).setClusterOptions({
       cluster: true,
-      clusterRadius: phone ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX,
+      clusterRadius: groupRadius(phone),
     });
   }, [loaded, phone]);
 
@@ -702,8 +703,8 @@ export default function MapView({
     const ins = insetsRef.current;
     if (!map || !ins || !selectedId || selectedId === was) return;
     const ps = statuses.find((x) => x.place.id === selectedId);
-    if (ps) revealPin(map, [ps.place.lng, ps.place.lat], ins.top);
-  }, [selectedId, statuses]);
+    if (ps) revealPin(map, [ps.place.lng, ps.place.lat], ins.top, phone);
+  }, [selectedId, statuses, phone]);
 
   return <div ref={container} className="map" />;
 }

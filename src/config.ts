@@ -39,18 +39,31 @@ export const IBARAKI_BOUNDS: [[number, number], [number, number]] = [
   [140.85, 36.95],
 ];
 
-/** A map pin's width in CSS px (styles.css .pin-marker); phones use smaller pins. */
-export const PIN_SIZE_PX = 54;
-export const PHONE_PIN_SIZE_PX = 44;
+/**
+ * A map pin in CSS px: the photo circle (`size`) and the taper below it (`tipHalfW` each side,
+ * `tipH` tall). Phones use smaller pins. App hands the one in use to the CSS as --pin-* (pins.ts
+ * pinStyle), so the sizes live only here.
+ */
+export interface PinSize {
+  size: number;
+  tipHalfW: number;
+  tipH: number;
+}
+export const PIN: PinSize = { size: 54, tipHalfW: 7, tipH: 11 };
+export const PHONE_PIN: PinSize = { size: 44, tipHalfW: 6, tipH: 9 };
+/** The taper tucks this far up under the circle. */
+export const PIN_TIP_TUCK_PX = 3;
+/** The selected pin is drawn this much larger, growing from its tip. */
+export const PIN_SELECTED_SCALE = 1.3;
 
 /**
  * Grouped pins (CLAUDE.md, "Grouped pins"): pins whose centres are closer than this many screen
  * pixels merge into one group pin. A bit under one pin width: pins may overlap slightly before
  * grouping, which keeps groups from forming too early between whole zoom levels (MapLibre only
- * regroups at whole levels). Phones keep the same share of the smaller pin (45/54 of 44 ≈ 37).
+ * regroups at whole levels). Phones keep the same share of their smaller pin.
  */
 export const GROUP_RADIUS_PX = 45;
-export const PHONE_GROUP_RADIUS_PX = 37;
+export const PHONE_GROUP_RADIUS_PX = Math.round((GROUP_RADIUS_PX * PHONE_PIN.size) / PIN.size);
 
 /** The last zoom level with groups (MapLibre's clusterMaxZoom): from 17 every pin stands alone. */
 export const GROUP_MAX_ZOOM = 16;
