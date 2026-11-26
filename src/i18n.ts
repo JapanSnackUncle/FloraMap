@@ -29,6 +29,8 @@ export const strings = {
   officialSite: { ja: '公式サイト', en: 'Official site' },
   nightEvents: { ja: '夜の催し', en: 'Evening events' },
   outOfSeason: { ja: 'シーズン外', en: 'Out of season' },
+  /** Hover text on a group pin: the best place's name and how many more. */
+  groupMore: { ja: '{name} +{n}件', en: '{name} +{n}' },
   loadError: {
     ja: 'データを読み込めませんでした。再読み込みしてください。',
     en: 'Could not load the data. Please reload.',

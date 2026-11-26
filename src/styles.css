@@ -137,10 +137,18 @@ body,
 
 .pin-marker {
   cursor: pointer;
+  /* MapLibre centres the marker with translate(-50%): an even width keeps that on whole
+     pixels (a thin pin alone is 49 px, which would put the pin and its label half a pixel off
+     and blur the text). */
+  width: 54px;
+}
+
+.pin-marker .pin {
+  margin-inline: auto;
 }
 
 .pin {
-  --pz: 44px; /* full pin size */
+  --pz: 54px; /* full pin size: (pz-10) of photo inside the 4px ring and 1px white gap */
   --rw: 4px; /* ring width */
   position: relative;
   width: var(--pz);
@@ -232,29 +240,71 @@ body,
   border: 2px solid #b0245c;
 }
 
+/* Every place name on the map (CLAUDE.md, "Place names"). One label per pin, always drawn the
+   same way; only whether it shows and whether its pill is filled change, so nothing moves.
+   - shows: when the map placed it without a collision (.name-shown, MapView), on hover, and
+     for the selected pin;
+   - pill: on hover and for the selected pin; otherwise transparent, with a white halo.
+   One line, like the map's collision box for it (MapView, text layer). A zero-width strip
+   centred under the pin; the pill centres on it without a transform, so the text stays on
+   whole pixels and sharp. */
 .pin-label {
-  opacity: 0;
-  transition: opacity 0.15s;
+  display: none;
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
+  width: 0;
+  justify-content: center;
   margin-top: 3px;
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--ink);
-  /* A soft white pill: readable over map labels without standing out. The slight blur
-     softens the map text behind it. */
-  padding: 1px 7px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(2px);
   pointer-events: none;
 }
 
-.pin-marker:hover .pin-label {
-  opacity: 1;
+.pin-label > span {
+  flex: none;
+  white-space: nowrap;
+  padding: 1px 7px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 2px #fff,
+    0 0 2px #fff;
+}
+
+.pin-marker.name-shown .pin-label,
+.pin-marker:hover .pin-label,
+.pin-marker.selected .pin-label {
+  display: flex;
+}
+
+.pin-marker:hover .pin-label > span,
+.pin-marker.selected .pin-label > span {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Group pin: the number of places in the group, on the pin's upper-left edge (the festival
+   dot has the upper right, the clock the lower right). */
+.pin-count {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.pin-marker.group {
+  cursor: zoom-in;
 }
 
 /* The place whose page is open. */
@@ -264,10 +314,6 @@ body,
 
 .pin-marker.selected .pin-body {
   transform: scale(1.3);
-}
-
-.pin-marker.selected .pin-label {
-  opacity: 1;
 }
 
 /* ---------- list (CLAUDE.md, "List") */

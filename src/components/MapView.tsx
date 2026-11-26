@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 // MapLibre decodes tiles in a background worker. Importing the worker file's URL makes Vite
@@ -8,6 +8,8 @@ import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import {
   GLYPHS_URL,
+  GROUP_MAX_ZOOM,
+  GROUP_RADIUS_PX,
   IBARAKI_BOUNDS,
   JAPANESE_FONTS,
   MAP_ATTRIBUTION,
@@ -16,9 +18,10 @@ import {
   TILE_BOUNDS,
   TILES_URL,
 } from '../config';
-import type { Lang } from '../i18n';
-import type { PlaceStatus } from '../lib/status';
-import { drawPin, pinLook } from '../pins';
+import type { Feature, Point } from 'geojson';
+import { t, type Lang } from '../i18n';
+import { compareFeatures, type PlaceStatus } from '../lib/status';
+import { drawPin, groupLook, pinLook, type PinLook } from '../pins';
 
 // MapLibre reads "pmtiles://..." URLs through this protocol handler. Register it once per page.
 let protocolRegistered = false;
@@ -132,6 +135,167 @@ function viewHash(map: maplibregl.Map): string {
 
 export type ViewBounds = [number, number, number, number];
 
+// ---------- place names (CLAUDE.md, "Place names")
+
+const NAMES_SOURCE = 'pin-names';
+
+/**
+ * Each pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; thin is 49 px;
+ * the selected pin is scaled 1.3× from its tip). MapLibre can't see the HTML pins, so each
+ * name feature carries an invisible image this size above its point: names then avoid pins.
+ */
+const HOLES = {
+  full: [54, 62],
+  thin: [49, 58],
+  'full-sel': [70, 81],
+  'thin-sel': [64, 75],
+} as const;
+
+function holeImage(thin: boolean, selected: boolean): string {
+  return `hole-${thin ? 'thin' : 'full'}${selected ? '-sel' : ''}`;
+}
+
+/** The map's name layers: pin outlines and names. Neither is visible (see addNameLayers). */
+const HOLES_LAYER = 'pin-holes';
+const TEXT_LAYER = 'pin-name-text';
+
+/**
+ * Every name on the map is the pin's own HTML label (pins.ts, styles.css .pin-label): one
+ * renderer, so a name looks and sits the same whether it's showing on its own, on hover or for
+ * the selected pin. MapLibre only decides which names fit, using these two invisible layers on
+ * one source, placed top-down: every pin's outline is always placed and blocks names (holes);
+ * then each name is dropped if it would collide, better rank first (text). The text layer
+ * matches the HTML label (12 px, one line) so its collision box is the label's box.
+ */
+function addNameLayers(map: maplibregl.Map) {
+  for (const [key, [width, height]] of Object.entries(HOLES)) {
+    map.addImage(`hole-${key}`, { width, height, data: new Uint8Array(width * height * 4) });
+  }
+  map.addSource(NAMES_SOURCE, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+  });
+  map.addLayer({
+    id: TEXT_LAYER,
+    type: 'symbol',
+    source: NAMES_SOURCE,
+    layout: {
+      'symbol-sort-key': ['get', 'sort'],
+      'text-field': ['get', 'name'],
+      'text-font': ['Noto Sans Medium'],
+      'text-size': 12,
+      'text-anchor': 'top',
+      'text-offset': [0, 0.3],
+      'text-max-width': 100, // never wrap: the HTML label is one line too
+      'text-padding': 2,
+    },
+    paint: { 'text-opacity': 0 },
+  });
+  map.addLayer({
+    id: HOLES_LAYER,
+    type: 'symbol',
+    source: NAMES_SOURCE,
+    layout: {
+      'icon-image': ['get', 'hole'],
+      'icon-anchor': 'bottom',
+      'icon-allow-overlap': true,
+      'icon-ignore-placement': false,
+      // Ends exactly at the point, so it never blocks its own name just below it.
+      'icon-padding': 0,
+    },
+  });
+}
+
+/** IDs of the places whose names MapLibre placed (not dropped in a collision) right now. */
+function placedNames(map: maplibregl.Map): Set<string> {
+  return new Set(
+    map.queryRenderedFeatures({ layers: [TEXT_LAYER] }).map((f) => String(f.properties.pid)),
+  );
+}
+
+// ---------- grouped pins (CLAUDE.md, "Grouped pins")
+
+/** The places, clustered by MapLibre. Its only layer is invisible: the pins are HTML. */
+const CLUSTER_SOURCE = 'pin-clusters';
+
+function addClusterSource(map: maplibregl.Map) {
+  map.addSource(CLUSTER_SOURCE, {
+    type: 'geojson',
+    data: { type: 'FeatureCollection', features: [] },
+    cluster: true,
+    // MapLibre's tiles are 512 px and clusterRadius is in 1/512ths of a tile: screen pixels.
+    clusterRadius: GROUP_RADIUS_PX,
+    clusterMaxZoom: GROUP_MAX_ZOOM,
+    // Per group: its best place (lowest rank index) and whether any place has a festival on.
+    clusterProperties: {
+      best: ['min', ['get', 'rank']],
+      fest: ['max', ['get', 'fest']],
+    },
+  });
+  // A source only loads while a layer uses it.
+  map.addLayer({
+    id: CLUSTER_SOURCE,
+    type: 'circle',
+    source: CLUSTER_SOURCE,
+    paint: { 'circle-radius': 0, 'circle-opacity': 0 },
+  });
+}
+
+interface ClusterGroup {
+  /** The best-ranked place: its pin stands for the group. */
+  leader: string;
+  count: number;
+  festival: boolean;
+  /** Where MapLibre puts the group (the middle of its places). */
+  lng: number;
+  lat: number;
+  clusterId: number;
+}
+
+interface ClusterView {
+  singles: string[];
+  groups: ClusterGroup[];
+}
+
+const viewKey = (v: ClusterView) =>
+  [...v.singles].sort().join(',') +
+  '|' +
+  v.groups
+    .map((g) => `${g.leader}:${g.count}:${g.festival}:${g.lng}:${g.lat}`)
+    .sort()
+    .join(',');
+
+/**
+ * Single places and groups at the current zoom, from the loaded part of the clustered source.
+ * `ids` maps a place's rank index (a group's `best`) back to its ID. Null while the source is
+ * still processing new data.
+ */
+function readClusters(map: maplibregl.Map, ids: string[]): ClusterView | null {
+  if (!map.isSourceLoaded(CLUSTER_SOURCE)) return null;
+  const singles = new Set<string>();
+  const groups = new Map<number, ClusterGroup>();
+  for (const f of map.querySourceFeatures(CLUSTER_SOURCE)) {
+    const p = f.properties;
+    if (!p.cluster) {
+      singles.add(String(p.pid));
+      continue;
+    }
+    const clusterId = Number(p.cluster_id);
+    const leader = ids[Number(p.best)];
+    if (!leader || groups.has(clusterId)) continue;
+    const [lng, lat] = (f.geometry as Point).coordinates as [number, number];
+    groups.set(clusterId, {
+      leader,
+      count: Number(p.point_count),
+      festival: Number(p.fest) > 0,
+      lng,
+      lat,
+      clusterId,
+    });
+  }
+  return { singles: [...singles], groups: [...groups.values()] };
+}
+
 export default function MapView({
   statuses,
   lang,
@@ -206,6 +370,8 @@ export default function MapView({
       onView.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
     };
     map.on('load', () => {
+      addClusterSource(map);
+      addNameLayers(map);
       setLoaded(true);
       reportView();
     });
@@ -233,46 +399,182 @@ export default function MapView({
     };
   }, []);
 
-  // One ring pin per place (HTML markers), redrawn whenever the date, data or language changes.
+  // Every place with a pin, best-ranked first (Pin choice order): the order for grouping
+  // (best place leads its group) and for names (best place keeps its name in a collision).
+  const ranked = useMemo(
+    () =>
+      statuses
+        .map((ps) => ({ ps, look: pinLook(ps, lang) }))
+        .filter((x): x is { ps: PlaceStatus; look: PinLook } => x.look !== null)
+        .sort((a, b) => compareFeatures(a.ps.pin!, b.ps.pin!)),
+    [statuses, lang],
+  );
+  // Grouping is MapLibre's own point clustering (Supercluster) on CLUSTER_SOURCE. It builds
+  // groups from the most zoomed-in level outwards, so zooming out only merges whole groups:
+  // no place moves from one group to another, and no long chains form. The selected place
+  // never joins a group (CLAUDE.md): it's left out of the clustered points.
+  const clusterIds = useMemo(
+    () => ranked.map((x) => x.ps.place.id).filter((id) => id !== selectedId),
+    [ranked, selectedId],
+  );
+  // The IDs behind the source's current data: a group names its best place by its index here.
+  const clusterIdsRef = useRef<string[]>([]);
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
+    const byId = new Map(ranked.map((x) => [x.ps.place.id, x.ps]));
+    clusterIdsRef.current = clusterIds;
+    (map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource).setData({
+      type: 'FeatureCollection',
+      features: clusterIds.map((id, i) => {
+        const ps = byId.get(id)!;
+        return {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [ps.place.lng, ps.place.lat] },
+          properties: { pid: id, rank: i, fest: ps.festivals.length > 0 ? 1 : 0 },
+        };
+      }),
+    });
+  }, [loaded, ranked, clusterIds]);
+
+  // What the clustering shows at the current zoom, read back after each render; only replaced
+  // when it changes, so zooming within one grouping doesn't redraw the pins.
+  const [view, setView] = useState<ClusterView>({ singles: [], groups: [] });
+  const viewRef = useRef(view);
+  useEffect(() => {
+    viewRef.current = view;
+  }, [view]);
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded) return;
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
+      const next = readClusters(map, clusterIdsRef.current);
+      if (next) setView((prev) => (viewKey(prev) === viewKey(next) ? prev : next));
+    };
+    const onRender = () => {
+      if (!frame) frame = requestAnimationFrame(sync);
+    };
+    map.on('render', onRender);
+    map.on('sourcedata', onRender);
+    onRender();
+    return () => {
+      map.off('render', onRender);
+      map.off('sourcedata', onRender);
+      cancelAnimationFrame(frame);
+    };
+  }, [loaded]);
+
+  // Tapping a group: centre on it and zoom in one level past where MapLibre splits it.
+  const zoomIntoGroup = (leader: string) => {
+    const map = mapRef.current;
+    const g = viewRef.current.groups.find((x) => x.leader === leader);
+    if (!map || !g) return;
+    void (map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource)
+      .getClusterExpansionZoom(g.clusterId)
+      .then((zoom) => map.easeTo({ center: [g.lng, g.lat], zoom: zoom + 1 }));
+  };
+  const zoomInto = useRef(zoomIntoGroup);
+  useEffect(() => {
+    zoomInto.current = zoomIntoGroup;
+  });
+
+  // One HTML ring pin per place. A group shows only its best place's pin, drawn as a group at
+  // the group's position; the other members are hidden. Each shown pin's name goes into the
+  // invisible name layers, which decide whose name fits.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded) return;
+    const name = (ps: PlaceStatus) => (lang === 'en' && ps.place.name_en) || ps.place.name_ja;
+    const groupOf = new Map(view.groups.map((g) => [g.leader, g]));
+    const shown = new Set([...view.singles, ...groupOf.keys()]);
+    if (selectedId) shown.add(selectedId);
+    const labels: Feature<Point>[] = [];
     const seen = new Set<string>();
-    for (const ps of statuses) {
-      const look = pinLook(ps, lang);
-      if (!look) continue;
-      seen.add(ps.place.id);
-      let marker = markers.current.get(ps.place.id);
+    ranked.forEach(({ ps, look }, i) => {
+      const id = ps.place.id;
+      seen.add(id);
+      let marker = markers.current.get(id);
       if (!marker) {
         // Anchored at the bottom: the taper's tip sits on the point.
         const el = document.createElement('div');
-        const id = ps.place.id;
         el.addEventListener('click', () => {
           lastPinClick.current = performance.now();
-          onPin.current?.(id);
+          if (el.classList.contains('group')) zoomInto.current(id);
+          else onPin.current?.(id);
         });
         marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat([ps.place.lng, ps.place.lat])
           .addTo(map);
-        markers.current.set(ps.place.id, marker);
+        markers.current.set(id, marker);
       }
-      marker.setLngLat([ps.place.lng, ps.place.lat]);
-      drawPin(marker.getElement(), look, (lang === 'en' && ps.place.name_en) || ps.place.name_ja);
-    }
+      const el = marker.getElement();
+      const selected = id === selectedId;
+      el.classList.toggle('selected', selected);
+      // Not shown: a group member other than its best place, or outside the loaded area.
+      el.style.display = shown.has(id) ? '' : 'none';
+      if (!shown.has(id)) return;
+      const g = selected ? undefined : groupOf.get(id);
+      const at: [number, number] = g ? [g.lng, g.lat] : [ps.place.lng, ps.place.lat];
+      marker.setLngLat(at);
+      if (g) {
+        const label = t('groupMore', lang)
+          .replace('{name}', name(ps))
+          .replace('{n}', String(g.count - 1));
+        drawPin(el, groupLook(look, g.festival, label), label, g.count);
+      } else {
+        drawPin(el, look, name(ps));
+      }
+      labels.push({
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: at },
+        properties: {
+          pid: id,
+          // Group pins have no name below them, but still keep other names off their pin.
+          name: g ? '' : name(ps),
+          hole: holeImage(look.thin, selected),
+          // Lower keys are placed first and win collisions: the selected place, then by rank.
+          sort: selected ? -1 : i,
+        },
+      });
+    });
     for (const [id, marker] of markers.current) {
       if (!seen.has(id)) {
         marker.remove();
         markers.current.delete(id);
       }
     }
-  }, [loaded, statuses, lang]);
+    (map.getSource(NAMES_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData({
+      type: 'FeatureCollection',
+      features: labels,
+    });
+  }, [loaded, ranked, view, lang, selectedId]);
 
-  // The selected pin: larger, on top, name shown (styles.css, .pin-marker.selected).
+  // After each placement, show the names MapLibre placed (class name-shown) and hide the rest.
+  // Hover and the selected pin show a name regardless (styles.css). Checked at most once per
+  // frame, on every render, so names follow zooming and panning.
   useEffect(() => {
-    for (const [id, marker] of markers.current) {
-      marker.getElement().classList.toggle('selected', id === selectedId);
-    }
-  }, [selectedId, statuses, loaded]);
+    const map = mapRef.current;
+    if (!map || !loaded) return;
+    let frame = 0;
+    const sync = () => {
+      frame = 0;
+      const placed = placedNames(map);
+      for (const [id, marker] of markers.current) {
+        marker.getElement().classList.toggle('name-shown', placed.has(id));
+      }
+    };
+    const onRender = () => {
+      if (!frame) frame = requestAnimationFrame(sync);
+    };
+    map.on('render', onRender);
+    onRender();
+    return () => {
+      map.off('render', onRender);
+      cancelAnimationFrame(frame);
+    };
+  }, [loaded]);
 
   // The map is recreated on remount (dev); drop the old markers with it.
   useEffect(() => {
