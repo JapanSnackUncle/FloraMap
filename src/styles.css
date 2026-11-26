@@ -320,12 +320,19 @@ body,
   min-width: 0;
 }
 
+/* Ordinary text flow, so a tag follows the last character of a name that wraps
+   (a flex row would push it onto a line of its own). */
 .list-name,
 .list-feature {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: block;
+}
+
+.list-name > .pill-closed,
+.list-feature > .stage-tag {
+  display: inline-block;
+  margin-left: 0.4rem;
+  white-space: nowrap;
+  vertical-align: 0.1em;
 }
 
 .stage-tag {
