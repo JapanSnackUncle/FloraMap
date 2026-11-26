@@ -3,7 +3,7 @@ import type { PublicData } from './lib/schema';
 
 /** Load public/data/places.json (written by scripts/build-data.ts). */
 export async function loadData(): Promise<PublicData> {
-  const res = await fetch('/data/places.json');
+  const res = await fetch(`${import.meta.env.BASE_URL}data/places.json`);
   if (!res.ok) throw new Error(`places.json: HTTP ${res.status}`);
   return (await res.json()) as PublicData;
 }

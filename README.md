@@ -28,21 +28,27 @@ npm run build-data   # validate and write public/data/places.json
 
 ## Basemap tiles
 
-The map's background (roads, coastline, names) is a Protomaps vector-tile file, `tiles/ibaraki.pmtiles` (143 MB, zoom 0–15). It's git-ignored because of its size; for the live site it will go on Cloudflare R2.
+The map's background (roads, coastline, names) is a Protomaps vector-tile file, `tiles/ibaraki.pmtiles` (about 35 MB, zoom 0–13; zooming in further enlarges the zoom-13 detail). It's committed to git, and git keeps every old version, so only replace it when needed. For the live site it will go on Cloudflare R2 (it's over Cloudflare Pages' 25 MiB per-file limit).
 
 To recreate it, get the `pmtiles` command-line tool from https://github.com/protomaps/go-pmtiles/releases, pick a recent build date from https://build-metadata.protomaps.dev/builds.json, and run:
 
 ```
-pmtiles extract https://build.protomaps.com/20261125.pmtiles tiles/ibaraki.pmtiles --bbox=139.68,35.73,140.86,36.96 --maxzoom=15
+pmtiles extract https://build.protomaps.com/20261125.pmtiles tiles/ibaraki.pmtiles --bbox=139.68,35.73,140.86,36.96 --maxzoom=13
 ```
 
 Add `--dry-run` first to see the size without downloading. The data is © OpenStreetMap contributors (ODbL): the map must show that attribution.
 
-The tiles have no railways below zoom 12, so the main lines are also copied into `public/rail.geojson`, which the map draws at every zoom. That file is committed (the live build has no tile file to make it from). After downloading a new basemap, refresh it:
+The tiles have no railways below zoom 12, so the main lines are also copied into `public/rail.geojson`, which the map draws at every zoom. That file is committed too. After downloading a new basemap, refresh it:
 
 ```
 npm run build-rail
 ```
+
+## Test site (GitHub Pages)
+
+For testing only: https://japansnackuncle.github.io/FloraMap/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). Like any production build it has no debug date bar, so it shows today's status; use `npm run dev` to check other dates.
+
+One-time setup on GitHub: Settings → Pages → Build and deployment → Source: "GitHub Actions". Then push to `main`, or run the workflow by hand: Actions → Test site (GitHub Pages) → Run workflow.
 
 ## Deploy (Cloudflare Pages)
 

@@ -7,8 +7,8 @@
 // out of the zoom-12 tiles into a small GeoJSON file the map draws at every zoom. Same
 // OpenStreetMap data as the basemap; sidings, yards and crossovers (`service` tag) are left out.
 //
-// The output is committed, because the tile file is not in git (so the live build can't
-// re-run this). Re-run it after downloading a new basemap.
+// The output is committed (the build doesn't run this). Re-run it after downloading a new
+// basemap.
 
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
