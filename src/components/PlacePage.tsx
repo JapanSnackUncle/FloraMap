@@ -45,15 +45,7 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function Feature({
-  s,
-  ps,
-  species,
-  sources,
-  today,
-  lang,
-  peek,
-}: Props & { s: FeatureState; peek?: boolean }) {
+function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureState }) {
   const color = stageColor(s);
   const status = rowText(s, today, lang);
   const planting = s.type === 'planting' ? ps.place.plantings.find((p) => p.id === s.id) : null;
@@ -78,7 +70,7 @@ function Feature({
         className={`feature-photo${isOff(s) ? ' photo-grey' : ''}`}
       />
       <span className="feature-body">
-        <span className="list-feature" data-peek={peek ? '' : undefined}>
+        <span className="list-feature">
           <strong>{featureName(s, ps, species, lang)}</strong>
           <span
             className={`stage-tag${color === RING_COLORS.track ? ' muted' : ''}`}
@@ -119,9 +111,8 @@ export default function PlacePage(props: Props) {
   return (
     <aside className="place-page" aria-label={placeName(ps, lang)}>
       {/* Header photo: only a photo taken at this place (none yet). Species close-ups never go here. */}
-      {/* data-peek: a phone's sheet at peek height shows the name, 本日休園 and the top
-          feature's stage line; without a feature in season, the header. */}
-      <header className="page-head" data-peek={current.length ? undefined : ''}>
+      {/* data-peek: a phone's sheet at peek height shows only this header (name, 本日休園). */}
+      <header className="page-head" data-peek="">
         <h2>
           {placeName(ps, lang)}
           {ps.closed && <span className="pill-closed">{t('closedToday', lang)}</span>}
@@ -136,8 +127,8 @@ export default function PlacePage(props: Props) {
         <section>
           <h3 className="main-heading">{t('filterInSeason', lang)}</h3>
           <ul className="page-features">
-            {current.map((s, i) => (
-              <Feature key={s.id} s={s} {...props} peek={i === 0} />
+            {current.map((s) => (
+              <Feature key={s.id} s={s} {...props} />
             ))}
           </ul>
         </section>

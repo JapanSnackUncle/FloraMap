@@ -152,7 +152,7 @@ GLOSSARY.md                   # project terms
 - Resting heights: peek (grab bar + count line), half (~50%), full (up to just below the chips). The list uses only peek and full (a half list has to be pulled to full to browse anyway); a place page uses all three. The whole sheet drags; at full the content scrolls, and pulling down from its top lowers the sheet. Starts at peek; a `?place=` link starts at half.
 - The list's visible area is the whole map screen, whatever the sheet's height.
 - Opening a place (pin or row) raises the sheet to half. If the pin is under the sheet or within `PAN_MARGIN_PX` (80) of the uncovered area's edges, the map pans (no zoom change) to put it in the middle of the uncovered area. Same when switching places.
-- At peek, a place page shows its name, 本日休園 pill and top feature's stage line.
+- At peek, a place page shows only its header (name and 本日休園 pill), whatever is in season.
 - While a page is open the chips are hidden and the sheet header has buttons: 「× 閉じる」 on the right always (closes to the list at peek: back to the map), and 「← 一覧に戻る」 on the left when the page was opened from the full list (closes to the full list). A pin or link opens with the list at peek, so only 閉じる shows. A map tap also closes to the list at peek. Back and Esc return the list to its earlier height, except that a page lowered to peek closes to the list at peek.
 - The full list has 「× 閉じる」 at the right end of its count line: it lowers the list to peek.
 - "Centre on" (group tap, shared link) means the middle of the uncovered area.
