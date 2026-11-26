@@ -106,6 +106,8 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [ ] 5.7 Place page: features in page order, hours, fees, parking, closures, festivals, links; back; empty-map tap clears.
   - [ ] 5.8 Names on the map by zoom with collision, and a 日本語/English toggle. Also when multiple pins overlap excessively on the map, group into a single pin (showing the marquee Place) with an indicator on the edge of the pin with the number of pins in the group. Clicking the pin will zoom in the map without popping up details.
   - [ ] 5.9 Phone pass: narrow layout, tested on a phone over Wi-Fi.
+- [ ] 6. Other to-do items regarding the map (UI, display, logic) that I need to think about
+  - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections.
 
 ### Phase 2 – App complete (weeks 4–6)
 
