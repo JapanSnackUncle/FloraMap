@@ -169,7 +169,7 @@ GLOSSARY.md                   # project terms
 - 見頃のみ shows places with any planting at 見頃, not only where 見頃 fronts the pin.
 - Under 見頃のみ the pin is that 見頃 planting, and under イルミネーション it's the illumination, using the same ranking among just those features (`pinForFilter`). Other filters use the normal pin.
 
-**Debug mode:** keep the prototype's date override in dev builds (date picker, ±1/±7 days, season presets, season offset, simulated scraper outage). It's how R checks behaviour across the year. Don't ship it enabled in production.
+**Debug mode:** keep the prototype's date override in dev builds (date picker, ±1/±7 days, season presets, season offset, simulated scraper outage). It's how R checks behaviour across the year. Don't ship it enabled in production. The GitHub Pages test site also has a debug copy at `/debug/` (`VITE_DEBUG=true`); production builds never set that flag.
 
 ## Source and legal rules (do not break these)
 

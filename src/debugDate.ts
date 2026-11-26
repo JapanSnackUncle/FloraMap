@@ -1,8 +1,12 @@
 import { useCallback, useState } from 'react';
 import { todayJst } from './lib/dates';
 
-/** Debug mode exists only in `npm run dev`; production builds always use today's date in Japan. */
-export const DEBUG = import.meta.env.DEV;
+/**
+ * Debug mode: in `npm run dev`, and in the test site's debug copy (/FloraMap/debug/, built with
+ * VITE_DEBUG=true by .github/workflows/pages.yml). Production builds never set it: they always
+ * use today's date in Japan.
+ */
+export const DEBUG = import.meta.env.DEV || import.meta.env.VITE_DEBUG === 'true';
 
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 

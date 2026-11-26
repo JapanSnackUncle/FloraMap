@@ -36,6 +36,13 @@ jobs:
       # The tiles sit outside public/, so the build doesn't copy them by itself.
       - name: Add basemap tiles
         run: mkdir -p dist/tiles && cp tiles/ibaraki.pmtiles dist/tiles/
+      # A second copy with the debug date bar, at /FloraMap/debug/. It reads the main copy's
+      # tiles, so the 35 MB file isn't uploaded twice. The data was built by the step above.
+      - name: Debug copy
+        run: npx vite build --base="${{ steps.pages.outputs.base_path }}/debug/" --outDir dist/debug
+        env:
+          VITE_DEBUG: 'true'
+          VITE_TILES_URL: ${{ steps.pages.outputs.base_path }}/tiles/ibaraki.pmtiles
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

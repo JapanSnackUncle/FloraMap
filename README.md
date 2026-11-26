@@ -46,7 +46,7 @@ npm run build-rail
 
 ## Test site (GitHub Pages)
 
-For testing only: https://japansnackuncle.github.io/FloraMap/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). Like any production build it has no debug date bar, so it shows today's status; use `npm run dev` to check other dates.
+For testing only: https://japansnackuncle.github.io/FloraMap/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). Like any production build it has no debug date bar, so it shows today's status. A second copy with the debug date bar is at https://japansnackuncle.github.io/FloraMap/debug/ (built with `VITE_DEBUG=true`; it shares the main copy's tiles). Real production builds never set `VITE_DEBUG`.
 
 One-time setup on GitHub: Settings → Pages → Build and deployment → Source: "GitHub Actions". Then push to `main`, or run the workflow by hand: Actions → Test site (GitHub Pages) → Run workflow.
 
