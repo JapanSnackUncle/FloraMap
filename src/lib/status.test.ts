@@ -112,8 +112,8 @@ describe('usual window only (no reports)', () => {
     expect(state(p, '2027-02-13')).toMatchObject({ level: 0 });
   });
 
-  it("is 咲き始め for the species' starting_days before the window, about a third filled", () => {
-    expect(state(p, '2027-02-14')).toMatchObject({ level: 1, confirmed: false, bloomPct: 33 });
+  it("is 咲き始め for the species' starting_days before the window, half filled", () => {
+    expect(state(p, '2027-02-14')).toMatchObject({ level: 1, confirmed: false, bloomPct: 50 });
     expect(state(p, '2027-02-20')).toMatchObject({ level: 1 });
   });
 
@@ -196,9 +196,9 @@ describe('reports', () => {
     });
   });
 
-  it('fills about a third when there is no 分咲き figure', () => {
+  it('fills half when there is no 分咲き figure', () => {
     const s = state(planting({ statuses: [{ date: '2027-02-20', level: 1 }] }), '2027-02-21');
-    expect(s.bloomPct).toBe(33);
+    expect(s.bloomPct).toBe(50);
   });
 
   it('marks it aging past the fresh limit (咲き始め: 3 / 6 days)', () => {

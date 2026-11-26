@@ -45,8 +45,8 @@ export const SEASON_TAIL_DAYS = 30;
 export const USUAL_PAST_PEAK_DAYS = 10;
 /** Clock badge: peak (or lighting) expected within this many days. */
 export const PEAK_SOON_DAYS = 5;
-/** 咲き始め ring fill when the source gives words, not a 分咲き figure. */
-export const DEFAULT_STARTING_PCT = 33;
+/** 咲き始め ring fill when the source gives words, not a 分咲き figure: half, so it's easy to see. */
+export const DEFAULT_STARTING_PCT = 50;
 
 export type Level = 0 | 1 | 2 | 3 | 4;
 export const SOON: Level = 0;
@@ -163,7 +163,7 @@ export function usualLevel(
   return OUT_OF_SEASON;
 }
 
-/** 咲き始め fill from a 分咲き figure ("3分" -> 30); about a third when there's no figure. */
+/** 咲き始め fill from a 分咲き figure ("3分" -> 30); half when there's no figure. */
 export function bloomPct(detail: string | undefined): number {
   const m = detail?.match(/(\d+(?:\.\d+)?)\s*分/);
   if (!m) return DEFAULT_STARTING_PCT;
