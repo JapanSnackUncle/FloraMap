@@ -12,6 +12,21 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "preview", "--", "--port", "4173", "--strictPort"],
       "port": 4173
+    },
+    {
+      "name": "flora-pages-preview",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview",
+        "--",
+        "--base=/FloraMap/",
+        "--port",
+        "4174",
+        "--strictPort"
+      ],
+      "port": 4174,
+      "url": "http://localhost:4174"
     }
   ]
 }
