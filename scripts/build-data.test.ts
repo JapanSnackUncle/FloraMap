@@ -295,12 +295,64 @@ describe('the build fails on', () => {
           '    name_en: "Plum"\n    pin_photo:\n      file: "missing.jpg"\n      credit: "R"\n      license: "own"\n',
         ),
       },
-      'pin_photo "missing.jpg" not found',
+      'pin_photo "missing.jpg" not found in photos-species/',
+    );
+  });
+
+  it('a crop field with a bad value', () => {
+    fails(
+      { 'species.yaml': speciesWithPhoto('      crop: { x: 50, y: 120, size: 40 }\n') },
+      'crop.y',
     );
   });
 
   it('broken YAML', () => {
     fails({ 'species.yaml': 'species:\n  - id: [unclosed\n' }, 'YAML error');
+  });
+});
+
+// ---------- pin photos
+
+/** SPECIES with a pin_photo "ume.jpg" on ume, plus any extra lines inside it. */
+function speciesWithPhoto(extra = ''): string {
+  return SPECIES.replace(
+    '    name_en: "Plum"\n',
+    '    name_en: "Plum"\n    pin_photo:\n      file: "ume.jpg"\n      credit: "R"\n      license: "own"\n' +
+      extra,
+  );
+}
+
+describe('pin photos', () => {
+  it('a planting override beats the species close-up; no photo → no pin_src', () => {
+    const d = dataset({ 'species.yaml': speciesWithPhoto() });
+    const photos = join(d, 'photos');
+    mkdirSync(photos);
+    writeFileSync(join(photos, 'ume.jpg'), 'species');
+    writeFileSync(join(photos, 'ume-yae.jpg'), 'override');
+
+    const plain = buildData(d, photos);
+    expect(plain.errors).toEqual([]);
+    expect(plain.data!.places[0]!.plantings[0]!.pin_src).toMatch(
+      /^\/photos\/pins\/ume-[0-9a-f]{10}\.webp$/,
+    );
+    expect(plain.pinJobs).toHaveLength(1);
+
+    const placeFile = join(d, 'places/ibaraki/mito/test-park.yaml');
+    writeFileSync(
+      placeFile,
+      PLACE.replace(
+        '    species: ume\n',
+        '    species: ume\n    pin_photo:\n      file: "ume-yae.jpg"\n      credit: "R"\n      license: "own"\n',
+      ),
+    );
+    const override = buildData(d, photos);
+    expect(override.errors).toEqual([]);
+    expect(override.data!.places[0]!.plantings[0]!.pin_src).toMatch(
+      /\/ume-yae-[0-9a-f]{10}\.webp$/,
+    );
+
+    const none = buildData(dataset(), photos);
+    expect(none.data!.places[0]!.plantings[0]!.pin_src).toBeUndefined();
   });
 });
 

@@ -39,5 +39,16 @@ export const IBARAKI_BOUNDS: [[number, number], [number, number]] = [
   [140.85, 36.95],
 ];
 
+/**
+ * Grouped pins (CLAUDE.md, "Grouped pins"): pins whose centres are closer than this many screen
+ * pixels merge into one group pin. A bit under one pin width (a full pin is 54 px): pins may
+ * overlap slightly before grouping, which keeps groups from forming too early between whole
+ * zoom levels (MapLibre only regroups at whole levels).
+ */
+export const GROUP_RADIUS_PX = 45;
+
+/** The last zoom level with groups (MapLibre's clusterMaxZoom): from 17 every pin stands alone. */
+export const GROUP_MAX_ZOOM = 16;
+
 export const MAP_ATTRIBUTION =
   '<a href="https://protomaps.com" target="_blank" rel="noopener">Protomaps</a> © <a href="https://openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';

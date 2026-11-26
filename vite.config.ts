@@ -5,16 +5,18 @@ import { join, normalize, relative, sep } from 'node:path';
 import { defineConfig, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// In `npm run dev`, rebuild public/data/places.json whenever a file in data/ changes,
+// In `npm run dev`, rebuild public/data/places.json (and the pin photos) whenever a file in data/
+// or photos-species/ changes,
 // print any data errors in the terminal, and reload the page.
 function rebuildDataOnChange(): Plugin {
   return {
     name: 'flora-rebuild-data',
     apply: 'serve',
     configureServer(server) {
-      server.watcher.add('data');
+      server.watcher.add(['data', 'photos-species']);
       server.watcher.on('all', (_event, file) => {
-        if (!relative(process.cwd(), file).startsWith(`data${sep}`)) return;
+        const rel = relative(process.cwd(), file);
+        if (!rel.startsWith(`data${sep}`) && !rel.startsWith(`photos-species${sep}`)) return;
         execFile(process.execPath, ['scripts/build-data.ts'], (error, stdout, stderr) => {
           if (error) server.config.logger.error(stderr || error.message);
           else {

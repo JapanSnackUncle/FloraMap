@@ -24,9 +24,16 @@ export interface PinLook {
   ariaLabel: string;
 }
 
-function photoFor(pin: FeatureState, ps: PlaceStatus): string {
+/**
+ * A feature's pin/row photo: the planting's pin_photo override, else its species close-up (both
+ * resolved by build-data into `pin_src`), else the drawn placeholder. Illuminations: placeholder
+ * until they have on-location photos.
+ */
+export function featurePhoto(pin: FeatureState, ps: PlaceStatus): string {
   if (pin.type === 'illumination') return placeholderPhoto({ type: 'illumination' });
   const planting = ps.place.plantings.find((p) => p.id === pin.id);
+  // pin_src starts at the site's top folder; BASE_URL ends in "/" (see config.ts).
+  if (planting?.pin_src) return `${import.meta.env.BASE_URL}${planting.pin_src.slice(1)}`;
   return placeholderPhoto({ type: 'planting', species: planting?.species ?? '', kind: pin.kind });
 }
 
@@ -47,7 +54,7 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
   const name = (lang === 'en' && ps.place.name_en) || ps.place.name_ja;
 
   return {
-    photo: photoFor(pin, ps),
+    photo: featurePhoto(pin, ps),
     ring,
     tip: color,
     thin: !pin.confirmed || noInfo,
@@ -63,11 +70,25 @@ const CLOCK_SVG =
   '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 
 /**
+ * A group pin (CLAUDE.md, "Grouped pins"): the best place's photo and ring, the festival dot if
+ * any place in the group has a festival on, no clock badge.
+ */
+export function groupLook(leader: PinLook, festival: boolean, label: string): PinLook {
+  return {
+    ...leader,
+    festival,
+    clock: false,
+    ariaLabel: label,
+  };
+}
+
+/**
  * Create or update a pin's DOM: a photo circle with a taper whose tip is the place's point (the
  * marker is anchored at its bottom). `el` is the element MapLibre positions (it sets a transform
- * on it), so the visible pin is an inner element that can scale on hover.
+ * on it), so the visible pin is an inner element that can scale on hover. `count` > 1 draws a
+ * group pin with its count badge. `label` is the hover text.
  */
-export function drawPin(el: HTMLElement, look: PinLook, name: string): void {
+export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1): void {
   el.classList.add('pin-marker');
   el.style.zIndex = String(look.zIndex);
   el.setAttribute('role', 'img');
@@ -78,10 +99,13 @@ export function drawPin(el: HTMLElement, look: PinLook, name: string): void {
     `<img alt="" src="${look.photo}" class="photo-${look.photoFilter}">` +
     (look.festival ? '<span class="pin-fest"></span>' : '') +
     (look.clock ? `<span class="pin-clock">${CLOCK_SVG}</span>` : '') +
-    '</div><span class="pin-tip"></span></div><span class="pin-label"></span>';
-  (el.querySelector('.pin') as HTMLElement).style.background = look.ring;
+    (count > 1 ? `<span class="pin-count">${count}</span>` : '') +
+    '</div><span class="pin-tip"></span></div><span class="pin-label"><span></span></span>';
+  el.classList.toggle('group', count > 1);
+  (el.querySelector('.pin') as HTMLElement).style.setProperty('--ring', look.ring);
   (el.querySelector('.pin-tip') as HTMLElement).style.borderTopColor = look.tip;
-  // Name on hover only (step 5.8 adds names by zoom level). It sits outside .pin so the
+  // The pin's name: the only place it's drawn. MapView decides when it shows (collisions);
+  // styles.css shows it on hover and for the selected pin too. It sits outside .pin so the
   // pin's hover zoom doesn't scale the text.
-  el.querySelector('.pin-label')!.textContent = name;
+  el.querySelector('.pin-label > span')!.textContent = label;
 }

@@ -4,53 +4,53 @@ What words mean **in this project**. Definitions only: the rules that use them a
 
 ## Data model
 
-| Term | Meaning |
-|---|---|
-| **place** | A venue with one map point: a park, temple, valley, avenue. Owns its plantings, illuminations and closures. ID e.g. `kairakuen`. The older word **spot** (plan.md history, prototype, sheet tab names) means the same thing. |
-| **feature** | Anything at a place that has a stage: a planting or an illumination. Each has a `kind`. |
-| **feature kind** | `bloom` (flowers), `foliage` (autumn leaves, `kochia-red`) or `illumination`. Not the same as *status kind*. |
-| **planting** | One flower or leaf display at one place, with its own usual window and status. ID e.g. `kairakuen-ume`. Species-varieties that bloom weeks apart are separate plantings (`amabiki-kannon-kawazu-zakura`, `amabiki-kannon-sakura`). |
-| **species** | The broad kind of plant from `species.yaml` (`ume`, `sakura`, `momiji`…). About 20, fixed. Not strictly botanical: `momiji` covers several maples. Field: `species`. Formerly *type*. |
-| **species-variety** | Optional free text under a species (`河津桜`, `ヤマザクラ`). Never used for logic. Field: `species_variety`. Formerly *variety*. |
-| **usual window** | The typical 見頃 period of a planting (例年の見頃), as month + third. A list, so roses can have spring and autumn. In the sheet: `window_start`/`window_end`, `window2_start`/`window2_end`. |
-| **month + third** | `"MM-N"`: N is 1 = 上旬 (1–10), 2 = 中旬 (11–20), 3 = 下旬 (21–end). `"04-2"` = mid-April. |
-| **provisional** | A usual window converted from text or a placeholder and not yet checked against past data. |
-| **featured** | Optional planting flag for a place's flagship flora. Only breaks ties within a pin rank. |
-| **illumination** | A seasonal light-up at a place (イルミネーション, ライトアップ). |
-| **edition** | One season's or year's instance of an illumination (`season: 2026-27`) or a festival (`mito-ume-matsuri-2027`). Dates, hours and fees live on the edition. |
-| **dates announced** | `dates_announced: true`: the edition's dates come from this season's official announcement. `false`: they're last season's dates, used as a placeholder. |
-| **festival** | A named event (まつり, フェスティバル) linked to one or more places and plantings by ID. Lives outside the place files. |
-| **festival on** | Today falls between a festival edition's `from` and `to`. |
-| **closures** | A place's regular closed days in its YAML: weekly day off, fixed yearly dates, `dates_closed`, `dates_open`, `periods_open`, with `source_url` and `valid_until`. |
-| **one-off closure** | A single closed day (storm, snow, event) in `closures.csv`. Beats the YAML for that date. |
-| **source** | A page or account that reports stage, in `sources.yaml`. |
-| **status** | One row in `statuses.csv`: a level for a planting on a date, from a source. |
-| **status kind** | Where a status came from: `official` (the venue or city), `admin` (R, or an agent reading a photo), `user` (v2), `forecast` (a prediction for a date), `usual` (derived from the usual window). Not the same as *feature kind*. |
-| **raw_text** | The source's exact words for a status. Empty for X and Instagram rows. |
-| **detail** | The 分咲き figure or similar (`7分`). |
-| **ID / slug** | A readable, permanent, lowercase romaji identifier. Never renamed once live. |
-| **municipality slug** | The romaji folder name for a municipality (`mito`, `ibaraki-machi`). The Japanese name lives in the file. |
-| **geocode precision** | How a place's point was set: `lot` or `block` (GSI geocoder), `manual` (placed by hand by R), `approximate` (neighbourhood only, still to place). |
-| **point note** | Optional free text saying where the point sits ("entrance", "parking lot"). Field: `point_note`. |
-| **schema_version** | Version number at the top of every YAML file. |
+| Term                  | Meaning                                                                                                                                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **place**             | A venue with one map point: a park, temple, valley, avenue. Owns its plantings, illuminations and closures. ID e.g. `kairakuen`. The older word **spot** (plan.md history, prototype, sheet tab names) means the same thing.       |
+| **feature**           | Anything at a place that has a stage: a planting or an illumination. Each has a `kind`.                                                                                                                                            |
+| **feature kind**      | `bloom` (flowers), `foliage` (autumn leaves, `kochia-red`) or `illumination`. Not the same as *status kind*.                                                                                                                       |
+| **planting**          | One flower or leaf display at one place, with its own usual window and status. ID e.g. `kairakuen-ume`. Species-varieties that bloom weeks apart are separate plantings (`amabiki-kannon-kawazu-zakura`, `amabiki-kannon-sakura`). |
+| **species**           | The broad kind of plant from `species.yaml` (`ume`, `sakura`, `momiji`…). About 20, fixed. Not strictly botanical: `momiji` covers several maples. Field: `species`. Formerly *type*.                                              |
+| **species-variety**   | Optional free text under a species (`河津桜`, `ヤマザクラ`). Never used for logic. Field: `species_variety`. Formerly *variety*.                                                                                                           |
+| **usual window**      | The typical 見頃 period of a planting (例年の見頃), as month + third. A list, so roses can have spring and autumn. In the sheet: `window_start`/`window_end`, `window2_start`/`window2_end`.                                              |
+| **month + third**     | `"MM-N"`: N is 1 = 上旬 (1–10), 2 = 中旬 (11–20), 3 = 下旬 (21–end). `"04-2"` = mid-April.                                                                                                                                               |
+| **provisional**       | A usual window converted from text or a placeholder and not yet checked against past data.                                                                                                                                         |
+| **featured**          | Optional planting flag for a place's flagship flora. Only breaks ties within a pin rank.                                                                                                                                           |
+| **illumination**      | A seasonal light-up at a place (イルミネーション, ライトアップ).                                                                                                                                                                                 |
+| **edition**           | One season's or year's instance of an illumination (`season: 2026-27`) or a festival (`mito-ume-matsuri-2027`). Dates, hours and fees live on the edition.                                                                         |
+| **dates announced**   | `dates_announced: true`: the edition's dates come from this season's official announcement. `false`: they're last season's dates, used as a placeholder.                                                                           |
+| **festival**          | A named event (まつり, フェスティバル) linked to one or more places and plantings by ID. Lives outside the place files.                                                                                                                      |
+| **festival on**       | Today falls between a festival edition's `from` and `to`.                                                                                                                                                                          |
+| **closures**          | A place's regular closed days in its YAML: weekly day off, fixed yearly dates, `dates_closed`, `dates_open`, `periods_open`, with `source_url` and `valid_until`.                                                                  |
+| **one-off closure**   | A single closed day (storm, snow, event) in `closures.csv`. Beats the YAML for that date.                                                                                                                                          |
+| **source**            | A page or account that reports stage, in `sources.yaml`.                                                                                                                                                                           |
+| **status**            | One row in `statuses.csv`: a level for a planting on a date, from a source.                                                                                                                                                        |
+| **status kind**       | Where a status came from: `official` (the venue or city), `admin` (R, or an agent reading a photo), `user` (v2), `forecast` (a prediction for a date), `usual` (derived from the usual window). Not the same as *feature kind*.    |
+| **raw_text**          | The source's exact words for a status. Empty for X and Instagram rows.                                                                                                                                                             |
+| **detail**            | The 分咲き figure or similar (`7分`).                                                                                                                                                                                                  |
+| **ID / slug**         | A readable, permanent, lowercase romaji identifier. Never renamed once live.                                                                                                                                                       |
+| **municipality slug** | The romaji folder name for a municipality (`mito`, `ibaraki-machi`). The Japanese name lives in the file.                                                                                                                          |
+| **geocode precision** | How a place's point was set: `lot` or `block` (GSI geocoder), `manual` (placed by hand by R), `approximate` (neighbourhood only, still to place).                                                                                  |
+| **point note**        | Optional free text saying where the point sits ("entrance", "parking lot"). Field: `point_note`.                                                                                                                                   |
+| **schema_version**    | Version number at the top of every YAML file.                                                                                                                                                                                      |
 
 ## Stages
 
-| Term | Meaning |
-|---|---|
-| **level** | The stage as a number, 0–4. Stored in status rows. |
-| **stage** | The level as shown to users. |
-| **まもなく / Soon** (0) | Not open yet, and within the lead window. Leaves: **青葉 / Green**. Replaces the older まだ. |
-| **咲き始め / Starting to Bloom** (1) | Anything before 7分. Leaves: **色づき始め / Turning Color**. |
-| **見頃 / Peak** (2) | 7分 to 満開. |
-| **見頃過ぎ / Past Peak** (3) | 散り始め, 見頃後半, 色あせ: falling or fading, still worth a visit. |
-| **シーズン外 / Out of Season** (4) | Everything else. Hidden by default. Replaces the older 終了 / 落葉. |
-| **分咲き** | The fraction of flowers open, in tenths (`5分咲き` = half). 満開 = full bloom. |
-| **mapping rule** | How a source's wording becomes a level (CLAUDE.md, Bloom scale). |
-| **pin photo** | The image inside a pin: a species close-up (`pin_photo` in species.yaml, files in `photos-pin/`), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
-| **starting days** | Per species (`starting_days` in species.yaml): how many days of 咲き始め to show before the usual window when there's no report. |
-| **lead window** | The `LEAD = 14` days before 咲き始め starts (or before an illumination starts). The only time まもなく shows. |
-| **in season** | A feature that isn't シーズン外. The default filter シーズン中 shows these. |
+| Term                             | Meaning                                                                                                                                                                                             |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **level**                        | The stage as a number, 0–4. Stored in status rows.                                                                                                                                                  |
+| **stage**                        | The level as shown to users.                                                                                                                                                                        |
+| **まもなく / Soon** (0)              | Not open yet, and within the lead window. Leaves: **青葉 / Green**. Replaces the older まだ.                                                                                                            |
+| **咲き始め / Starting to Bloom** (1) | Anything before 7分. Leaves: **色づき始め / Turning Color**.                                                                                                                                              |
+| **見頃 / Peak** (2)                | 7分 to 満開.                                                                                                                                                                                           |
+| **見頃過ぎ / Past Peak** (3)         | 散り始め, 見頃後半, 色あせ: falling or fading, still worth a visit.                                                                                                                                            |
+| **シーズン外 / Out of Season** (4)    | Everything else. Hidden by default. Replaces the older 終了 / 落葉.                                                                                                                                     |
+| **分咲き**                          | The fraction of flowers open, in tenths (`5分咲き` = half). 満開 = full bloom.                                                                                                                           |
+| **mapping rule**                 | How a source's wording becomes a level (CLAUDE.md, Bloom scale).                                                                                                                                    |
+| **pin photo**                    | The image inside a pin: a species close-up (`pin_photo` in species.yaml, files in `photos-species/`, cropped by its `crop` box), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
+| **starting days**                | Per species (`starting_days` in species.yaml): how many days of 咲き始め to show before the usual window when there's no report.                                                                        |
+| **lead window**                  | The `LEAD = 14` days before 咲き始め starts (or before an illumination starts). The only time まもなく shows.                                                                                               |
+| **in season**                    | A feature that isn't シーズン外. The default filter シーズン中 shows these.                                                                                                                                   |
 
 ## Illuminations
 

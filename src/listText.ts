@@ -11,7 +11,8 @@ export interface RowText {
   aging: boolean;
 }
 
-const md = (iso: string) => `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}`;
+/** 2027-02-05 -> 2/5 (both languages). */
+export const md = (iso: string) => `${+iso.slice(5, 7)}/${+iso.slice(8, 10)}`;
 
 const THIRDS = {
   ja: ['上旬', '中旬', '下旬'],

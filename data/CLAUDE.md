@@ -30,6 +30,7 @@ If a request is in that list, say so in one line and suggest R open a different 
 - **X and Instagram rows:** store the post ID, post time and derived level only. `raw_text` stays empty.
 - **Photos** need `credit` and `license`. Never add a photo without them.
 - **Dates** are ISO (`2027-02-22`), Japan time. Every YAML file keeps its `schema_version`.
+- **English fields** (`hours_en`, `closed_en`, `fee_en`, `parking_en`, `night_events_en`, `note_en`) hold translations. Enter English text R gives you or if prompted, translate yourself and get permission before writing.
 - **Empty optional fields** are fine: leave them out rather than writing "unknown".
 - **Sources:** do not invent source URLs. Skip a source that has no URL and list it in the import report.
 - **Converted bloom windows** get `provisional: true` until checked against past data.

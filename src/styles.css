@@ -3,6 +3,11 @@
   --mute: #78716c;
   --line: #e7e5e4;
   --bg: #fafaf9;
+  --panel-w: 400px; /* list / place page, as in the prototype */
+  /* Layout edges in front of the map sit on multiples of 4 CSS px, so the map (and its pins)
+     starts on a whole screen pixel at every common display scaling (100%, 125%, 150%, 200%…).
+     A half-pixel start makes pin rings and photos round unevenly. */
+  --panel-max: round(down, 45%, 4px);
   font-family:
     'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', 'Noto Sans JP', system-ui, sans-serif;
   color: var(--ink);
@@ -27,11 +32,13 @@ body,
 }
 
 .app-header {
+  flex: none;
+  height: 48px; /* a multiple of 4: see --panel-max */
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   border-bottom: 1px solid var(--line);
   background: #fff;
 }
@@ -86,9 +93,12 @@ body,
 /* ---------- filters */
 
 .filter-bar {
+  flex: none;
+  height: 48px; /* a multiple of 4: see --panel-max */
   display: flex;
+  align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1rem;
+  padding: 0 1rem;
   overflow-x: auto;
   background: #fff;
   border-bottom: 1px solid var(--line);
@@ -136,16 +146,34 @@ body,
 
 .pin-marker {
   cursor: pointer;
+  /* MapLibre centres the marker with translate(-50%): a fixed even width keeps that on whole
+     pixels whatever the pin inside (full 54 px, thin 50 px), so the pin and its label never
+     sit half a pixel off (which blurs the text). */
+  width: 54px;
+}
+
+.pin-marker .pin {
+  margin-inline: auto;
 }
 
 .pin {
-  --pz: 44px; /* full pin size */
+  --pz: 54px; /* full pin size: (pz-8) of photo inside the 4px ring */
   --rw: 4px; /* ring width */
   position: relative;
   width: var(--pz);
   height: var(--pz);
   padding: var(--rw);
   border-radius: 50%;
+  /* The ring (--ring: a colour, or a conic gradient while 咲き始め fills; set per pin) with a
+     white disc inside it, under the photo. Both are layers of this one element, so they
+     round to screen pixels together and the ring stays even. */
+  background:
+    radial-gradient(
+      circle closest-side,
+      #fff calc(100% - var(--rw)),
+      transparent calc(100% - var(--rw) + 0.75px)
+    ),
+    var(--ring, transparent);
 }
 
 /* Circle + taper. The shadow follows both shapes; the hover zoom grows from the tip. */
@@ -172,11 +200,13 @@ body,
   border-top-width: 10px;
 }
 
-/* Estimate: same photo size, thinner ring, so the pin is smaller. */
+/* Estimate: same photo size, thinner ring, so the pin is smaller. 2 px (not 1.5) keeps the
+   thin pin an even 4 px smaller than the full one, so it centres in its marker on a whole
+   pixel. */
 .pin.thin {
-  --rw: 1.5px;
-  width: calc(var(--pz) - 5px);
-  height: calc(var(--pz) - 5px);
+  --rw: 2px;
+  width: calc(var(--pz) - 4px);
+  height: calc(var(--pz) - 4px);
 }
 
 /* The hovered pin and its name go above every other pin; the pin zooms very slightly. */
@@ -192,10 +222,12 @@ body,
   display: block;
   width: 100%;
   height: 100%;
-  padding: 2px;
   border-radius: 50%;
-  background: #fff;
   object-fit: cover;
+  /* The photo's very edge fades to the white disc behind it (.pin) over 2 px: a soft white
+     edge against the ring, instead of a separate 1 px white gap, which rounded unevenly on
+     screens with fractional scaling. */
+  mask-image: radial-gradient(circle closest-side, #000 calc(100% - 2px), transparent 100%);
 }
 
 .photo-grey {
@@ -231,38 +263,92 @@ body,
   border: 2px solid #b0245c;
 }
 
+/* Every place name on the map (CLAUDE.md, "Place names"). One label per pin, always drawn the
+   same way; only whether it shows and whether its pill is filled change, so nothing moves.
+   - shows: when the map placed it without a collision (.name-shown, MapView), on hover, and
+     for the selected pin;
+   - pill: on hover and for the selected pin; otherwise transparent, with a white halo.
+   One line, like the map's collision box for it (MapView, text layer). A zero-width strip
+   centred under the pin; the pill centres on it without a transform, so the text stays on
+   whole pixels and sharp. */
 .pin-label {
-  opacity: 0;
-  transition: opacity 0.15s;
+  display: none;
   position: absolute;
   top: 100%;
   left: 50%;
-  transform: translateX(-50%);
+  width: 0;
+  justify-content: center;
   margin-top: 3px;
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-  color: var(--ink);
-  text-shadow:
-    0 0 3px #fff,
-    0 0 3px #fff,
-    0 0 3px #fff;
   pointer-events: none;
 }
 
-.pin-marker:hover .pin-label {
-  opacity: 1;
+.pin-label > span {
+  flex: none;
+  white-space: nowrap;
+  padding: 1px 7px;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 2px #fff,
+    0 0 2px #fff;
+}
+
+.pin-marker.name-shown .pin-label,
+.pin-marker:hover .pin-label,
+.pin-marker.selected .pin-label {
+  display: flex;
+}
+
+.pin-marker:hover .pin-label > span,
+.pin-marker.selected .pin-label > span {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* Group pin: the number of places in the group, on the pin's upper-left edge (the festival
+   dot has the upper right, the clock the lower right). */
+.pin-count {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--ink);
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+.pin-marker.group {
+  cursor: zoom-in;
+}
+
+/* The place whose page is open. */
+.pin-marker.selected {
+  z-index: 2000 !important;
+}
+
+.pin-marker.selected .pin-body {
+  transform: scale(1.3);
 }
 
 /* ---------- list (CLAUDE.md, "List") */
 
 .place-list {
-  width: 340px;
-  max-width: 45%;
+  width: var(--panel-w);
+  max-width: var(--panel-max);
   overflow-y: auto;
-  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
   background: #fff;
-  font-size: 0.85rem;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .place-list ul {
@@ -276,25 +362,25 @@ body,
   top: 0;
   z-index: 1;
   margin: 0;
-  padding: 0.45rem 0.75rem;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--line);
   background: #fff;
   color: var(--mute);
-  font-size: 0.8rem;
+  font-size: 13px;
 }
 
 .list-empty {
   margin: 0;
-  padding: 1rem 0.75rem;
+  padding: 16px;
   color: var(--mute);
 }
 
 .list-row {
   display: flex;
   align-items: flex-start;
-  gap: 0.7rem;
+  gap: 12px;
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 12px 16px;
   border: 0;
   border-bottom: 1px solid var(--line);
   background: none;
@@ -309,14 +395,14 @@ body,
 }
 
 .list-pin {
-  --pz: 40px;
+  --pz: 54px;
   flex: none;
 }
 
 .list-body {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 3px;
   min-width: 0;
 }
 
@@ -336,9 +422,10 @@ body,
 }
 
 .stage-tag {
-  padding: 0 0.45rem;
+  padding: 1px 8px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 12px;
+  font-weight: 600;
   color: #fff;
 }
 
@@ -349,7 +436,7 @@ body,
 
 .list-status {
   color: var(--mute);
-  font-size: 0.8rem;
+  font-size: 13px;
 }
 
 /* Aging report: the age is shown prominently. */
@@ -362,7 +449,7 @@ body,
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 0.8rem;
+  font-size: 13px;
 }
 
 .list-fest::before {
@@ -378,28 +465,180 @@ body,
   border-radius: 999px;
   border: 1px solid #9b1c1c;
   color: #9b1c1c;
-  font-size: 0.7rem;
+  font-size: 12px;
   font-weight: 700;
+}
+
+/* ---------- place page (CLAUDE.md, "Place page") */
+
+.place-page {
+  width: var(--panel-w);
+  max-width: var(--panel-max);
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  background: #fff;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.page-head {
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-head h2 {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.25;
+}
+
+.page-sub {
+  margin: 4px 0 0;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.place-page section {
+  border-bottom: 1px solid var(--line);
+}
+
+.place-page h3 {
+  margin: 0;
+  padding: 14px 16px 0;
+  font-size: 13px;
+  color: var(--mute);
+}
+
+.page-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.page-feature {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+/* Festivals have no photo column. */
+.page-feature.no-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.feature-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.feature-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.place-page section .page-feature:last-child {
+  border-bottom: 0;
+}
+
+.page-info {
+  display: grid;
+  grid-template-columns: 5.5em minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+  padding: 12px 16px 16px;
+  font-size: 14px;
+}
+
+.page-feature .page-info {
+  padding: 4px 0 0;
+  font-size: 13px;
+}
+
+.page-info dt {
+  color: var(--mute);
+}
+
+.page-info dd {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.page-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  font-size: 13px;
+}
+
+.place-page a {
+  color: #b0245c;
+}
+
+/* The filter bar's row while a place page is open. */
+.page-bar {
+  align-items: center;
+}
+
+/* Lined up with the side panel below (on the left, like Google Maps). */
+.page-bar .back {
+  width: min(var(--panel-w), var(--panel-max));
+  margin-left: -1rem;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+  padding: 0 16px;
+  font-size: 15px;
+  color: #b0245c;
+  font-weight: 700;
+}
+
+.page-bar .back:hover {
+  text-decoration: underline;
 }
 
 /* ---------- debug mode (dev builds only) */
 
 .debug-bar {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 1rem;
+  /* 28 px rows, 4 px apart, 6 px padding: 40 px for one row, 72 for two, always a multiple
+     of 4 (see --panel-max). The bottom line is a shadow, not a border: a 1 px border is drawn
+     as one screen pixel (0.8 px at 125%) and would throw the height off. */
+  gap: 4px 0.35rem;
+  padding: 6px 1rem;
   background: #fef3c7;
-  border-bottom: 1px solid #f59e0b;
+  box-shadow: inset 0 -1px #f59e0b;
   font-size: 0.85rem;
+}
+
+.debug-bar > * {
+  height: 28px;
+  display: flex;
+  align-items: center;
 }
 
 .debug-bar button,
 .debug-bar input,
 .debug-bar select {
   font: inherit;
-  padding: 0.15rem 0.45rem;
+  height: 28px;
+  padding: 0 0.45rem;
 }
 
 .debug-tag {
@@ -421,10 +660,10 @@ body,
 }
 
 .debug-panel {
-  width: 340px;
-  max-width: 45%;
+  width: var(--panel-w);
+  max-width: var(--panel-max);
   overflow-y: auto;
-  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
   background: #fff;
   font-size: 0.8rem;
 }
@@ -471,7 +710,7 @@ body,
 }
 
 .debug-swatch.thin {
-  border-width: 1.5px;
+  border-width: 2px;
 }
 
 .debug-chip {

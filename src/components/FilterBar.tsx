@@ -13,10 +13,22 @@ interface Props {
   filter: Filter;
   setFilter: (f: Filter) => void;
   lang: Lang;
+  /** While a place page is open: a back-to-list button replaces the chips. */
+  openPlace?: { onBack: () => void } | null;
 }
 
 /** The five filters (CLAUDE.md): シーズン中 is the default. One is always on. */
-export default function FilterBar({ filter, setFilter, lang }: Props) {
+export default function FilterBar({ filter, setFilter, lang, openPlace }: Props) {
+  if (openPlace) {
+    // Same row height as the chips (no map jump); the button sits right above the side panel.
+    return (
+      <div className="filter-bar page-bar">
+        <button type="button" className="chip back" onClick={openPlace.onBack}>
+          ← {t('back', lang)}
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="filter-bar" role="group" aria-label={t('filtersLabel', lang)}>
       {FILTERS.map((f) => (

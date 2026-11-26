@@ -1,8 +1,8 @@
 schema_version: 1
 id: koga-kubo-park
-name_ja: "古河公方公園（古河総合公園）"
+name_ja: "古河公方公園"
 name_en: "Koga Kubo Park"
-name_kana: "こがくぼうこうえん（こがそうごうこうえん）"
+name_kana: "こがくぼうこうえん"
 prefecture: ibaraki
 municipality: "古河市"
 municipality_slug: koga

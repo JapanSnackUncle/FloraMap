@@ -50,7 +50,7 @@ export default function PlaceList({ places, bounds, species, today, lang, onSele
               <button type="button" className="list-row" onClick={() => onSelect?.(ps.place.id)}>
                 <span
                   className={`pin list-pin${look.thin ? ' thin' : ''}`}
-                  style={{ background: look.ring }}
+                  style={{ '--ring': look.ring } as React.CSSProperties}
                   aria-hidden="true"
                 >
                   <img alt="" src={look.photo} className={`photo-${look.photoFilter}`} />
