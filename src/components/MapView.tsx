@@ -14,6 +14,9 @@ import {
   JAPANESE_FONTS,
   MAP_ATTRIBUTION,
   PAN_MARGIN_PX,
+  PHONE_GROUP_RADIUS_PX,
+  PHONE_PIN_SIZE_PX,
+  PIN_SIZE_PX,
   RAIL_URL,
   SHEET_HALF,
   SPRITE_URL,
@@ -110,8 +113,12 @@ export interface MapInsets {
   bottom: number;
 }
 
-/** Half a full pin's height: the pin's middle sits this far above its point (the tip). */
-const PIN_MIDDLE_PX = 31;
+/**
+ * A map pin's outline in CSS px: the circle plus its taper below (styles.css: .pin-tip is 11 px
+ * tall on desktop, 9 px on phones, tucked 3 px under the circle).
+ */
+const pinBox = (phone: boolean): [number, number] =>
+  phone ? [PHONE_PIN_SIZE_PX, PHONE_PIN_SIZE_PX + 6] : [PIN_SIZE_PX, PIN_SIZE_PX + 8];
 
 /** easeTo/flyTo `offset` that puts the target in the middle of the uncovered area. */
 const centreOffset = (ins: MapInsets | null | undefined): [number, number] =>
@@ -123,11 +130,13 @@ const centreOffset = (ins: MapInsets | null | undefined): [number, number] =>
  * change) to put the pin in the middle of that part.
  */
 function revealPin(map: maplibregl.Map, lngLat: [number, number], top: number) {
+  // The pin's middle sits half its height above its point (the tip). revealPin runs on phones.
+  const middle = pinBox(true)[1] / 2;
   const W = map.getContainer().clientWidth;
   const H = map.getContainer().clientHeight;
   const bottom = Math.round(H * SHEET_HALF);
   const p = map.project(lngLat);
-  const y = p.y - PIN_MIDDLE_PX;
+  const y = p.y - middle;
   const m = PAN_MARGIN_PX;
   const clear = p.x >= m && p.x <= W - m && y >= top + m && y <= H - bottom - m;
   if (clear) return;
@@ -153,6 +162,8 @@ interface Props {
   initialCenter?: { lng: number; lat: number } | null;
   /** Phones only: the parts of the map covered by the chips and the sheet. */
   insets?: MapInsets | null;
+  /** Phone layout: smaller pins and a matching group radius. */
+  phone?: boolean;
 }
 
 /** A map click this soon after a pin click is that same click, not a click on empty map. */
@@ -177,16 +188,24 @@ export type ViewBounds = [number, number, number, number];
 const NAMES_SOURCE = 'pin-names';
 
 /**
- * A pin's outline in CSS px (styles.css: .pin is 54 px with a taper below; the selected pin is
- * scaled 1.3× from its tip). MapLibre can't see the HTML pins, so each name feature carries an
- * invisible image this size above its point: names then avoid pins.
+ * A pin's outline (pinBox; the selected pin is scaled 1.3× from its tip). MapLibre can't see
+ * the HTML pins, so each name feature carries an invisible image this size above its point:
+ * names then avoid pins. One pair for desktop pins, one for the smaller phone pins.
  */
-const HOLES = {
-  pin: [54, 62],
-  'pin-sel': [70, 81],
-} as const;
+const SELECTED_SCALE = 1.3;
+const HOLES: Record<string, [number, number]> = Object.fromEntries(
+  [false, true].flatMap((phone) => {
+    const [w, h] = pinBox(phone);
+    const key = phone ? 'phone-pin' : 'pin';
+    return [
+      [key, [w, h]],
+      [`${key}-sel`, [Math.round(w * SELECTED_SCALE), Math.round(h * SELECTED_SCALE)]],
+    ];
+  }),
+);
 
-const holeImage = (selected: boolean): string => `hole-pin${selected ? '-sel' : ''}`;
+const holeImage = (selected: boolean, phone: boolean): string =>
+  `hole-${phone ? 'phone-' : ''}pin${selected ? '-sel' : ''}`;
 
 /** The map's name layers: pin outlines and names. Neither is visible (see addNameLayers). */
 const HOLES_LAYER = 'pin-holes';
@@ -251,13 +270,13 @@ function placedNames(map: maplibregl.Map): Set<string> {
 /** The places, clustered by MapLibre. Its only layer is invisible: the pins are HTML. */
 const CLUSTER_SOURCE = 'pin-clusters';
 
-function addClusterSource(map: maplibregl.Map) {
+function addClusterSource(map: maplibregl.Map, radius: number) {
   map.addSource(CLUSTER_SOURCE, {
     type: 'geojson',
     data: { type: 'FeatureCollection', features: [] },
     cluster: true,
     // MapLibre's tiles are 512 px and clusterRadius is in 1/512ths of a tile: screen pixels.
-    clusterRadius: GROUP_RADIUS_PX,
+    clusterRadius: radius,
     clusterMaxZoom: GROUP_MAX_ZOOM,
     // Per group: its best place (lowest rank index) and whether any place has a festival on.
     clusterProperties: {
@@ -339,6 +358,7 @@ export default function MapView({
   onEmptyClick,
   initialCenter,
   insets,
+  phone = false,
 }: Props) {
   const container = useRef<HTMLDivElement>(null);
   // Latest callbacks in refs, so the map's event listeners never need re-attaching.
@@ -351,6 +371,7 @@ export default function MapView({
     onEmpty.current = onEmptyClick;
   }, [onViewChange, onPinClick, onEmptyClick]);
   const startCenter = useRef(initialCenter);
+  const phoneRef = useRef(phone);
   const insetsRef = useRef(insets);
   useEffect(() => {
     insetsRef.current = insets;
@@ -427,7 +448,7 @@ export default function MapView({
       onView.current?.([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
     };
     map.on('load', () => {
-      addClusterSource(map);
+      addClusterSource(map, phoneRef.current ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX);
       addNameLayers(map);
       setLoaded(true);
       reportView();
@@ -493,6 +514,19 @@ export default function MapView({
       }),
     });
   }, [loaded, ranked, clusterIds]);
+
+  // Crossing the phone breakpoint (rotating a tablet, resizing a window): regroup with the
+  // radius that matches the new pin size.
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded || phoneRef.current === phone) return;
+    phoneRef.current = phone;
+    // `cluster` must be passed again: MapLibre turns clustering off when it's left out.
+    void (map.getSource(CLUSTER_SOURCE) as maplibregl.GeoJSONSource).setClusterOptions({
+      cluster: true,
+      clusterRadius: phone ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX,
+    });
+  }, [loaded, phone]);
 
   // What the clustering shows at the current zoom, read back after each render; only replaced
   // when it changes, so zooming within one grouping doesn't redraw the pins.
@@ -596,7 +630,7 @@ export default function MapView({
           pid: id,
           // Group pins have no name below them, but still keep other names off their pin.
           name: g ? '' : name(ps),
-          hole: holeImage(selected),
+          hole: holeImage(selected, phone),
           // Lower keys are placed first and win collisions: the selected place, then by rank.
           sort: selected ? -1 : i,
         },
@@ -612,7 +646,7 @@ export default function MapView({
       type: 'FeatureCollection',
       features: labels,
     });
-  }, [loaded, ranked, view, lang, selectedId]);
+  }, [loaded, ranked, view, lang, selectedId, phone]);
 
   // After each placement, show the names MapLibre placed (class name-shown) and hide the rest.
   // Hover and the selected pin show a name regardless (styles.css). Checked at most once per

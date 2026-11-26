@@ -160,6 +160,7 @@ export default function App() {
               onEmptyClick={close}
               initialCenter={linkPlace ? { lng: linkPlace.lng, lat: linkPlace.lat } : null}
               insets={phone ? { top: SHEET_TOP_PX, bottom: sheetH } : null}
+              phone={phone}
             />
           )}
           {data && visible.length === 0 && (

@@ -39,13 +39,18 @@ export const IBARAKI_BOUNDS: [[number, number], [number, number]] = [
   [140.85, 36.95],
 ];
 
+/** A map pin's width in CSS px (styles.css .pin-marker); phones use smaller pins. */
+export const PIN_SIZE_PX = 54;
+export const PHONE_PIN_SIZE_PX = 44;
+
 /**
  * Grouped pins (CLAUDE.md, "Grouped pins"): pins whose centres are closer than this many screen
- * pixels merge into one group pin. A bit under one pin width (a full pin is 54 px): pins may
- * overlap slightly before grouping, which keeps groups from forming too early between whole
- * zoom levels (MapLibre only regroups at whole levels).
+ * pixels merge into one group pin. A bit under one pin width: pins may overlap slightly before
+ * grouping, which keeps groups from forming too early between whole zoom levels (MapLibre only
+ * regroups at whole levels). Phones keep the same share of the smaller pin (45/54 of 44 ≈ 37).
  */
 export const GROUP_RADIUS_PX = 45;
+export const PHONE_GROUP_RADIUS_PX = 37;
 
 /** The last zoom level with groups (MapLibre's clusterMaxZoom): from 17 every pin stands alone. */
 export const GROUP_MAX_ZOOM = 16;
