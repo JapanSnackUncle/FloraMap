@@ -684,6 +684,12 @@ body,
 }
 
 .sheet {
+  /* The rows just under the grab bar line up on these: a place page's 一覧に戻る / 閉じる, the
+     full list's 閉じる and the list's count line all start --sheet-head-pad below the grab bar
+     and are --sheet-head-line tall, so their texts share one centre line. */
+  --sheet-grab-h: 20px;
+  --sheet-head-pad: 2px;
+  --sheet-head-line: 25px;
   position: absolute;
   left: 0;
   right: 0;
@@ -713,7 +719,7 @@ body,
 
 .sheet-grab {
   flex: none;
-  height: 20px;
+  height: var(--sheet-grab-h);
   width: 100%;
   border: 0;
   padding: 0;
@@ -742,9 +748,10 @@ body,
   flex: none;
   border: 0;
   background: none;
-  padding: 2px 16px 6px;
+  padding: var(--sheet-head-pad) 16px 6px;
   font: inherit;
   font-size: 15px;
+  line-height: var(--sheet-head-line);
   font-weight: 700;
   color: #b0245c;
   cursor: pointer;
@@ -754,19 +761,20 @@ body,
   margin-left: auto;
 }
 
-/* The full list's 閉じる: at the same place as a place page's (just under the 20 px grab bar,
-   same padding), over the right end of the count line, so it takes no row of its own. */
+/* The full list's 閉じる: where a place page's sits (just under the grab bar), over the right
+   end of the count line, so it takes no row of its own. */
 .sheet-head-over {
   position: absolute;
-  top: 20px;
+  top: var(--sheet-grab-h);
   right: 0;
   z-index: 2;
 }
 
-/* Phones: the count line sits as close under the grab bar as the page's buttons do, so its
-   text lines up with the full list's 閉じる. */
+/* Phones: the count line is a sheet header row too (see .sheet), so its text lines up with the
+   full list's 閉じる. */
 .phone .list-count {
-  padding-top: 5px;
+  padding-top: var(--sheet-head-pad);
+  line-height: var(--sheet-head-line);
 }
 
 .sheet-content {

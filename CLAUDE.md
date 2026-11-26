@@ -198,6 +198,7 @@ Later phases (status pipeline, polish, launch) are in `reference/plan.md`.
 - Every bug found on a real date becomes a test fixture ("on 2027-04-16, hitachi-seaside pin = ネモフィラ").
 - In debug mode, each pin and status can show why it was chosen.
 - When unsure, show less: no guessed values, and invalid data fails the build.
+- A value used in more than one place is defined once (a CSS variable, or a constant in `src/config.ts`) and used by name. A value that only works because it lines up with another (spacing that aligns two rows, a position under a bar) is written in terms of that one, never as a number measured to match. If that isn't possible, a comment says what it's matched to.
 
 ## Working style
 
