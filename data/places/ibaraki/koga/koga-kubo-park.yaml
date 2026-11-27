@@ -15,6 +15,19 @@ fee_ja: "入園無料"
 parking_ja: "800台、無料（桃まつり期間は有料）"
 official_urls: ["https://www.ktr.mlit.go.jp/ktr_content/content/000759513.pdf"]
 checked_against: ["https://summer.walkerplus.com/odekake/detail/ar0308s62964/map.html"]
+photos:
+  - file: "32304662_m.jpg"
+    credit: "写真AC"
+    license: "photo-ac"
+    focus_y: 50
+  - file: "5wBv6TNS9kH6mjz.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 51
+  - file: "3AThUeYk1sIwNug.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 46
 plantings:
   - id: koga-kubo-park-hanamomo
     kind: bloom

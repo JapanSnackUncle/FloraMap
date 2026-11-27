@@ -17,6 +17,15 @@ parking_ja: "1,200台、無料"
 official_urls: ["https://www.flowerpark.or.jp/time-price/"]
 checked_against: ["https://www.walkerplus.com/spot/ar0308s65321/map.html", "https://www.walkerplus.com/event/ar0308e304893/price.html"]
 editor_notes: "closed days from the official 営業日カレンダー, Nov 2026–Mar 2027 (checked 2026-11-25). April–June 2027 show no closed days yet; re-check before valid_until."
+photos:
+  - file: "28018560_s.jpg"
+    credit: "写真AC"
+    license: "photo-ac"
+    focus_y: 79
+  - file: "27284256_s.jpg"
+    credit: "写真AC"
+    license: "photo-ac"
+    focus_y: 59
 closures:
   source_url: "https://www.flowerpark.or.jp/time-price/"
   valid_until: "2027-03-31"

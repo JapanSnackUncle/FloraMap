@@ -15,6 +15,15 @@ fee_ja: "無料"
 parking_ja: "40台、無料"
 official_urls: ["https://www.city.sakuragawa.lg.jp/tourism_guide/look/page003402.html"]
 checked_against: ["https://weathernews.jp/sakura/spot/4003/"]
+photos:
+  - file: "XHFQppNu2xKHWKG.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 35
+  - file: "WYwvEN3SpIpV3YG.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 81
 plantings:
   - id: isobe-sakuragawa-yamazakura
     kind: bloom

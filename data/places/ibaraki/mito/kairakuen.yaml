@@ -26,6 +26,10 @@ photos:
     credit: "いばらき観光キャンペーン推進協議会"
     license: "ibaraki-photo-library"
     focus_y: 48
+  - file: "253bc182cdbf4480d841473a0cf5494f.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 70
 plantings:
   - id: kairakuen-azalea
     kind: bloom

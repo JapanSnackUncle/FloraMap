@@ -16,6 +16,15 @@ fee_ja: "観瀑トンネル 大人500円・子供300円"
 parking_ja: "町営無料約260台＋民間有料約700台"
 official_urls: ["https://www.daigo-kanko.jp/fukuroda-falls.html"]
 checked_against: ["https://weathernews.jp/koyo/spot/24002/"]
+photos:
+  - file: "22224774_s.jpg"
+    credit: "写真AC"
+    license: "photo-ac"
+    focus_y: 41
+  - file: "Pzml57uHZPKGo6h.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 37
 plantings:
   - id: fukuroda-momiji
     kind: foliage

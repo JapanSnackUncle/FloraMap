@@ -17,6 +17,14 @@ parking_ja: "18台（普通車13・バス5）"
 official_urls: ["https://kodokan-ibaraki.jp/"]
 checked_against: ["https://rurubu.jp/andmore/spot/80005922"]
 editor_notes: "hours, closed days and fee from the official site (checked 2026-11-25); hours were 10/1–2/10, corrected to 2/19"
+photos:
+  - file: "kodokan.jpg"
+    license: "own"
+    focus_y: 46
+  - file: "RiAh0W5P6Lla9ma.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 50
 closures:
   source_url: "https://kodokan-ibaraki.jp/"
   valid_until: "2027-06-30"

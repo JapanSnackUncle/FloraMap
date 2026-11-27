@@ -16,6 +16,15 @@ fee_ja: "無料"
 parking_ja: "150台（花貫110・大能40）、紅葉まつり期間は普通車1,000円"
 official_urls: ["https://www.city.takahagi.ibaraki.jp/kankou/spot/sizen/page000012.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006075"]
+photos:
+  - file: "0023d86202b95d63e622847ddca3b99b.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 53
+  - file: "FcbAVXm2zcgq3uW.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 57
 plantings:
   - id: hananuki-momiji
     kind: foliage

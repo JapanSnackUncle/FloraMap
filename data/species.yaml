@@ -7,8 +7,9 @@ species:
     name_en: "Plum"
     pin_photo:
       file: "ume.jpg"
-      license: "own"
-      crop: { x: 40, y: 55, size: 80 }
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 75, y: 80, size: 40 }
   - id: sakura
     kind: bloom
     starting_days: 7
@@ -17,70 +18,126 @@ species:
     pin_photo:
       file: "sakura.jpg"
       license: "own"
+      crop: { x: 42, y: 51, size: 83 }
   - id: hanamomo
     kind: bloom
     starting_days: 7
     name_ja: "ハナモモ"
     name_en: "Flowering Peach"
+    pin_photo:
+      file: "hanamomo.jpg"
+      credit: "写真AC"
+      license: "photo-ac"
+      crop: { x: 30, y: 40, size: 61 }
   - id: nanohana
     kind: bloom
     starting_days: 7
     name_ja: "菜の花"
     name_en: "Rapeseed"
+    pin_photo:
+      file: "nanohana.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 59, y: 65, size: 13 }
   - id: narcissus
     kind: bloom
     starting_days: 7
     name_ja: "スイセン"
     name_en: "Daffodil"
+    pin_photo:
+      file: "narcissus.jpg"
+      credit: "PxHere"
+      license: "pxhere"
+      crop: { x: 62, y: 53, size: 54 }
   - id: tulip
     kind: bloom
     starting_days: 7
     name_ja: "チューリップ"
     name_en: "Tulip"
     pin_photo:
-      file: "tulip.jpg"
-      license: "own"
-      crop: { x: 30, y: 80, size: 40 }
+      file: "tulip.png"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 55, y: 69, size: 17 }
   - id: nemophila
     kind: bloom
     starting_days: 7
     name_ja: "ネモフィラ"
     name_en: "Nemophila"
+    pin_photo:
+      file: "nemophila.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 58, y: 74, size: 28 }
   - id: shibazakura
     kind: bloom
     starting_days: 7
     name_ja: "芝桜"
     name_en: "Moss Phlox"
+    pin_photo:
+      file: "shibazakura.jpg"
+      credit: "写真AC"
+      license: "photo-ac"
+      crop: { x: 52, y: 65, size: 40 }
   - id: azalea
     kind: bloom
     starting_days: 7
     name_ja: "ツツジ"
     name_en: "Azalea"
+    pin_photo:
+      file: "azalea.jpg"
+      license: "own"
+      crop: { x: 6, y: 67, size: 8 }
   - id: wisteria
     kind: bloom
     starting_days: 7
     name_ja: "藤"
     name_en: "Wisteria"
+    pin_photo:
+      file: "wisteria.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 44, y: 27, size: 16 }
   - id: peony
     kind: bloom
     starting_days: 7
     name_ja: "ボタン"
     name_en: "Tree Peony"
+    pin_photo:
+      file: "peony.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 45, y: 55, size: 63 }
   - id: poppy
     kind: bloom
     starting_days: 7
     name_ja: "ポピー"
     name_en: "Poppy"
+    pin_photo:
+      file: "poppy.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 49, y: 79, size: 37 }
   - id: rose
     kind: bloom
     starting_days: 7
     name_ja: "バラ"
     name_en: "Rose"
+    pin_photo:
+      file: "rose.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 46, y: 50, size: 100 }
   - id: iris
     kind: bloom
     starting_days: 7
     name_ja: "花菖蒲・アヤメ類"
     name_en: "Iris"
+    pin_photo:
+      file: "iris.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 21, y: 77, size: 17 }
   - id: hydrangea
     kind: bloom
     starting_days: 7
@@ -94,6 +151,11 @@ species:
     starting_days: 7
     name_ja: "ハス"
     name_en: "Lotus"
+    pin_photo:
+      file: "lotus.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 48, y: 50, size: 100 }
   - id: sunflower
     kind: bloom
     starting_days: 7
@@ -101,23 +163,39 @@ species:
     name_en: "Sunflower"
     pin_photo:
       file: "sunflower.jpg"
-      license: "own"
-      crop: { x: 45, y: 68, size: 50 }
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 49, y: 48, size: 50 }
   - id: hagi
     kind: bloom
     starting_days: 7
     name_ja: "萩"
     name_en: "Bush Clover"
+    pin_photo:
+      file: "hagi.jpg"
+      credit: "写真AC"
+      license: "photo-ac"
+      crop: { x: 42, y: 73, size: 16 }
   - id: cosmos
     kind: bloom
     starting_days: 7
     name_ja: "コスモス"
     name_en: "Cosmos"
+    pin_photo:
+      file: "cosmos.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 70, y: 53, size: 72 }
   - id: hamanasu
     kind: bloom
     starting_days: 7
     name_ja: "ハマナス"
     name_en: "Beach rose"
+    pin_photo:
+      file: "hamanasu.jpg"
+      credit: "写真AC"
+      license: "photo-ac"
+      crop: { x: 43, y: 67, size: 41 }
   - id: kochia-green
     kind: bloom
     starting_days: 0
@@ -125,8 +203,9 @@ species:
     name_en: "Kochia (Green)"
     pin_photo:
       file: "kochia-green.jpg"
-      license: "own"
-      crop: { x: 35, y: 82, size: 36 }
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 53, y: 87, size: 24 }
   - id: kochia-red
     kind: foliage
     starting_days: 7
@@ -135,14 +214,24 @@ species:
     pin_photo:
       file: "kochia-red.jpg"
       license: "own"
-      crop: { x: 55, y: 55, size: 60 }
+      crop: { x: 63, y: 68, size: 60 }
   - id: momiji
     kind: foliage
     starting_days: 7
     name_ja: "紅葉"
     name_en: "Maple Leaves"
+    pin_photo:
+      file: "momiji.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 78, y: 26, size: 14 }
   - id: ginkgo
     kind: foliage
     starting_days: 7
     name_ja: "イチョウ"
     name_en: "Ginkgo"
+    pin_photo:
+      file: "ginkgo.jpg"
+      credit: "いばらき観光キャンペーン推進協議会"
+      license: "ibaraki-photo-library"
+      crop: { x: 81, y: 49, size: 7 }

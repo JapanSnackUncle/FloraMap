@@ -16,6 +16,15 @@ parking_ja: "有料：普通車500円"
 official_urls: ["https://hitachifudoki.jp/facility-information/", "https://www.city.ishioka.lg.jp/shiseijoho/shisetsuannai/sports_koen/page001595.html"]
 checked_against: ["https://weathernews.jp/sakura/spot/40015/"]
 editor_notes: "hours and closed days from the park's 施設案内 (checked 2026-11-25). Its table is headed 開園時間・休園日(一部の有料エリアほか), so closures apply to paid areas only; no closures block, and the sakura areas are treated as open."
+photos:
+  - file: "KwDH4xyhkLmLaep.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 45
+  - file: "QEiuHCcUqg9HlnD.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 48
 plantings:
   - id: hitachi-fudoki-sakura
     kind: bloom

@@ -20,6 +20,14 @@ photos:
     credit: "いばらき観光キャンペーン推進協議会"
     license: "ibaraki-photo-library"
     focus_y: 92
+  - file: "32624936_s.jpg"
+    credit: "写真AC"
+    license: "photo-ac"
+    focus_y: 46
+  - file: "PlX0C9N54Uo5UDw.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 55
 plantings:
   - id: amabiki-kannon-hydrangea
     kind: bloom

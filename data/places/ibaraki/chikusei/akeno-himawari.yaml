@@ -18,6 +18,10 @@ photos:
     credit: "いばらき観光キャンペーン推進協議会"
     license: "ibaraki-photo-library"
     focus_y: 54
+  - file: "HDeFYGzvoxWr4tI.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 47
 plantings:
   - id: akeno-himawari-sunflower
     kind: bloom

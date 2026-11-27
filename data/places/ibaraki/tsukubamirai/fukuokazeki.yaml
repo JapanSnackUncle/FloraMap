@@ -16,6 +16,10 @@ parking_ja: "約590台（さくらまつり期間中の土日は有料）"
 official_urls: ["https://www.city.tsukubamirai.lg.jp/jyumin/shisetu-koutsu/kouen/page001571.html"]
 checked_against: ["https://weathernews.jp/sakura/spot/4011/"]
 photos:
+  - file: "giXwcOSjKEMAQVj.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 43
   - file: "amtroTZ7nbuf8Av.jpg"
     credit: "いばらき観光キャンペーン推進協議会"
     license: "ibaraki-photo-library"
