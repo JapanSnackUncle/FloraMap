@@ -438,6 +438,18 @@ body,
   font-size: 13px;
 }
 
+/* The secondary part (source and age, end date, last check): smaller, on the same baseline,
+   1 em of the main text after it. inline-block, so a narrow row wraps it whole. */
+.status-main:not(:last-child) {
+  margin-right: 1em;
+}
+
+.status-sub {
+  display: inline-block;
+  font-size: 11px;
+}
+
+/* Aging report: the source and age are shown prominently. */
 .status-sub.aging {
   color: #b45309;
   font-weight: 700;

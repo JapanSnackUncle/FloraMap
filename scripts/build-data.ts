@@ -143,6 +143,20 @@ export function buildData(
   const statuses: StatusRow[] = readCsv('statuses.csv', STATUS_COLUMNS, statusRow);
   const oneOffClosures: ClosureRow[] = readCsv('closures.csv', CLOSURE_COLUMNS, closureRow);
 
+  // ---------- ranges: public Japanese text uses 〜 (CLAUDE.md, Bilingual fields)
+
+  for (const [file, doc] of [
+    ['species.yaml', speciesDoc],
+    ['sources.yaml', sourcesDoc],
+    ...places.map((p) => [p.file, p.doc] as const),
+    ...festivals.map((f) => [f.file, f.doc] as const),
+  ] as const) {
+    for (const [at, text] of jaTexts(doc)) {
+      if (RANGE_DASH.test(text))
+        err(file, `${at}: write ranges with 〜, not –, —, ~ or ～ ("${text}")`);
+    }
+  }
+
   // ---------- IDs: unique, and every reference resolves
 
   const unique = (kind: string, items: { id: string; file: string }[]) => {
@@ -443,6 +457,20 @@ function yamlFiles(dir: string): string[] {
 }
 
 const PRIVATE = new Set<string>(PRIVATE_KEYS);
+
+/** Characters that mustn't stand for a range in public `*_ja` text. */
+const RANGE_DASH = /[–—~～]/;
+
+/** Every public `*_ja` string in a parsed file, with its path (e.g. "illuminations.0.name_ja"). */
+function jaTexts(value: unknown, at = ''): [string, string][] {
+  if (!value || typeof value !== 'object') return [];
+  return Object.entries(value).flatMap(([k, v]): [string, string][] => {
+    const path = at ? `${at}.${k}` : k;
+    if (PRIVATE.has(k)) return [];
+    if (typeof v === 'string') return k.endsWith('_ja') ? [[path, v]] : [];
+    return jaTexts(v, path);
+  });
+}
 
 /** Deep copy without private keys or undefined values. */
 export function stripPrivate(value: unknown): unknown {

@@ -4,6 +4,7 @@ import { featureName, placeName, stageColor, stageLabel } from '../labels';
 import type { Species } from '../lib/schema';
 import { compareFeatures, RING_COLORS, type PlaceStatus } from '../lib/status';
 import { rowText } from '../listText';
+import StatusLine from './StatusLine';
 import { pinLook } from '../pins';
 import type { ViewBounds } from './MapView';
 
@@ -84,11 +85,7 @@ export default function PlaceList({
                       {stageLabel(pin, lang)}
                     </span>
                   </span>
-                  {status.text && (
-                    <span className={`list-status${status.aging ? ' aging' : ''}`}>
-                      {status.text}
-                    </span>
-                  )}
+                  <StatusLine status={status} />
                   {ps.festivals.map((f) => (
                     <span key={f.id} className="list-fest">
                       {(lang === 'en' && f.name_en) || f.name_ja}

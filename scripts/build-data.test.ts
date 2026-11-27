@@ -42,7 +42,7 @@ illuminations:
         hours:
           - from: "2026-11-01"
             to: "2027-01-31"
-            hours_ja: "17:00–21:00"
+            hours_ja: "17:00〜21:00"
 `;
 
 const FESTIVAL = `schema_version: 1
@@ -250,6 +250,21 @@ describe('the build fails on', () => {
       },
       'dates_announced is true but from/to are missing',
     );
+  });
+
+  it('a range in Japanese text written with – instead of 〜 (private fields exempt)', () => {
+    fails(
+      { 'places/ibaraki/mito/test-park.yaml': PLACE.replace('17:00〜21:00', '17:00–21:00') },
+      'illuminations.0.editions.0.hours.0.hours_ja: write ranges with 〜',
+    );
+    expect(
+      errorsFor({
+        'places/ibaraki/mito/test-park.yaml': PLACE.replace(
+          'window_raw: "2月下旬〜3月上旬"',
+          'window_raw: "2月下旬–3月上旬"',
+        ),
+      }),
+    ).toEqual([]);
   });
 
   it('illumination hours outside their edition', () => {

@@ -6,8 +6,11 @@ import { daysBetween, weekdayOf } from './lib/dates';
 import type { FeatureState, WindowInstance } from './lib/status';
 
 export interface RowText {
-  text: string;
-  /** Aging report: the age is shown prominently. */
+  /** The main part: stage figure, tonight's hours, usual window… */
+  main: string;
+  /** The secondary part, shown smaller after a gap: source and age, end date, last check. */
+  sub: string;
+  /** Aging report: the secondary part (source and age) is shown prominently. */
   aging: boolean;
 }
 
@@ -57,21 +60,21 @@ const WEEKDAYS = {
   en: { sun: 'Sun', mon: 'Mon', tue: 'Tue', wed: 'Wed', thu: 'Thu', fri: 'Fri', sat: 'Sat' },
 };
 
-/** Closed tonight: 次回 11/27（金）17:00–20:30 / Next: Fri 11/27, 17:00–20:30. */
+/** Closed tonight: 次回 11/27（金）17:00〜20:30 / Next: Fri 11/27, 17:00〜20:30 (hours are data). */
 function nextNightText(n: { date: string; hoursJa?: string }, lang: Lang): string {
   const day = WEEKDAYS[lang][weekdayOf(n.date)];
   if (lang === 'ja') return `次回 ${md(n.date)}（${day}）${n.hoursJa ?? ''}`;
   return `Next: ${day} ${md(n.date)}${n.hoursJa ? `, ${n.hoursJa}` : ''}`;
 }
 
-/** The list's status line for one feature on `today`. Empty text = nothing to show. */
+/** The status line for one feature on `today` (CLAUDE.md, Status lines). Empty = nothing to show. */
 export function rowText(s: FeatureState, today: string, lang: Lang): RowText {
-  const plain = (text: string): RowText => ({ text, aging: false });
+  const line = (main: string, sub = '', aging = false): RowText => ({ main, sub, aging });
   const ja = lang === 'ja';
 
   if (s.type === 'illumination') {
     if (s.state === 'lit') {
-      if (!s.confirmed) return plain(UNANNOUNCED[lang]);
+      if (!s.confirmed) return line(UNANNOUNCED[lang]);
       const until = s.to ? (ja ? `${md(s.to)}まで` : `until ${md(s.to)}`) : '';
       const when = s.closedTonight
         ? s.nextNight
@@ -82,42 +85,42 @@ export function rowText(s: FeatureState, today: string, lang: Lang): RowText {
             ? `今夜 ${s.hoursJa}`
             : `Tonight ${s.hoursJa}`
           : '';
-      return plain([when, until].filter(Boolean).join(' · '));
+      return line(when, until);
     }
     if (s.state === 'soon') {
-      if (s.countdownDays === undefined) return plain(UNANNOUNCED[lang]);
+      if (s.countdownDays === undefined) return line(UNANNOUNCED[lang]);
       const n = s.countdownDays;
-      return plain(ja ? `点灯まで あと${n}日` : `Lights on in ${n} day${n === 1 ? '' : 's'}`);
+      return line(ja ? `点灯まで あと${n}日` : `Lights on in ${n} day${n === 1 ? '' : 's'}`);
     }
-    return plain('');
+    return line('');
   }
 
-  const parts: string[] = [];
-  if (s.noRecentInfo) parts.push(ja ? '最近の情報なし' : 'No recent info');
+  // With no recent info, that is the main part and whatever follows is secondary.
+  const stale = s.noRecentInfo ? (ja ? '最近の情報なし' : 'No recent info') : '';
+  const rest = (text: string) => (stale ? line(stale, text) : line(text));
   switch (s.basis) {
     case 'report': {
       const r = s.report!;
       const kind = REPORT_KIND[r.kind as keyof typeof REPORT_KIND]?.[lang] ?? r.kind;
-      if (r.detail) parts.push(r.detail);
-      parts.push(`${kind} · ${ageText(s.ageDays ?? daysBetween(r.date, today), lang)}`);
-      return { text: parts.join(' · '), aging: s.freshness === 'aging' };
+      const age = ageText(s.ageDays ?? daysBetween(r.date, today), lang);
+      const main = [stale, r.detail].filter(Boolean).join(' ');
+      return line(main, ja ? `${kind}（${age}）` : `${kind} (${age})`, s.freshness === 'aging');
     }
     case 'forecast':
       if (s.report?.kind === 'forecast') {
-        parts.push(ja ? `予想（${md(s.report.date)}時点）` : `Forecast for ${md(s.report.date)}`);
-      } else if (s.window) parts.push(usualWindowText(s.window, lang));
-      break;
-    case 'last-report':
-      parts.push(ja ? `最終確認 ${md(s.report!.date)}` : `Last checked ${md(s.report!.date)}`);
-      break;
-    case 'usual-window':
-      if (s.window) parts.push(usualWindowText(s.window, lang));
-      break;
-    case 'off-season':
-      if (s.nextWindow) {
-        parts.push(`${ja ? '次回 ' : 'Next: '}${usualWindowText(s.nextWindow, lang)}`);
+        return rest(ja ? `予想（${md(s.report.date)}時点）` : `Forecast for ${md(s.report.date)}`);
       }
-      break;
+      return rest(s.window ? usualWindowText(s.window, lang) : '');
+    case 'last-report': {
+      const checked = ja ? `最終確認 ${md(s.report!.date)}` : `Last checked ${md(s.report!.date)}`;
+      return line(stale, checked);
+    }
+    case 'usual-window':
+      return rest(s.window ? usualWindowText(s.window, lang) : '');
+    case 'off-season':
+      return rest(
+        s.nextWindow ? `${ja ? '次回 ' : 'Next: '}${usualWindowText(s.nextWindow, lang)}` : '',
+      );
   }
-  return plain(parts.join(' · '));
+  return line(stale);
 }

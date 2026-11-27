@@ -60,8 +60,8 @@ describe('rowText', () => {
       report: report('2027-02-23', 'official', '3分'),
       ageDays: 2,
     });
-    expect(rowText(s, today, 'ja')).toEqual({ text: '3分 · 公式 · 2日前', aging: false });
-    expect(rowText(s, today, 'en').text).toBe('3分 · Official · 2 days ago');
+    expect(rowText(s, today, 'ja')).toEqual({ main: '3分', sub: '公式（2日前）', aging: false });
+    expect(rowText(s, today, 'en')).toMatchObject({ main: '3分', sub: 'Official (2 days ago)' });
   });
 
   it('report today, and an aging report is flagged', () => {
@@ -71,16 +71,20 @@ describe('rowText', () => {
       report: report(today, 'admin'),
       ageDays: 0,
     });
-    expect(rowText(s, today, 'ja')).toEqual({ text: '編集部 · 今日', aging: true });
+    // No 分咲き figure: source and age stay secondary, alone.
+    expect(rowText(s, today, 'ja')).toEqual({ main: '', sub: '編集部（今日）', aging: true });
   });
 
   it('estimate from the usual window', () => {
-    expect(rowText(planting({}), today, 'ja').text).toBe('例年 2月下旬〜3月上旬');
+    expect(rowText(planting({}), today, 'ja')).toMatchObject({
+      main: '例年 2月下旬〜3月上旬',
+      sub: '',
+    });
   });
 
   it('forecast', () => {
     const s = planting({ basis: 'forecast', report: report('2027-02-24', 'forecast') });
-    expect(rowText(s, today, 'ja').text).toBe('予想（2/24時点）');
+    expect(rowText(s, today, 'ja').main).toBe('予想（2/24時点）');
   });
 
   it('stale report, with no recent info', () => {
@@ -89,46 +93,62 @@ describe('rowText', () => {
       report: report('2027-01-30'),
       noRecentInfo: true,
     });
-    expect(rowText(s, today, 'ja').text).toBe('最近の情報なし · 最終確認 1/30');
-    expect(rowText(s, today, 'en').text).toBe('No recent info · Last checked 1/30');
+    expect(rowText(s, today, 'ja')).toMatchObject({ main: '最近の情報なし', sub: '最終確認 1/30' });
+    expect(rowText(s, today, 'en')).toMatchObject({
+      main: 'No recent info',
+      sub: 'Last checked 1/30',
+    });
   });
 
   it('off season shows the next usual window, or nothing', () => {
     const next = { start: '2028-02-21', end: '2028-03-10' };
     expect(
-      rowText(planting({ basis: 'off-season', level: 4, nextWindow: next }), today, 'ja').text,
+      rowText(planting({ basis: 'off-season', level: 4, nextWindow: next }), today, 'ja').main,
     ).toBe('次回 例年 2月下旬〜3月上旬');
     expect(
-      rowText(planting({ basis: 'off-season', level: 4, window: undefined }), today, 'ja').text,
-    ).toBe('');
+      rowText(planting({ basis: 'off-season', level: 4, window: undefined }), today, 'ja'),
+    ).toMatchObject({ main: '', sub: '' });
   });
 
   it('lit illumination: tonight’s hours and the end date', () => {
-    const s = lights({ hoursJa: '16:30–20:00' });
-    expect(rowText(s, '2026-12-15', 'ja').text).toBe('今夜 16:30–20:00 · 1/31まで');
-    expect(rowText(s, '2026-12-15', 'en').text).toBe('Tonight 16:30–20:00 · until 1/31');
+    const s = lights({ hoursJa: '16:30〜20:00' });
+    expect(rowText(s, '2026-12-15', 'ja')).toMatchObject({
+      main: '今夜 16:30〜20:00',
+      sub: '1/31まで',
+    });
+    // English shows the Japanese hours as they are (no hours_en for illuminations).
+    expect(rowText(s, '2026-12-15', 'en')).toMatchObject({
+      main: 'Tonight 16:30〜20:00',
+      sub: 'until 1/31',
+    });
   });
 
   it('lit illumination on a closed day: the next open night instead of tonight', () => {
     const s = lights({
-      hoursJa: '17:00–20:30',
+      hoursJa: '17:00〜20:30',
       closedTonight: true,
-      nextNight: { date: '2026-11-27', hoursJa: '17:00–20:30' },
+      nextNight: { date: '2026-11-27', hoursJa: '17:00〜20:30' },
     });
-    expect(rowText(s, '2026-11-26', 'ja').text).toBe('次回 11/27（金）17:00–20:30 · 1/31まで');
-    expect(rowText(s, '2026-11-26', 'en').text).toBe('Next: Fri 11/27, 17:00–20:30 · until 1/31');
+    expect(rowText(s, '2026-11-26', 'ja')).toMatchObject({
+      main: '次回 11/27（金）17:00〜20:30',
+      sub: '1/31まで',
+    });
+    expect(rowText(s, '2026-11-26', 'en')).toMatchObject({
+      main: 'Next: Fri 11/27, 17:00〜20:30',
+      sub: 'until 1/31',
+    });
     const last = lights({ closedTonight: true, nextNight: undefined });
-    expect(rowText(last, '2027-01-31', 'ja').text).toBe('1/31まで');
+    expect(rowText(last, '2027-01-31', 'ja')).toMatchObject({ main: '', sub: '1/31まで' });
   });
 
   it('illumination countdown only when announced', () => {
-    expect(rowText(lights({ state: 'soon', countdownDays: 5 }), today, 'ja').text).toBe(
+    expect(rowText(lights({ state: 'soon', countdownDays: 5 }), today, 'ja').main).toBe(
       '点灯まで あと5日',
     );
-    expect(rowText(lights({ state: 'soon', confirmed: false }), today, 'ja').text).toBe(
+    expect(rowText(lights({ state: 'soon', confirmed: false }), today, 'ja').main).toBe(
       '日程未発表（昨年の日程で表示）',
     );
-    expect(rowText(lights({ confirmed: false, hoursJa: '17:00–21:00' }), today, 'ja').text).toBe(
+    expect(rowText(lights({ confirmed: false, hoursJa: '17:00〜21:00' }), today, 'ja').main).toBe(
       '日程未発表（昨年の日程で表示）',
     );
   });

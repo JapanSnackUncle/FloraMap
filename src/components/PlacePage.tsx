@@ -4,6 +4,7 @@ import { featureName, fullAddress, placeName, stageColor, stageLabel } from '../
 import type { PublicSource, Species } from '../lib/schema';
 import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
+import StatusLine from './StatusLine';
 import { DEBUG } from '../debugDate';
 import { HEADER_ASPECT } from '../lib/photos';
 import { featurePhoto } from '../pins';
@@ -86,9 +87,7 @@ function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureS
             {stageLabel(s, lang)}
           </span>
         </span>
-        {status.text && (
-          <span className={`list-status${status.aging ? ' aging' : ''}`}>{status.text}</span>
-        )}
+        <StatusLine status={status} />
         {usual && <span className="list-status">{usual}</span>}
         {source && (
           <span className="list-status">

@@ -348,8 +348,8 @@ describe('illuminations', () => {
       to: '2027-01-31',
       dates_announced: true,
       hours: [
-        { from: '2026-11-07', to: '2026-11-30', hours_ja: '16:30–20:00' },
-        { from: '2026-12-01', to: '2027-01-31', hours_ja: '16:30–19:00' },
+        { from: '2026-11-07', to: '2026-11-30', hours_ja: '16:30〜20:00' },
+        { from: '2026-12-01', to: '2027-01-31', hours_ja: '16:30〜19:00' },
       ],
     },
   ]);
@@ -358,11 +358,11 @@ describe('illuminations', () => {
     expect(illuminationState(announced, '2026-11-25')).toMatchObject({
       state: 'lit',
       confirmed: true,
-      hoursJa: '16:30–20:00',
+      hoursJa: '16:30〜20:00',
     });
     expect(illuminationState(announced, '2027-01-02')).toMatchObject({
       state: 'lit',
-      hoursJa: '16:30–19:00',
+      hoursJa: '16:30〜19:00',
     });
   });
 
@@ -391,7 +391,7 @@ describe('illuminations', () => {
         from: '2025-11-28',
         to: '2025-12-25',
         dates_announced: true,
-        hours: [{ from: '2025-11-28', to: '2025-12-25', hours_ja: '16:30–20:30' }],
+        hours: [{ from: '2025-11-28', to: '2025-12-25', hours_ja: '16:30〜20:30' }],
       },
       { season: '2026-27', dates_announced: false },
     ]);
@@ -405,7 +405,7 @@ describe('illuminations', () => {
     expect(illuminationState(placeholder, '2026-12-01')).toMatchObject({
       state: 'lit',
       confirmed: false,
-      hoursJa: '16:30–20:30',
+      hoursJa: '16:30〜20:30',
     });
   });
 });
@@ -478,8 +478,8 @@ describe('closures', () => {
         to: '2026-12-31',
         dates_announced: true,
         hours: [
-          { from: '2026-11-01', to: '2026-11-30', hours_ja: '17:00–20:30' },
-          { from: '2026-12-01', to: '2026-12-31', hours_ja: '17:00–21:00' },
+          { from: '2026-11-01', to: '2026-11-30', hours_ja: '17:00〜20:30' },
+          { from: '2026-12-01', to: '2026-12-31', hours_ja: '17:00〜21:00' },
         ],
       },
     ]);
@@ -491,7 +491,7 @@ describe('closures', () => {
       expect(ps.pin).toMatchObject({
         state: 'lit',
         closedTonight: true,
-        nextNight: { date: '2026-11-18', hoursJa: '17:00–20:30' },
+        nextNight: { date: '2026-11-18', hoursJa: '17:00〜20:30' },
       });
     });
 
@@ -501,7 +501,7 @@ describe('closures', () => {
         [],
         '2026-11-30', // Monday, then closed Tuesday 12/1 too
       );
-      expect(ps.pin).toMatchObject({ nextNight: { date: '2026-12-02', hoursJa: '17:00–21:00' } });
+      expect(ps.pin).toMatchObject({ nextNight: { date: '2026-12-02', hoursJa: '17:00〜21:00' } });
     });
 
     it('has no next night when the run ends first', () => {
@@ -511,7 +511,7 @@ describe('closures', () => {
 
     it('leaves open nights alone', () => {
       const ps = placeStatus(venue({ weekly: ['tue'] }), [], '2026-11-18');
-      expect(ps.pin).toMatchObject({ state: 'lit', hoursJa: '17:00–20:30' });
+      expect(ps.pin).toMatchObject({ state: 'lit', hoursJa: '17:00〜20:30' });
       expect(ps.pin).not.toHaveProperty('closedTonight');
     });
   });
@@ -697,7 +697,7 @@ describe('real data', () => {
     expect(at('fukuroda', '2026-11-25').pin).toMatchObject({
       state: 'lit',
       confirmed: true,
-      hoursJa: '16:30–20:00',
+      hoursJa: '16:30〜20:00',
     });
   });
 
@@ -706,7 +706,7 @@ describe('real data', () => {
     expect(at('kirakuyama', '2026-12-01').pin).toMatchObject({
       state: 'lit',
       confirmed: true,
-      hoursJa: '16:30–20:30',
+      hoursJa: '16:30〜20:30',
     });
   });
 
