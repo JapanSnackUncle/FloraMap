@@ -163,6 +163,17 @@ body,
   background: rgba(255, 255, 255, 0.85);
 }
 
+/* A name dropped once the map settles after a deselect fades out (MapView, name sync). */
+.pin-marker.name-fading .pin-label {
+  animation: name-fade-out 0.3s ease-out forwards;
+}
+
+@keyframes name-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 /* Group pin: the number of places in the group, on the pin's upper-left edge (the festival
    dot has the upper right, the clock the lower right). */
 .pin-count {

@@ -384,6 +384,10 @@ export default function MapView({
   const mapRef = useRef<maplibregl.Map | null>(null);
   const [loaded, setLoaded] = useState(false);
   const markers = useRef(new Map<string, maplibregl.Marker>());
+  // True from replacing the names data until the map is idle again (see the name sync below).
+  const namesSettling = useRef(false);
+  const namesSelected = useRef<string | null | undefined>(null);
+  const heldPin = useRef<{ id: string; view: ClusterView } | null>(null);
 
   useEffect(() => {
     if (!container.current) return;
@@ -604,6 +608,12 @@ export default function MapView({
     const groupOf = new Map(view.groups.map((g) => [g.leader, g]));
     const shown = new Set([...view.singles, ...groupOf.keys()]);
     if (selectedId) shown.add(selectedId);
+    // A just-deselected place isn't in the grouping yet (it's redone a frame later): keep its
+    // pin until the new grouping arrives, so it doesn't blink.
+    const was = namesSelected.current;
+    if (was && was !== selectedId) heldPin.current = { id: was, view };
+    else if (heldPin.current && heldPin.current.view !== view) heldPin.current = null;
+    if (heldPin.current) shown.add(heldPin.current.id);
     const labels: Feature<Point>[] = [];
     const seen = new Set<string>();
     ranked.forEach(({ ps, look }, i) => {
@@ -618,6 +628,13 @@ export default function MapView({
           if (el.classList.contains('group')) zoomInto.current(id);
           else onPin.current?.(id);
         });
+        // End of a name's fade-out (name sync below); cancelled when the pin is hidden.
+        const faded = () => {
+          if (el.classList.contains('name-fading'))
+            el.classList.remove('name-fading', 'name-shown');
+        };
+        el.addEventListener('animationend', faded);
+        el.addEventListener('animationcancel', faded);
         marker = new maplibregl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat([ps.place.lng, ps.place.lat])
           .addTo(map);
@@ -625,6 +642,10 @@ export default function MapView({
       }
       const el = marker.getElement();
       const selected = id === selectedId;
+      // Just deselected: its name was showing (as the selected pin's), so it stays until the
+      // names settle and the map says whether it fits (name sync below).
+      if (el.classList.contains('selected') && !selected) el.classList.add('name-shown');
+      if (selected) el.classList.remove('name-fading');
       el.classList.toggle('selected', selected);
       // Not shown: a group member other than its best place, or outside the loaded area.
       el.style.display = shown.has(id) ? '' : 'none';
@@ -659,6 +680,9 @@ export default function MapView({
         markers.current.delete(id);
       }
     }
+    // Only on a selection change: while zooming, names keep following the map.
+    if (selectedId !== namesSelected.current) namesSettling.current = true;
+    namesSelected.current = selectedId;
     (map.getSource(NAMES_SOURCE) as maplibregl.GeoJSONSource | undefined)?.setData({
       type: 'FeatureCollection',
       features: labels,
@@ -668,24 +692,51 @@ export default function MapView({
   // After each placement, show the names MapLibre placed (class name-shown) and hide the rest.
   // Hover and the selected pin show a name regardless (styles.css). Checked at most once per
   // frame, on every render, so names follow zooming and panning.
+  // Replacing the names data (e.g. on deselect) makes MapLibre place every name again, and until
+  // the map is idle it reports wrong placements (names missing, or fitting for a moment). So
+  // while that settles every name stays as it is; once idle, names follow the map again.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
+    // A name hidden right after a hold fades out (.name-fading, styles.css) instead of vanishing;
+    // the pin's animationend/animationcancel listener then hides it.
     let frame = 0;
+    let fadeHidden = false;
     const sync = () => {
       frame = 0;
+      if (namesSettling.current) return;
+      const fade = fadeHidden;
+      fadeHidden = false;
       const placed = placedNames(map);
       for (const [id, marker] of markers.current) {
-        marker.getElement().classList.toggle('name-shown', placed.has(id));
+        const el = marker.getElement();
+        if (placed.has(id)) {
+          el.classList.add('name-shown');
+          el.classList.remove('name-fading');
+        } else if (el.classList.contains('name-fading')) {
+          // Fading: the animation's end hides it.
+        } else if (fade && el.classList.contains('name-shown') && el.style.display !== 'none') {
+          el.classList.add('name-fading');
+        } else {
+          el.classList.remove('name-shown');
+        }
       }
     };
     const onRender = () => {
       if (!frame) frame = requestAnimationFrame(sync);
     };
+    const onIdle = () => {
+      if (!namesSettling.current) return;
+      namesSettling.current = false;
+      fadeHidden = true;
+      onRender();
+    };
     map.on('render', onRender);
+    map.on('idle', onIdle);
     onRender();
     return () => {
       map.off('render', onRender);
+      map.off('idle', onIdle);
       cancelAnimationFrame(frame);
     };
   }, [loaded]);
