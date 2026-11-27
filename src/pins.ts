@@ -74,7 +74,7 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
 }
 
 const CLOCK_SVG =
-  '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3" aria-hidden="true"><path d="M11.5 5.5v8l5 3.5"/></svg>';
 
 /**
  * A group pin (CLAUDE.md, "Grouped pins"): the best place's photo and ring, the festival dot if

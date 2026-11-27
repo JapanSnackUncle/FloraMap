@@ -119,6 +119,8 @@
   width: 20px;
   height: 20px;
   display: grid;
+  /* Both: place-content also centres an icon bigger than the space inside the border. */
+  place-content: center;
   place-items: center;
   border-radius: 50%;
   background: #fff;
