@@ -57,8 +57,10 @@ function parseView(hash: string): { zoom: number; center: [number, number] } | n
  * railways below zoom 12; they get the Japanese paper-map look: a dark line with a white dash
  * inside. Sidings, yards and crossovers (`service` tag) stay faint, drawn from the tiles.
  */
-function basemapLayers(): maplibregl.LayerSpecification[] {
-  const base = layers('protomaps', namedFlavor('light'), { lang: 'ja' });
+function basemapLayers(lang: Lang): maplibregl.LayerSpecification[] {
+  // `lang` picks the label language: OSM's name:en where it exists (with the local name on a
+  // second line), else the Japanese name.
+  const base = layers('protomaps', namedFlavor('light'), { lang });
   const i = base.findIndex((l) => l.id === 'roads_rail');
   const original = base[i] as maplibregl.LineLayerSpecification;
   const width = (scale: number): maplibregl.ExpressionSpecification => [
@@ -373,6 +375,7 @@ export default function MapView({
   }, [onViewChange, onPinClick, onEmptyClick]);
   const startCenter = useRef(initialCenter);
   const phoneRef = useRef(phone);
+  const langRef = useRef(lang);
   const insetsRef = useRef(insets);
   useEffect(() => {
     insetsRef.current = insets;
@@ -399,7 +402,7 @@ export default function MapView({
           },
           rail: { type: 'geojson', data: RAIL_URL },
         },
-        layers: basemapLayers(),
+        layers: basemapLayers(langRef.current),
       },
       // Open on all of Ibaraki, unless the address bar already holds a view.
       ...(OPENED_WITH_VIEW ??
@@ -477,6 +480,19 @@ export default function MapView({
       map.remove();
     };
   }, []);
+
+  // Language switch: swap the basemap's label text in place (setStyle would drop our own
+  // sources and layers).
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !loaded || langRef.current === lang) return;
+    langRef.current = lang;
+    for (const l of basemapLayers(lang)) {
+      const field = l.type === 'symbol' ? l.layout?.['text-field'] : undefined;
+      if (field !== undefined && map.getLayer(l.id))
+        map.setLayoutProperty(l.id, 'text-field', field);
+    }
+  }, [lang, loaded]);
 
   // Every place with a pin, best-ranked first (Pin choice order): the order for grouping
   // (best place leads its group) and for names (best place keeps its name in a collision).
