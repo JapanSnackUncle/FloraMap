@@ -117,19 +117,20 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] 6. Other to-do items regarding the core app
   - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections. 11/26: it seems like active illuminations are always on top now, no matter what. 
   - [ ] 6.2 Map icon legend (pin borders, coming soon, event happening, etc)
-  - [ ] 6.3 Small visual issue: when de-selecting a pin, the pin's text and background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
+  - [x] 6.3 Small visual issue: when de-selecting a pin, the pin's text and text background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
   - [ ] 6.4 偕楽園 has 桜 listed, but it's not in the park proper. It's outside of the park, across the train tracks, in a place called 偕楽園 桜山. 
   - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
   - [ ] 6.6 Place page: show whether each feature's status is confirmed or an estimate (the map no longer does: every ring is 3 px since 26 Nov)
-  - [ ] 6.7 Make the map change language too when the language is switched
+  - [x] 6.7 Make the map change language too when the language is switched
   - [ ] 6.8 Make loading faster or add a loading screen
-  - [ ] 6.9 Single top bar for desktop for title, filters, language
-  - [ ] 6.10 Aesthetic polishes. Curved edges, suble drop shadows (Google / Apple Maps as reference)
+  - [x] 6.9 Single top bar for desktop for title, filters, language
+  - [ ] 6.10 Aesthetic polishes. Curved edges, subtle drop shadows (Google / Apple Maps as reference)
   - [x] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
     - Decided 27 Nov (grill-me; rules in CLAUDE.md, Photos). Why: cropping by typing `{ x, y, size }` and rebuilding is guesswork; a circle on the photo shows exactly what the round pin shows. Files are found by name (`<species id>.jpg`), checked by the build, so a hand edit can't point nemophila at tulip.jpg, and the tool needs no file picker. The previews show real-size pins (54 px, 44 px phone) in every stage, because a close-up that reads well large can turn to mush at 44 px or once greyed for まもなく.
     - Parked: planting `pin_photo` overrides in the tool (none exist yet; add when 河津桜 or 八重桜 needs one).
-  - [ ] 6.12 Clock icon: put the hands in the outer circle, no inner circle
+  - [x] 6.12 Clock icon: put the hands in the outer circle, no inner circle
   - [ ] 6.13 Specs that determine the links that appear for plantings, illuminations, 公式サイト, 開催中のイベント
+  - [ ] 6.13 adjust pin english name aesthetics
 
 ### Phase 2 – App complete (weeks 4–6)
 
