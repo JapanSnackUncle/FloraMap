@@ -30,8 +30,9 @@ npm run build-data   # validate and write public/data/places.json
 
 A page for managing a place's photos: which files from its photo folder are listed in its YAML, their order (the place page's photo strip shows them in this order), `credit`, `license`, and where each photo's 2:1 strip is cut (`focus_y`).
 
+Run this to open the photo tool (starts the dev server and opens localhost:517X/tools/photo-tool/)
 ```
-npm run photo-tool   # starts the dev server and opens localhost:5173/tools/photo-tool/
+npm run photo-tool   # 
 ```
 
 (Or, with `npm run dev` already running, open `/tools/photo-tool/` yourself.)

@@ -1,4 +1,4 @@
-# Ibaraki Flora Map — Long-term plan
+# Ibaraki Flora Map — Immediate, Short, Long-term plan
 
 Started Nov 24, 2026 · @R · reorganised Nov 25, 2026
 
@@ -91,7 +91,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] Status sources for the official places.
 - [x] Festival editions for February–May 2027, plus 2026–27 illuminations.
 - [x] Work through `reference/staging/import-report.md` in the YAML (source coverage, missing URLs and dates). Remaining items wait on announcements or the season.
-- [ ] Photos: read the prefecture library's terms, inventory R's own shots, email 3–5 parks for permission.
+- [x] Photos: read the prefecture library's terms, inventory R's own shots
 - [x] 1. Scaffold: Vite + React + TS, ESLint/Prettier, Vitest (25 Nov).
 - [x] 2. Import the sheet to YAML, including structured closures (25 Nov). The sheet is retired; `data/` is the master copy.
 - [x] 3. `build-data.ts`: validation, private fields stripped, `places.json` (25 Nov).
@@ -114,7 +114,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Changed 26 Nov, after using it: the list no longer rests at half (to browse it you pull it to full anyway; a place page at half is still useful, since the map shows above it). A page lowered to peek now closes to the list at peek, not to the list's earlier height: lowering it says "I'm looking at the map", so a full list popping up got in the way. Considered and not built yet: keeping the list's scroll position across opening a place (it resets to the top).
     - Also 26 Nov: the page header has room for two buttons, so a page opened from the list shows both 一覧に戻る (left) and 閉じる (right), and the user picks list or map instead of the app guessing; from a pin there's no list to go back to, so only 閉じる. The full list gets 閉じる too (on the count line's row, not a row of its own), since it hides the map and there was no obvious way back to it except dragging. A map tap on an open page now closes to peek: tapping the map means "I'm looking at the map", the same reason as lowering the page.
   - [x] 5.10 English/Japanese language switcher. 
-- [ ] 6. Other to-do items regarding the map (UI, display, logic, data) that I need to think about
+- [ ] 6. Other to-do items regarding the core app
   - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections. 11/26: it seems like active illuminations are always on top now, no matter what. 
   - [ ] 6.2 Pin border legend (stage, illumination, etc)
   - [ ] 6.3 Small visual issue: when de-selecting a pin, the pin's text and background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
@@ -122,6 +122,9 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
   - [ ] 6.6 Place page: show whether each feature's status is confirmed or an estimate (the map no longer does: every ring is 3 px since 26 Nov)
   - [ ] 6.7 Make the map change language too when the language is switched
+  - [ ] 6.8 Make loading faster or add a loading screen
+  - [ ] 6.9 Single top bar for desktop for title, filters, language
+  - [ ] 6.10 Aesthetic polishes. Curved edges, suble drop shadows (Google / Apple Maps as reference)
   - [ ] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
     - Decided 27 Nov (grill-me; rules in CLAUDE.md, Photos). Why: cropping by typing `{ x, y, size }` and rebuilding is guesswork; a circle on the photo shows exactly what the round pin shows. Files are found by name (`<species id>.jpg`), checked by the build, so a hand edit can't point nemophila at tulip.jpg, and the tool needs no file picker. The previews show real-size pins (54 px, 44 px phone) in every stage, because a close-up that reads well large can turn to mush at 44 px or once greyed for まもなく.
     - Parked: planting `pin_photo` overrides in the tool (none exist yet; add when 河津桜 or 八重桜 needs one).
@@ -134,6 +137,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] English/Japanese toggle; installable as a PWA.
 - [ ] Connect the repo to Cloudflare Pages (settings in README.md).
 - [ ] Self-host the map's label fonts and icons (now loaded from protomaps.github.io), and put the basemap on Cloudflare R2 (`VITE_TILES_URL`).
+- [ ] Once it's running on Cloudflare, test and look at Cloudflare's analytics for performance. Also run own diagnostics. Improve if necessary/practical.
 
 ### Phase 3 – Status pipeline (weeks 4–7)
 
@@ -151,8 +155,10 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 ### Phase 5 – Soft launch for plum season (late January / February)
 
 - [ ] Live for Mito, Tsukuba-san and other plum places; Koga peaches in March.
+- [ ] Social media accounts: X, Instagram
 - [ ] Run the update routine daily (about 10 minutes a day in season).
 - [ ] Optional: a video to bring in first users.
+- [ ] Email individual places about using photos
 
 ### Phase 6 – Spring peak (late March to May)
 
@@ -165,10 +171,12 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 
 Not v1 unless a real place needs it.
 
-- **Closures:** a 明日休園 pill the day before.
 - **Stages:** per-flower LEAD values; per-species freshness limits; official vs user report conflicts (v2, once user reports exist).
+- **Filters:** Filter by species (drop-down list?)
 - **Data:** the 32 `in_v1: no` places; 桜川市総合運動公園 and SAKURAフェスティバル (parked: no plantings); general events via the `kind` field; other prefectures (the folder layout is ready for them).
 - **Look-ahead**: similar to the debug mode, users can select a date in the future, up to a reasonable limit (couple weeks to a month), to see what's happening on that date. UI will indicate that blooms are predictions.
+- **Platforms:** Android and iOS apps
+- **In-app search function:** As more places get added, it would be handy for users. Search for places, species, event names
 
 ## Success metrics and risk
 
