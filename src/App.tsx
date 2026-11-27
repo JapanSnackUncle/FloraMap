@@ -193,8 +193,10 @@ export default function App() {
         {/* Desktop: side panel on the left, like Google Maps. */}
         {!phone && panel}
         <div className="map-area">
-          {/* Waits for the data, so a shared place link can open centred on its place. */}
-          {data && (
+          {/* Starts at once, loading tiles while places.json downloads; its pins appear when the
+              data arrives. Only a shared place link waits for the data, to open centred on
+              its place. */}
+          {(data || !OPENED_WITH_PLACE) && (
             <MapView
               statuses={visible}
               lang={lang}
