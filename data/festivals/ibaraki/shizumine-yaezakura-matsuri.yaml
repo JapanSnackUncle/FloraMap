@@ -5,7 +5,7 @@ place_ids: [shizumine]
 planting_ids: [shizumine-yaezakura]
 fee_ja: "無料"
 parking_ja: "普通車500円（通常は無料）"
-night_events_ja: "ライトアップ 2026-04-14〜21、18–20時"
+night_events_ja: "ライトアップ 2026-04-14〜21、18〜20時"
 official_urls: ["https://www.city.naka.lg.jp/event-kankou/event-info/page006243.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006312/sakura"]
 editions:

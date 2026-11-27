@@ -4,7 +4,7 @@ name_ja: "あじさい祭（雨引観音）"
 place_ids: [amabiki-kannon]
 planting_ids: [amabiki-kannon-hydrangea]
 fee_ja: "入山料500円（あじさい祭期間中）"
-night_events_ja: "ライトアップ・水中華（2026: 6/20–7/12、夕暮れ–20:00、金土は21:00まで）"
+night_events_ja: "ライトアップ・水中華（2026: 6/20〜7/12、夕暮れ〜20:00、金土は21:00まで）"
 official_urls: ["https://www.kankou-sakuragawa.jp/page/page000684.html", "http://www.amabiki.or.jp/annualevents/event/"]
 editor_notes: "fee and light-up from 桜川市観光協会 (checked 2026-11-25)"
 editions:

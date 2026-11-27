@@ -10,8 +10,8 @@ address_ja: "三の丸1-6-29"
 lat: 36.375072
 lng: 140.477859
 geocode_precision: lot
-hours_ja: "9:00–17:00（10/1–2/19は–16:30）"
-closed_ja: "12/29–12/31休"
+hours_ja: "9:00〜17:00（10/1〜2/19は〜16:30）"
+closed_ja: "12/29〜12/31休"
 fee_ja: "大人420円、小中学生・70歳以上210円"
 parking_ja: "18台（普通車13・バス5）"
 official_urls: ["https://kodokan-ibaraki.jp/"]

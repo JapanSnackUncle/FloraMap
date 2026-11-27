@@ -11,7 +11,7 @@ lat: 35.879342
 lng: 140.274574
 geocode_precision: manual
 point_note: "parking lot"
-hours_ja: "イルミ期間 17:00–21:00"
+hours_ja: "イルミ期間 17:00〜21:00"
 parking_ja: "あり"
 official_urls: ["https://www.town.ibaraki-kawachi.lg.jp/page/page000342.html"]
 checked_against: ["https://weathernews.jp/illumi/spot/1702010/"]
@@ -27,8 +27,8 @@ illuminations:
         hours:
           - from: "2026-11-03"
             to: "2027-01-12"
-            hours_ja: "17:00–21:00"
+            hours_ja: "17:00〜21:00"
           - from: "2027-01-13"
             to: "2027-02-14"
-            hours_ja: "17:30–21:30"
+            hours_ja: "17:30〜21:30"
         editor_notes: "約50万球"

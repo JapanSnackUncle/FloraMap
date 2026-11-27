@@ -10,8 +10,8 @@ address_ja: "静1720-1"
 lat: 36.501785
 lng: 140.422058
 geocode_precision: lot
-hours_ja: "9:00–17:00"
-closed_ja: "月曜休（祝日の場合は翌平日）、年末年始（12/28–1/4）休"
+hours_ja: "9:00〜17:00"
+closed_ja: "月曜休（祝日の場合は翌平日）、年末年始（12/28〜1/4）休"
 fee_ja: "無料"
 parking_ja: "340台（八重桜まつり期間は普通車500円）"
 official_urls: ["https://www.city.naka.lg.jp/event-kankou/kankou-spot/page000275.html"]

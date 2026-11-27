@@ -10,7 +10,7 @@ address_ja: "常磐町1-3-3"
 lat: 36.374914
 lng: 140.453811
 geocode_precision: manual
-hours_ja: "6:00–19:00（10月–2月中旬は7:00–18:00）"
+hours_ja: "6:00〜19:00（10月〜2月中旬は7:00〜18:00）"
 closed_ja: "無休"
 fee_ja: "大人320円、小中学生・70歳以上160円（好文亭は別途）"
 parking_ja: "約1,000台、有料・無料あり（梅まつり期間は有料）"
@@ -86,6 +86,6 @@ illuminations:
         hours:
           - from: "2026-11-07"
             to: "2026-11-29"
-            hours_ja: "日没–21:00"
-            note_ja: "ibaraki-kairakuen.jp news id=5899: 日没～21時。期間は色づき状況により変更の場合あり（HPで告知）"
+            hours_ja: "日没〜21:00"
+            note_ja: "ibaraki-kairakuen.jp news id=5899: 日没〜21時。期間は色づき状況により変更の場合あり（HPで告知）"
         editor_notes: "https://ibaraki-kairakuen.jp/news/detail?id=5899 (2026-09-27). 約170本のモミジ・カエデ。dates marked （予定）"

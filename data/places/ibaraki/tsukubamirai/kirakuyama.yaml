@@ -10,7 +10,7 @@ address_ja: "神生530"
 lat: 35.964127
 lng: 140.087631
 geocode_precision: lot
-hours_ja: "イルミ期間 16:30–20:30（月曜・雨天休み）"
+hours_ja: "イルミ期間 16:30〜20:30（月曜・雨天休み）"
 fee_ja: "無料"
 parking_ja: "300台、無料"
 official_urls: ["https://mirai-kankou.com/activity/34"]
@@ -34,7 +34,7 @@ illuminations:
         hours:
           - from: "2025-11-28"
             to: "2025-12-25"
-            hours_ja: "16:30–20:30"
+            hours_ja: "16:30〜20:30"
             note_ja: "last season"
       - season: "2026-27"
         from: "2026-12-01"
@@ -43,5 +43,5 @@ illuminations:
         hours:
           - from: "2026-12-01"
             to: "2026-12-25"
-            hours_ja: "16:30–20:30"
+            hours_ja: "16:30〜20:30"
         editor_notes: "雨天休み。約10万球。Dates and hours from https://www2.tm-shakyo.jp/2026/10/2026-2.html"

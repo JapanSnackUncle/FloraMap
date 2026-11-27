@@ -10,9 +10,9 @@ address_ja: "下青柳200"
 lat: 36.212288
 lng: 140.170242
 geocode_precision: lot
-hours_ja: "9:00–17:00（季節により変動）"
+hours_ja: "9:00〜17:00（季節により変動）"
 closed_ja: "火曜休"
-fee_ja: "季節・開花で変動：春は大人1,200–1,800円・小人400–600円（バラ見頃が最高額）"
+fee_ja: "季節・開花で変動：春は大人1,200〜1,800円・小人400〜600円（バラ見頃が最高額）"
 parking_ja: "1,200台、無料"
 official_urls: ["https://www.flowerpark.or.jp/time-price/"]
 checked_against: ["https://www.walkerplus.com/spot/ar0308s65321/map.html", "https://www.walkerplus.com/event/ar0308e304893/price.html"]
@@ -78,6 +78,6 @@ illuminations:
         hours:
           - from: "2026-10-10"
             to: "2027-01-24"
-            hours_ja: "17:00–20:30"
+            hours_ja: "17:00〜20:30"
         fee_ja: "入園料必要"
         editor_notes: "第1部 10/10–11/23、第2部 11/28–1/24"

@@ -3,7 +3,7 @@ id: flower-park-spring-rose
 name_ja: "春バラに魅せられる時間"
 place_ids: [ibaraki-flower-park]
 planting_ids: [ibaraki-flower-park-rose]
-fee_ja: "大人1,200–1,800円（バラ見頃は1,800円）"
+fee_ja: "大人1,200〜1,800円（バラ見頃は1,800円）"
 parking_ja: "1,200台、無料"
 official_urls: ["https://www.flowerpark.or.jp/news-column/springrose2026/"]
 checked_against: ["https://www.walkerplus.com/event/ar0308e304893/price.html"]
