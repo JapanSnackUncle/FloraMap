@@ -96,7 +96,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] 2. Import the sheet to YAML, including structured closures (25 Nov). The sheet is retired; `data/` is the master copy.
 - [x] 3. `build-data.ts`: validation, private fields stripped, `places.json` (25 Nov).
 - [x] 4. `status.ts`: stage, freshness, illumination, closures and pin rules, with tests (25 Nov).
-- [ ] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
+- [x] 5. Map screen with the places, ring pins, filters, list and place page, using placeholder images.
   - [x] 5.1 Map shell: MapLibre with the local Ibaraki basemap, Japanese labels, OpenStreetMap credit (25 Nov). The view is kept in the address bar (#zoom/lat/lng).
   - [x] 5.2 Plain markers: one dot per place at its coordinates, name on hover (25 Nov). The hover label also shows municipality and coordinates, for checking pins.
   - [x] 5.3 Status wiring and a basic debug bar: date picker, ±1/±7 days, season presets, each place's pin and `why` (25 Nov). The debug date is kept in the address bar (`?date=2027-04-16`); the bar is left out of production builds. Season offset and simulated scraper outage wait until there are real status rows to shift.
@@ -116,7 +116,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [x] 5.10 English/Japanese language switcher. 
 - [ ] 6. Other to-do items regarding the core app
   - [ ] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections. 11/26: it seems like active illuminations are always on top now, no matter what. 
-  - [ ] 6.2 Pin border legend (stage, illumination, etc)
+  - [ ] 6.2 Map icon legend (pin borders, coming soon, event happening, etc)
   - [ ] 6.3 Small visual issue: when de-selecting a pin, the pin's text and background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
   - [ ] 6.4 偕楽園 has 桜 listed, but it's not in the park proper. It's outside of the park, across the train tracks, in a place called 偕楽園 桜山. 
   - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
@@ -125,9 +125,11 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [ ] 6.8 Make loading faster or add a loading screen
   - [ ] 6.9 Single top bar for desktop for title, filters, language
   - [ ] 6.10 Aesthetic polishes. Curved edges, suble drop shadows (Google / Apple Maps as reference)
-  - [ ] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
+  - [x] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
     - Decided 27 Nov (grill-me; rules in CLAUDE.md, Photos). Why: cropping by typing `{ x, y, size }` and rebuilding is guesswork; a circle on the photo shows exactly what the round pin shows. Files are found by name (`<species id>.jpg`), checked by the build, so a hand edit can't point nemophila at tulip.jpg, and the tool needs no file picker. The previews show real-size pins (54 px, 44 px phone) in every stage, because a close-up that reads well large can turn to mush at 44 px or once greyed for まもなく.
     - Parked: planting `pin_photo` overrides in the tool (none exist yet; add when 河津桜 or 八重桜 needs one).
+  - [ ] 6.12 Clock icon: put the hands in the outer circle, no inner circle
+  - [ ] 6.13 Specs that determine the links that appear for plantings, illuminations, 公式サイト, 開催中のイベント
 
 ### Phase 2 – App complete (weeks 4–6)
 
@@ -167,6 +169,11 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Decide on v2 from the numbers.
 - [ ] Add more blooms for less crowded seasons, like chrysanthemum in the fall.
 
+## Places/plantings to add for v1
+
+- [ ] Sairenji 西蓮寺: ginkgo, sakura, red spider lily
+- [ ] Kasama Inari Shrine: chrysanthemum, wisteria
+- [ ] Kasumigaura park: tulips https://www.city.tsuchiura.lg.jp/kasumigaurasogokoen/ohana-joho/tulip-kaika-jokyo/
 ## Ideas parked for later
 
 Not v1 unless a real place needs it.
