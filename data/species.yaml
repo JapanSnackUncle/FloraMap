@@ -7,7 +7,6 @@ species:
     name_en: "Plum"
     pin_photo:
       file: "ume.jpg"
-      credit: "R"
       license: "own"
       crop: { x: 40, y: 55, size: 80 }
   - id: sakura
@@ -17,7 +16,6 @@ species:
     name_en: "Cherry Blossom"
     pin_photo:
       file: "sakura.jpg"
-      credit: "R"
       license: "own"
   - id: hanamomo
     kind: bloom
@@ -41,7 +39,6 @@ species:
     name_en: "Tulip"
     pin_photo:
       file: "tulip.jpg"
-      credit: "R"
       license: "own"
       crop: { x: 30, y: 80, size: 40 }
   - id: nemophila
@@ -91,7 +88,6 @@ species:
     name_en: "Hydrangea"
     pin_photo:
       file: "hydrangea.jpg"
-      credit: "R"
       license: "own"
   - id: lotus
     kind: bloom
@@ -105,7 +101,6 @@ species:
     name_en: "Sunflower"
     pin_photo:
       file: "sunflower.jpg"
-      credit: "R"
       license: "own"
       crop: { x: 45, y: 68, size: 50 }
   - id: hagi
@@ -130,7 +125,6 @@ species:
     name_en: "Kochia (Green)"
     pin_photo:
       file: "kochia-green.jpg"
-      credit: "R"
       license: "own"
       crop: { x: 35, y: 82, size: 36 }
   - id: kochia-red
@@ -140,7 +134,6 @@ species:
     name_en: "Kochia (Red)"
     pin_photo:
       file: "kochia-red.jpg"
-      credit: "R"
       license: "own"
       crop: { x: 55, y: 55, size: 60 }
   - id: momiji

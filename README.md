@@ -37,7 +37,7 @@ npm run photo-tool   # starts the dev server and opens localhost:5173/tools/phot
 (Or, with `npm run dev` already running, open `/tools/photo-tool/` yourself.)
 
 1. Put the photos in `photos/places/<prefecture>/<municipality>/<place-id>/` (shrink them to about 2000 px on the long side first: they go into git). The tool picks up new files by itself.
-2. Pick the place, **Add** each photo, set credit and license (dropdowns of every value already used in `data/`, or **Add…** for a new one), and click on each photo where its 2:1 strip should sit. The preview shows the strip exactly as the build will cut it.
+2. Pick the place, **Add** each photo, set credit and license (dropdowns of every value already used in `data/`, or **Add…** for a new one; license `own`, for your own photos, has no credit), and click on each photo where its 2:1 strip should sit. The preview shows the strip exactly as the build will cut it.
 3. **Save to YAML** rewrites only that place's `photos:` block (the rest of the file stays byte for byte, and the file is re-read at save time, so other edits aren't lost), then runs the data check and shows its result.
 
 The tool never moves, renames or deletes image files. It only runs under the dev server: `tools/` isn't part of `npm run build`, and the save handler (`tools/photo-tool/server.ts`) exists only in `npm run dev`.

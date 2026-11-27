@@ -58,11 +58,31 @@ const privateFields = {
 
 export const usualWindow = z.strictObject({ start: monthThird, end: monthThird });
 
-export const photo = z.strictObject({
+/** The license of R's own photos. They carry no `credit`; every other license needs one. */
+export const OWN_LICENSE = 'own';
+
+const photoFields = {
   file: text,
-  credit: text,
+  credit: text.optional(),
   license: text,
-});
+};
+
+const creditRule = (p: { credit?: string; license: string }, ctx: z.RefinementCtx) => {
+  if (p.license === OWN_LICENSE && p.credit !== undefined)
+    ctx.addIssue({
+      code: 'custom',
+      path: ['credit'],
+      message: `must be left out when license is "${OWN_LICENSE}"`,
+    });
+  if (p.license !== OWN_LICENSE && p.credit === undefined)
+    ctx.addIssue({
+      code: 'custom',
+      path: ['credit'],
+      message: `is required unless license is "${OWN_LICENSE}"`,
+    });
+};
+
+export const photo = z.strictObject(photoFields).superRefine(creditRule);
 
 const percent = z.number().min(0).max(100);
 
@@ -71,18 +91,21 @@ const percent = z.number().min(0).max(100);
  * feature rows: `x`, `y` = its centre in % of the photo's width and height, `size` = its side in %
  * of the photo's shorter side. Without `crop`, the largest centred square is used.
  */
-export const pinPhoto = photo.extend({
-  crop: z.strictObject({ x: percent, y: percent, size: z.number().gt(0).max(100) }).optional(),
-});
+export const pinPhoto = z
+  .strictObject({
+    ...photoFields,
+    crop: z.strictObject({ x: percent, y: percent, size: z.number().gt(0).max(100) }).optional(),
+  })
+  .superRefine(creditRule);
 
 /**
  * An on-location photo of a place (file in photos/places/<prefecture>/<municipality>/<place-id>/). Optional `focus_y`: how
  * far down the photo the subject is, in %; its 2:1 strip is cut to keep it as near the middle
  * as the photo's edges allow. Without it, the middle (50).
  */
-export const placePhoto = photo.extend({
-  focus_y: percent.optional(),
-});
+export const placePhoto = z
+  .strictObject({ ...photoFields, focus_y: percent.optional() })
+  .superRefine(creditRule);
 
 export const planting = z.strictObject({
   id: slug,
@@ -296,9 +319,10 @@ export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_sl
   /**
    * The place's `photos` in order, each cut by build-data to a HEADER_ASPECT strip around its own
    * focus_y (`src`: its URL). The place page shows them as a swipeable strip with each
-   * one's credit; `license` stays in the YAML (R's record) and isn't published.
+   * one's credit (none for R's own photos); `license` stays in the YAML (R's record) and isn't
+   * published.
    */
-  photos?: { src: string; credit: string }[];
+  photos?: { src: string; credit?: string }[];
   illuminations: Public<Illumination>[];
   one_off_closures: Public<Omit<ClosureRow, 'place_id'>>[];
   festival_ids: string[];

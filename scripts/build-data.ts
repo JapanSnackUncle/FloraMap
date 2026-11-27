@@ -361,7 +361,10 @@ export function buildData(
       }
       const out = photoFileName(source, 'header', { focusY: photo.focus_y });
       headerJobs.push({ source, shape: 'header', focusY: photo.focus_y, out, where: file });
-      list.push({ src: `${HEADER_URL_DIR}/${out}`, credit: photo.credit });
+      list.push({
+        src: `${HEADER_URL_DIR}/${out}`,
+        ...(photo.credit === undefined ? {} : { credit: photo.credit }),
+      });
     }
     if (list.length) stripPhotos.set(doc.id, list);
   }

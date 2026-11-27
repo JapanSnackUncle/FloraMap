@@ -307,7 +307,7 @@ describe('the build fails on', () => {
       {
         'species.yaml': SPECIES.replace(
           '    name_en: "Plum"\n',
-          '    name_en: "Plum"\n    pin_photo:\n      file: "missing.jpg"\n      credit: "R"\n      license: "own"\n',
+          '    name_en: "Plum"\n    pin_photo:\n      file: "missing.jpg"\n      license: "own"\n',
         ),
       },
       'pin_photo "missing.jpg" not found in photos/species/',
@@ -318,6 +318,20 @@ describe('the build fails on', () => {
     fails(
       { 'species.yaml': speciesWithPhoto('      crop: { x: 50, y: 120, size: 40 }\n') },
       'crop.y',
+    );
+  });
+
+  it('a credit on an own photo', () => {
+    fails(
+      { 'species.yaml': speciesWithPhoto('      credit: "R"\n') },
+      'must be left out when license is "own"',
+    );
+  });
+
+  it('no credit on a photo that is not own', () => {
+    fails(
+      { 'species.yaml': speciesWithPhoto().replace('license: "own"', 'license: "permission"') },
+      'is required unless license is "own"',
     );
   });
 
@@ -332,8 +346,7 @@ describe('the build fails on', () => {
 function speciesWithPhoto(extra = ''): string {
   return SPECIES.replace(
     '    name_en: "Plum"\n',
-    '    name_en: "Plum"\n    pin_photo:\n      file: "ume.jpg"\n      credit: "R"\n      license: "own"\n' +
-      extra,
+    '    name_en: "Plum"\n    pin_photo:\n      file: "ume.jpg"\n      license: "own"\n' + extra,
   );
 }
 
@@ -357,7 +370,7 @@ describe('pin photos', () => {
       placeFile,
       PLACE.replace(
         '    species: ume\n',
-        '    species: ume\n    pin_photo:\n      file: "ume-yae.jpg"\n      credit: "R"\n      license: "own"\n',
+        '    species: ume\n    pin_photo:\n      file: "ume-yae.jpg"\n      license: "own"\n',
       ),
     );
     const override = buildData(d, photos);
@@ -376,8 +389,8 @@ describe('pin photos', () => {
 /** PLACE with two photos; the first is the header. */
 const PLACE_WITH_PHOTOS = PLACE.replace(
   'closures:\n',
-  'photos:\n  - file: "gate.jpg"\n    credit: "R"\n    license: "own"\n    focus_y: 70\n' +
-    '  - file: "pond.jpg"\n    credit: "R"\n    license: "own"\n' +
+  'photos:\n  - file: "gate.jpg"\n    license: "own"\n    focus_y: 70\n' +
+    '  - file: "pond.jpg"\n    credit: "X"\n    license: "permission"\n' +
     'closures:\n',
 );
 
@@ -395,13 +408,11 @@ describe('place photos', () => {
     expect(r.headerJobs.map((j) => j.focusY)).toEqual([70, undefined]);
     // The public list replaces the raw one (file names and licenses aren't published).
     expect(r.data!.places[0]!.photos).toEqual([
-      {
-        src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/),
-        credit: 'R',
-      },
+      // R's own photo: no credit.
+      { src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/) },
       {
         src: expect.stringMatching(/^\/photos\/places\/pond-[0-9a-f]{10}\.webp$/),
-        credit: 'R',
+        credit: 'X',
       },
     ]);
 

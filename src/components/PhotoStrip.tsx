@@ -10,7 +10,8 @@ const SETTLE_MS = 120;
 /**
  * A place's own photos as one swipeable 2:1 strip under its name (CLAUDE.md, "Photos"). Sideways
  * swipe (or ‹ › on a mouse) moves one photo at a time; the browser's scroll snapping does the
- * paging, so there's no carousel library. Each photo shows its own credit (only the credit: the license stays in the YAML as R's record).
+ * paging, so there's no carousel library. Each photo shows its own credit, if it has one (R's own photos have none; the license
+ * stays in the YAML as R's record).
  *
  * It goes round: past the last photo comes the first, and before the first the last. With two or
  * more photos the strip holds a copy of the last photo before the first and a copy of the first
@@ -108,9 +109,7 @@ export function PhotoStrip({
           </div>
         </>
       )}
-      <figcaption>
-        {current.credit}
-      </figcaption>
+      {current.credit && <figcaption>{current.credit}</figcaption>}
     </figure>
   );
 }
