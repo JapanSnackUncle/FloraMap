@@ -361,7 +361,7 @@ describe('pin photos', () => {
 /** PLACE with two photos; the first is the header. */
 const PLACE_WITH_PHOTOS = PLACE.replace(
   'closures:\n',
-  'photos:\n  - file: "gate.jpg"\n    credit: "R"\n    license: "own"\n' +
+  'photos:\n  - file: "gate.jpg"\n    credit: "R"\n    license: "own"\n    focus_y: 70\n' +
     '  - file: "pond.jpg"\n    credit: "R"\n    license: "own"\n' +
     'closures:\n',
 );
@@ -376,6 +376,7 @@ describe('place header photos', () => {
     const r = buildData(d, join(d, 'photos'), placePhotos);
     expect(r.errors).toEqual([]);
     expect(r.headerJobs).toHaveLength(1);
+    expect(r.headerJobs[0]!.focusY).toBe(70);
     const place = r.data!.places[0]!;
     expect(place.header_photo).toEqual({
       src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/),

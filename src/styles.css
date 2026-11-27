@@ -541,11 +541,12 @@ body,
   margin: 8px 0 0;
 }
 
+/* The band's shape (HEADER_ASPECT, src/lib/photos.ts) is set on the element: the build cuts the
+   file to it, so `cover` only matters for a photo smaller than the band. */
 .page-photo img,
 .photo-placeholder {
   display: block;
   width: 100%;
-  aspect-ratio: 2 / 1;
   object-fit: cover;
 }
 

@@ -6,6 +6,7 @@ import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from 
 import { md, rowText, usualWindowText } from '../listText';
 import { siteUrl } from '../config';
 import { DEBUG } from '../debugDate';
+import { HEADER_ASPECT } from '../lib/photos';
 import { featurePhoto } from '../pins';
 
 interface Props {
@@ -152,7 +153,7 @@ export default function PlacePage(props: Props) {
           name, so the name alone fills a phone's peek. Debug builds show where it will go. */}
       {p.header_photo ? (
         <figure className="page-photo">
-          <img src={siteUrl(p.header_photo.src)} alt="" />
+          <img src={siteUrl(p.header_photo.src)} alt="" style={{ aspectRatio: HEADER_ASPECT }} />
           <figcaption>
             {t('photoBy', lang)}: {p.header_photo.credit} · {p.header_photo.license}
           </figcaption>
@@ -160,7 +161,9 @@ export default function PlacePage(props: Props) {
       ) : (
         DEBUG && (
           <figure className="page-photo">
-            <div className="photo-placeholder">{t('photoPlaceholder', lang)}</div>
+            <div className="photo-placeholder" style={{ aspectRatio: HEADER_ASPECT }}>
+              {t('photoPlaceholder', lang)}
+            </div>
           </figure>
         )
       )}

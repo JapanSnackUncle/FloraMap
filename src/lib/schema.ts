@@ -75,6 +75,15 @@ export const pinPhoto = photo.extend({
   crop: z.strictObject({ x: percent, y: percent, size: z.number().gt(0).max(100) }).optional(),
 });
 
+/**
+ * An on-location photo of a place (file in photos/places/<place-id>/). Optional `focus_y`: how
+ * far down the photo the subject is, in %; the header band is cut to keep it as near the middle
+ * as the photo's edges allow. Without it, the middle (50).
+ */
+export const placePhoto = photo.extend({
+  focus_y: percent.optional(),
+});
+
 export const planting = z.strictObject({
   id: slug,
   kind: z.enum(['bloom', 'foliage']),
@@ -160,7 +169,7 @@ export const placeFile = z.strictObject({
    * On-location photos of the place, files in photos/places/<place-id>/. The first is the place
    * page's header photo. Never a species close-up (CLAUDE.md, "Photos").
    */
-  photos: z.array(photo).optional(),
+  photos: z.array(placePhoto).optional(),
   closures: closures.optional(),
   plantings: z.array(planting).optional(),
   illuminations: z.array(illumination).optional(),

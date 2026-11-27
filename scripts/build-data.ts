@@ -203,7 +203,7 @@ export function buildData(
       err(file, `${id}: pin_photo "${p.file}" not found in photos-species/`);
       return undefined;
     }
-    const out = photoFileName(source, 'pin', p.crop);
+    const out = photoFileName(source, 'pin', { crop: p.crop });
     if (!pinJobs.has(out))
       pinJobs.set(out, { source, shape: 'pin', crop: p.crop, out, where: `${file}: ${id}` });
     return `${PIN_URL_DIR}/${out}`;
@@ -331,8 +331,8 @@ export function buildData(
       err(file, `photo "${first.file}" not found in photos/places/${doc.id}/`);
       continue;
     }
-    const out = photoFileName(source, 'header');
-    headerJobs.push({ source, shape: 'header', out, where: file });
+    const out = photoFileName(source, 'header', { focusY: first.focus_y });
+    headerJobs.push({ source, shape: 'header', focusY: first.focus_y, out, where: file });
     headerPhoto.set(doc.id, {
       src: `${HEADER_URL_DIR}/${out}`,
       credit: first.credit,
