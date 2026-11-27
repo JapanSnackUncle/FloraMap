@@ -155,7 +155,7 @@ export default function App() {
   const langToggle = (
     <button
       type="button"
-      className="lang-toggle"
+      className="chip lang-toggle"
       onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
     >
       {t('switchLang', lang)}
@@ -168,13 +168,7 @@ export default function App() {
       lang={lang}
       style={pinStyle(phone ? PHONE_PIN : PIN)}
     >
-      {/* Phones have no title bar: the map starts right under the debug bar. */}
-      {!phone && (
-        <header className="app-header">
-          <h1>{t('appTitle', lang)}</h1>
-          {langToggle}
-        </header>
-      )}
+      {/* No title bar: on desktop the filter row (with the language button) is the only bar. */}
       {DEBUG && (
         <DebugBar
           date={date}
@@ -192,6 +186,7 @@ export default function App() {
           setFilter={setFilter}
           lang={lang}
           openPlace={selectedStatus ? { onBack: close } : null}
+          extra={langToggle}
         />
       )}
       <div className="main">

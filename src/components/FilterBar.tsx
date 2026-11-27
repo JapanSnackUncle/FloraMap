@@ -16,7 +16,8 @@ interface Props {
   lang: Lang;
   /** While a place page is open: a back-to-list button replaces the chips. */
   openPlace?: { onBack: () => void } | null;
-  /** After the chips (phones: the language button, until 5.10 gives it a place). */
+  /** After the chips, and after the back button while a page is open: the language button
+      (desktop: at the row's right end). */
   extra?: ReactNode;
 }
 
@@ -29,6 +30,7 @@ export default function FilterBar({ filter, setFilter, lang, openPlace, extra }:
         <button type="button" className="chip back" onClick={openPlace.onBack}>
           ← {t('back', lang)}
         </button>
+        {extra}
       </div>
     );
   }
