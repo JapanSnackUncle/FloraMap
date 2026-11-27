@@ -62,6 +62,11 @@ function stateText(s: ToolSpecies): string {
   return s.files.length ? 'file not in the YAML' : 'no file';
 }
 
+/** Dropdown order: no file, then a file not in the YAML yet, then set; A–Z by English name within. */
+const stateOrder = (s: ToolSpecies) => (s.pin_photo ? 2 : s.files.length ? 1 : 0);
+const bySpeciesState = (a: ToolSpecies, b: ToolSpecies) =>
+  stateOrder(a) - stateOrder(b) || a.name_en.localeCompare(b.name_en, 'en');
+
 export function SpeciesTool({ tabs, active }: { tabs: ReactNode; active: boolean }) {
   const [data, setData] = useState<SpeciesResponse | null>(null);
   const [loadError, setLoadError] = useState('');
@@ -180,12 +185,20 @@ export function SpeciesTool({ tabs, active }: { tabs: ReactNode; active: boolean
           <option value="" disabled>
             Choose a species…
           </option>
-          {data.species.map((s) => (
+          {[...data.species].sort(bySpeciesState).flatMap((s, i, all) => [
+            // A disabled line between state groups (no file / file not in the YAML / set).
+            ...(i > 0 && stateOrder(s) !== stateOrder(all[i - 1]!)
+              ? [
+                  <option key={`spacer-${s.id}`} disabled>
+                    ──────────
+                  </option>,
+                ]
+              : []),
             <option key={s.id} value={s.id}>
               {isDirty(s) ? '✎ ' : ''}
-              {s.name_ja} · {s.id} — {stateText(s)}
-            </option>
-          ))}
+              {s.name_en} · {s.name_ja} · {s.id} — {stateText(s)}
+            </option>,
+          ])}
         </select>
         {anyDirty && <span className="warn">Unsaved changes (✎)</span>}
       </header>
