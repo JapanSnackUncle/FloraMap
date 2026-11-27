@@ -321,6 +321,13 @@ describe('the build fails on', () => {
     );
   });
 
+  it('a species pin photo not named after the species', () => {
+    fails(
+      { 'species.yaml': speciesWithPhoto().replace('"ume.jpg"', '"tulip.jpg"') },
+      'ume: pin_photo file must be named after the species ("ume.jpg"',
+    );
+  });
+
   it('a credit on an own photo', () => {
     fails(
       { 'species.yaml': speciesWithPhoto('      credit: "R"\n') },

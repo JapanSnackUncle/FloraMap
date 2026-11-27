@@ -40,6 +40,8 @@ npm run photo-tool   # starts the dev server and opens localhost:5173/tools/phot
 2. Pick the place, **Add** each photo, set credit and license (dropdowns of every value already used in `data/`, or **Add…** for a new one; license `own`, for your own photos, has no credit), and click on each photo where its 2:1 strip should sit. The preview shows the strip exactly as the build will cut it.
 3. **Save to YAML** rewrites only that place's `photos:` block (the rest of the file stays byte for byte, and the file is re-read at save time, so other edits aren't lost), then runs the data check and shows its result.
 
+**Species tab:** the pin close-up for each species. A species' file must be named after its id (`photos/species/nemophila.jpg` for `nemophila`); the build checks this. Pick the species, **Add** its photo, set license and credit, then drag the circle to move it and its edge handle to resize it: the circle is exactly what the round pin shows, and the small pins beside it are real size in every stage. Without a crop the build uses the largest centred square (**Use default**). **Save to YAML** rewrites only that species' `pin_photo:` block in `data/species.yaml`.
+
 The tool never moves, renames or deletes image files. It only runs under the dev server: `tools/` isn't part of `npm run build`, and the save handler (`tools/photo-tool/server.ts`) exists only in `npm run dev`.
 
 ## Basemap tiles

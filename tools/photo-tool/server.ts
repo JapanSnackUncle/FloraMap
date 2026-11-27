@@ -4,7 +4,12 @@
 //   GET  /__photo-tool/img/<path>/<file>     an original from photos/places/
 //   POST /__photo-tool/save                 {path, photos}: rewrite that place's `photos` list,
 //                                           then run the data check and return its output
-// Only the `photos` block of a place YAML is ever written (see photo-data.ts).
+//   GET  /__photo-tool/species              every species, its `pin_photo` and its files
+//   GET  /__photo-tool/species-img/<file>   an original from photos/species/
+//   POST /__photo-tool/save-species         {id, pin_photo}: rewrite that species' `pin_photo`
+//                                           (null removes it), then run the data check
+// Only the `photos` block of a place YAML, or one species' `pin_photo` block, is ever written
+// (see photo-data.ts).
 
 import { execFile } from 'node:child_process';
 import {
@@ -18,18 +23,33 @@ import {
 import { extname, join, normalize, relative, sep } from 'node:path';
 import type { Connect, Plugin } from 'vite';
 import { parse } from 'yaml';
-import type { PhotoEntry, PlacesResponse, SaveRequest, SaveResponse, ToolPlace } from './api.ts';
+import { isSpeciesPhotoName } from '../../src/lib/photos.ts';
+import type {
+  PhotoEntry,
+  PlacesResponse,
+  SaveRequest,
+  SaveResponse,
+  SpeciesPhoto,
+  SpeciesResponse,
+  SpeciesSaveRequest,
+  ToolPlace,
+  ToolSpecies,
+} from './api.ts';
 import {
   collectCreditPairs,
   IMAGE_EXTENSIONS,
   photoListProblems,
   setPlacePhotos,
+  setSpeciesPinPhoto,
+  speciesPhotoProblems,
 } from './photo-data.ts';
 
 const ROOT = process.cwd();
 const DATA_DIR = join(ROOT, 'data');
 const PLACES_DIR = join(DATA_DIR, 'places');
 const PHOTOS_DIR = join(ROOT, 'photos', 'places');
+const SPECIES_FILE = join(DATA_DIR, 'species.yaml');
+const SPECIES_PHOTOS_DIR = join(ROOT, 'photos', 'species');
 
 const CONTENT_TYPES: Record<string, string> = {
   '.jpg': 'image/jpeg',
@@ -61,17 +81,26 @@ function imageFiles(folder: string): string[] {
     .sort((a, b) => a.localeCompare(b));
 }
 
+/** A YAML file's values, or null if it can't be read (that shows up in the data check, not here). */
+function readYaml(file: string): Record<string, unknown> | null {
+  try {
+    return parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+/** Every credit/license pair in the place files and species.yaml. */
+function allCreditPairs() {
+  const files = [...yamlFilesIn(PLACES_DIR), SPECIES_FILE].filter((f) => existsSync(f));
+  return collectCreditPairs(files.map(readYaml).filter(Boolean));
+}
+
 function listPlaces(): PlacesResponse {
   const places: ToolPlace[] = [];
-  const parsed: unknown[] = [];
   for (const file of yamlFilesIn(PLACES_DIR)) {
-    let doc: Record<string, unknown>;
-    try {
-      doc = parse(readFileSync(file, 'utf8')) as Record<string, unknown>;
-    } catch {
-      continue; // a broken file shows up in the data check, not here
-    }
-    parsed.push(doc);
+    const doc = readYaml(file);
+    if (!doc) continue;
     const path = placePath(file);
     const folder = join(PHOTOS_DIR, ...path.split('/'));
     places.push({
@@ -80,15 +109,74 @@ function listPlaces(): PlacesResponse {
       name_ja: String(doc.name_ja ?? ''),
       name_en: typeof doc.name_en === 'string' ? doc.name_en : undefined,
       municipality: String(doc.municipality ?? ''),
-      photos: Array.isArray(doc.photos) ? (doc.photos as PhotoEntry[]) : [],
+      // An own photo has no credit in the YAML; the page works with "".
+      photos: Array.isArray(doc.photos)
+        ? (doc.photos as Partial<PhotoEntry>[]).map(
+            (p) => ({ ...p, credit: p.credit ?? '' }) as PhotoEntry,
+          )
+        : [],
       files: imageFiles(folder),
       folderExists: existsSync(folder),
     });
   }
-  const species = join(DATA_DIR, 'species.yaml');
-  if (existsSync(species)) parsed.push(parse(readFileSync(species, 'utf8')));
   places.sort((a, b) => a.path.localeCompare(b.path));
-  return { places, credits: collectCreditPairs(parsed) };
+  return { places, credits: allCreditPairs() };
+}
+
+function listSpecies(): SpeciesResponse {
+  const doc = existsSync(SPECIES_FILE) ? readYaml(SPECIES_FILE) : null;
+  const raw = Array.isArray(doc?.species) ? (doc.species as Record<string, unknown>[]) : [];
+  const files = imageFiles(SPECIES_PHOTOS_DIR);
+  const species: ToolSpecies[] = raw.map((sp) => {
+    const id = String(sp.id ?? '');
+    const p = sp.pin_photo as Partial<SpeciesPhoto> | undefined;
+    return {
+      id,
+      kind: sp.kind === 'foliage' ? 'foliage' : 'bloom',
+      name_ja: String(sp.name_ja ?? ''),
+      name_en: String(sp.name_en ?? ''),
+      // An own photo has no credit in the YAML; the page works with "".
+      ...(p ? { pin_photo: { ...p, credit: p.credit ?? '' } as SpeciesPhoto } : {}),
+      files: files.filter((f) => isSpeciesPhotoName(id, f)),
+    };
+  });
+  const unmatched = files.filter((f) => !species.some((sp) => sp.files.includes(f)));
+  return { species, unmatched, credits: allCreditPairs() };
+}
+
+async function saveSpecies(req: Connect.IncomingMessage): Promise<SaveResponse> {
+  let body: SpeciesSaveRequest;
+  try {
+    body = JSON.parse(await readBody(req)) as SpeciesSaveRequest;
+  } catch {
+    return { ok: false, error: 'could not read the request' };
+  }
+  if (typeof body.id !== 'string' || !/^[a-z0-9-]+$/.test(body.id))
+    return { ok: false, error: `bad species id "${String(body.id)}"` };
+  let photo: SpeciesPhoto | null = null;
+  if (body.pin_photo) {
+    const p = body.pin_photo;
+    photo = {
+      file: String(p.file ?? ''),
+      credit: String(p.credit ?? '').trim(),
+      license: String(p.license ?? '').trim(),
+      ...(p.crop
+        ? { crop: { x: Number(p.crop.x), y: Number(p.crop.y), size: Number(p.crop.size) } }
+        : {}),
+    };
+    const problems = speciesPhotoProblems(body.id, photo, imageFiles(SPECIES_PHOTOS_DIR));
+    if (problems.length) return { ok: false, error: problems.join('\n') };
+  }
+  // Read the file now, not when the page loaded, so edits made since are kept.
+  const before = readFileSync(SPECIES_FILE, 'utf8');
+  let after: string;
+  try {
+    after = setSpeciesPinPhoto(before, body.id, photo);
+  } catch (e) {
+    return { ok: false, error: `nothing was written: ${String(e)}` };
+  }
+  if (after !== before) writeFileSync(SPECIES_FILE, after, 'utf8');
+  return { ok: true, changed: after !== before, check: await runCheck() };
 }
 
 /** The place YAML for a path from the page, or null if it isn't one (no "..", no other folders). */
@@ -166,29 +254,39 @@ function sendJson(res: Parameters<Connect.NextHandleFunction>[1], value: unknown
   res.end(JSON.stringify(value));
 }
 
+type Res = Parameters<Connect.NextHandleFunction>[1];
+
+/** Send an original from `dir` (never from outside it). */
+function sendImage(res: Res, dir: string, relPath: string) {
+  const file = normalize(join(dir, decodeURIComponent(relPath)));
+  const type = CONTENT_TYPES[extname(file).toLowerCase()];
+  if (!file.startsWith(dir + sep) || !type || !existsSync(file)) {
+    res.statusCode = 404;
+    res.end();
+    return;
+  }
+  res.setHeader('Content-Type', type);
+  res.setHeader('Cache-Control', 'no-cache');
+  createReadStream(file).pipe(res);
+}
+
+function sendSave(res: Res, run: Promise<SaveResponse>) {
+  run.then(
+    (r) => sendJson(res, r),
+    (e: unknown) => sendJson(res, { ok: false, error: String(e) } satisfies SaveResponse, 500),
+  );
+}
+
 const handler: Connect.NextHandleFunction = (req, res, next) => {
   const url = (req.url ?? '/').split('?')[0]!;
   if (req.method === 'GET' && url === '/places') return sendJson(res, listPlaces());
-  if (req.method === 'POST' && url === '/save') {
-    save(req).then(
-      (r) => sendJson(res, r),
-      (e: unknown) => sendJson(res, { ok: false, error: String(e) } satisfies SaveResponse, 500),
-    );
-    return;
-  }
-  if (req.method === 'GET' && url.startsWith('/img/')) {
-    const file = normalize(join(PHOTOS_DIR, decodeURIComponent(url.slice('/img/'.length))));
-    const type = CONTENT_TYPES[extname(file).toLowerCase()];
-    if (!file.startsWith(PHOTOS_DIR + sep) || !type || !existsSync(file)) {
-      res.statusCode = 404;
-      res.end();
-      return;
-    }
-    res.setHeader('Content-Type', type);
-    res.setHeader('Cache-Control', 'no-cache');
-    createReadStream(file).pipe(res);
-    return;
-  }
+  if (req.method === 'GET' && url === '/species') return sendJson(res, listSpecies());
+  if (req.method === 'POST' && url === '/save') return sendSave(res, save(req));
+  if (req.method === 'POST' && url === '/save-species') return sendSave(res, saveSpecies(req));
+  if (req.method === 'GET' && url.startsWith('/img/'))
+    return sendImage(res, PHOTOS_DIR, url.slice('/img/'.length));
+  if (req.method === 'GET' && url.startsWith('/species-img/'))
+    return sendImage(res, SPECIES_PHOTOS_DIR, url.slice('/species-img/'.length));
   next();
 };
 

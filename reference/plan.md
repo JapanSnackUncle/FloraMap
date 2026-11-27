@@ -122,6 +122,9 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
   - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
   - [ ] 6.6 Place page: show whether each feature's status is confirmed or an estimate (the map no longer does: every ring is 3 px since 26 Nov)
   - [ ] 6.7 Make the map change language too when the language is switched
+  - [ ] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
+    - Decided 27 Nov (grill-me; rules in CLAUDE.md, Photos). Why: cropping by typing `{ x, y, size }` and rebuilding is guesswork; a circle on the photo shows exactly what the round pin shows. Files are found by name (`<species id>.jpg`), checked by the build, so a hand edit can't point nemophila at tulip.jpg, and the tool needs no file picker. The previews show real-size pins (54 px, 44 px phone) in every stage, because a close-up that reads well large can turn to mush at 44 px or once greyed for まもなく.
+    - Parked: planting `pin_photo` overrides in the tool (none exist yet; add when 河津桜 or 八重桜 needs one).
 
 ### Phase 2 – App complete (weeks 4–6)
 

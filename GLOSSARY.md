@@ -116,7 +116,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **Issues tab** | The staging sheet's list of problems to resolve; a row's cell is highlighted until it's marked resolved. |
 | **reference** | The claude.ai exports in `reference/`. Read-only background. |
 | **soft launch** | Going live for the 2027 plum season (late Jan–Feb). |
-| **photo tool** | Dev-only page at `/tools/photo-tool/` (`npm run photo-tool`) for a place's `photos`: order, credit, license, `focus_y`. Writes only the YAML's `photos:` block. |
+| **photo tool** | Dev-only page at `/tools/photo-tool/` (`npm run photo-tool`) for a place's `photos`: order, credit, license, `focus_y`. Writes only the YAML's `photos:` block. Its Species tab sets each species' `pin_photo` in species.yaml (file by name, license, credit, `crop` circle). |
 
 ## Web development
 

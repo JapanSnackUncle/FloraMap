@@ -1,0 +1,126 @@
+/* Pins (CLAUDE.md, Map UI): the photo circle, its ring, the taper and badges. Its own file because
+   the photo tool (tools/photo-tool/) draws real pins with the same rules. Names: styles.css. */
+
+/* The sizes below include the ring (padding). The app sets this on every element; here it's
+   set again so a pin is the same size on any page, the photo tool included. */
+.pin-marker,
+.pin-marker *,
+.pin {
+  box-sizing: border-box;
+}
+
+.pin-marker {
+  cursor: pointer;
+  /* MapLibre centres the marker with translate(-50%): a fixed even width keeps that on whole
+     pixels, so the pin and its label never sit half a pixel off (which blurs the text).
+     --pin-*: the map pin's sizes, set on .app from config.ts (pins.ts pinStyle). */
+  width: var(--pin-size);
+}
+
+.pin-marker .pin {
+  --pz: var(--pin-size);
+  margin-inline: auto;
+}
+
+.pin {
+  --pz: 54px; /* pin size: (pz-6) of photo inside the 3px ring */
+  /* Ring width: the same for every pin, confirmed or estimate (the place page says which). */
+  --rw: 3px;
+  position: relative;
+  width: var(--pz);
+  height: var(--pz);
+  padding: var(--rw);
+  border-radius: 50%;
+  /* The ring (--ring: a colour, or a conic gradient while 咲き始め fills; set per pin) with a
+     white disc inside it, under the photo. Both are layers of this one element, so they
+     round to screen pixels together and the ring stays even. */
+  background:
+    radial-gradient(
+      circle closest-side,
+      #fff calc(100% - var(--rw)),
+      transparent calc(100% - var(--rw) + 0.75px)
+    ),
+    var(--ring, transparent);
+}
+
+/* Circle + taper. The shadow follows both shapes; the hover zoom grows from the tip. */
+.pin-body {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  transform-origin: 50% 100%;
+  transition: transform 0.15s;
+}
+
+.pin-tip {
+  display: block;
+  width: 0;
+  height: 0;
+  margin: calc(-1 * var(--pin-tip-tuck)) auto 0;
+  border-left: var(--pin-tip-w) solid transparent;
+  border-right: var(--pin-tip-w) solid transparent;
+  border-top: var(--pin-tip-h) solid;
+}
+
+/* The hovered pin and its name go above every other pin; the pin zooms very slightly. Only
+   on devices that hover: a phone would keep :hover stuck on the last pin tapped. */
+@media (hover: hover) {
+  .pin-marker:hover {
+    z-index: 1000 !important;
+  }
+
+  .pin-marker:hover .pin-body {
+    transform: scale(1.06);
+  }
+
+  .pin-marker:hover .pin-label {
+    display: flex;
+  }
+
+  .pin-marker:hover .pin-label > span {
+    background: rgba(255, 255, 255, 0.85);
+  }
+}
+
+.pin img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  /* The photo's very edge fades to the white disc behind it (.pin) over 2 px: a soft white
+     edge against the ring, instead of a separate 1 px white gap, which rounded unevenly on
+     screens with fractional scaling. */
+  mask-image: radial-gradient(circle closest-side, #000 calc(100% - 2px), transparent 100%);
+}
+
+.photo-grey {
+  filter: grayscale(1);
+  opacity: 0.8;
+}
+
+.photo-faded {
+  filter: grayscale(0.55);
+}
+
+.pin-fest {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #f97316;
+  border: 2px solid #fff;
+}
+
+.pin-clock {
+  position: absolute;
+  right: -6px;
+  bottom: -5px;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #b0245c;
+}

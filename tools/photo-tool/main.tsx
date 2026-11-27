@@ -3,6 +3,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
+// The app's own pin rules, so the Species tab's previews look exactly like the map's pins.
+import '../../src/pin.css';
 import './style.css';
 
 createRoot(document.getElementById('root')!).render(

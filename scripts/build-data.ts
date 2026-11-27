@@ -29,6 +29,7 @@ import {
   type PublicPlace,
   type StatusRow,
 } from '../src/lib/schema.ts';
+import { isSpeciesPhotoName } from '../src/lib/photos.ts';
 import {
   HEADER_URL_DIR,
   PIN_URL_DIR,
@@ -223,8 +224,14 @@ export function buildData(
     return `${PIN_URL_DIR}/${out}`;
   }
   const speciesPinSrc = new Map<string, string | undefined>();
-  for (const s of speciesDoc?.species ?? [])
+  for (const s of speciesDoc?.species ?? []) {
+    if (s.pin_photo && !isSpeciesPhotoName(s.id, s.pin_photo.file))
+      err(
+        'species.yaml',
+        `${s.id}: pin_photo file must be named after the species ("${s.id}.jpg", .jpeg, .png or .webp), not "${s.pin_photo.file}"`,
+      );
     speciesPinSrc.set(s.id, pinSrc(s.pin_photo, 'species.yaml', s.id));
+  }
 
   // ---------- places
 

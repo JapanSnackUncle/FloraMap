@@ -1,9 +1,13 @@
-// The photo tool's page: pick a place, manage its `photos` list (order, credit, license) and click
-// where each photo's 2:1 strip should sit (focus_y). Saving rewrites only the `photos` block of
-// data/places/<path>.yaml via server.ts, then runs the data check.
+// The photo tool's page, in two tabs:
+// - Places: pick a place, manage its `photos` list (order, credit, license) and click where each
+//   photo's 2:1 strip should sit (focus_y). Saving rewrites only the `photos` block of
+//   data/places/<path>.yaml via server.ts, then runs the data check.
+// - Species: each species' pin close-up (SpeciesTool.tsx).
+// Both tabs stay mounted, so switching keeps unsaved edits.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { HEADER_ASPECT, headerBand } from '../../src/lib/photos.ts';
+import { OWN_LICENSE } from '../../src/lib/schema.ts';
 import {
   DATA_REBUILT_EVENT,
   type PhotoEntry,
@@ -12,12 +16,46 @@ import {
   type ToolPlace,
 } from './api.ts';
 import { photoListProblems } from './photo-data.ts';
+import {
+  MAX_SIDE,
+  saveResultText,
+  setDimsFor,
+  SPECIES_HASH,
+  startingPair,
+  usePairOptions,
+  withPairChange,
+  type Dims,
+} from './shared.ts';
+import { CreditLicenseFields, SaveBar } from './fields.tsx';
+import { SpeciesTool } from './SpeciesTool.tsx';
 
-/** Originals longer than this (px, either side) get a warning: they go into git. */
-const MAX_SIDE = 2000;
-const LAST_PAIR_KEY = 'photo-tool:last-pair';
+type Tab = 'places' | 'species';
 
-type Dims = { w: number; h: number };
+export default function App() {
+  const [tab, setTab] = useState<Tab>(() =>
+    location.hash.slice(1).split('/')[0] === SPECIES_HASH ? 'species' : 'places',
+  );
+  const tabs = (
+    <nav className="tabs">
+      <h1>Photo tool</h1>
+      {(['places', 'species'] as const).map((t) => (
+        <button key={t} className={t === tab ? 'on' : ''} onClick={() => setTab(t)}>
+          {t === 'places' ? 'Places' : 'Species'}
+        </button>
+      ))}
+    </nav>
+  );
+  return (
+    <>
+      <div hidden={tab !== 'places'}>
+        <PlacesTool tabs={tabs} active={tab === 'places'} />
+      </div>
+      <div hidden={tab !== 'species'}>
+        <SpeciesTool tabs={tabs} active={tab === 'species'} />
+      </div>
+    </>
+  );
+}
 
 const imgUrl = (path: string, file: string) =>
   `/__photo-tool/img/${path}/${encodeURIComponent(file)}`;
@@ -28,34 +66,22 @@ const norm = (p: PhotoEntry) => [p.file, p.credit, p.license, p.focus_y ?? null]
 
 const isWide = (d: Dims) => d.w / d.h >= HEADER_ASPECT;
 
-function readLastPair(): { credit: string; license: string } | null {
-  try {
-    const v = JSON.parse(localStorage.getItem(LAST_PAIR_KEY) ?? 'null') as unknown;
-    if (v && typeof v === 'object' && 'credit' in v && 'license' in v)
-      return v as { credit: string; license: string };
-  } catch {
-    /* ignore */
-  }
-  return null;
-}
-
 async function fetchPlaces(): Promise<PlacesResponse> {
   const r = await fetch('/__photo-tool/places');
   if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
   return (await r.json()) as PlacesResponse;
 }
 
-export default function App() {
+function PlacesTool({ tabs, active }: { tabs: ReactNode; active: boolean }) {
   const [data, setData] = useState<PlacesResponse | null>(null);
   const [loadError, setLoadError] = useState('');
-  const [path, setPath] = useState(() => decodeURIComponent(location.hash.slice(1)));
+  const [path, setPath] = useState(() => {
+    const hash = decodeURIComponent(location.hash.slice(1));
+    return hash.split('/')[0] === SPECIES_HASH ? '' : hash;
+  });
   const [drafts, setDrafts] = useState<Record<string, PhotoEntry[]>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [dims, setDims] = useState<Record<string, Dims>>({});
-  const [added, setAdded] = useState<{ credits: string[]; licenses: string[] }>({
-    credits: [],
-    licenses: [],
-  });
   const [saving, setSaving] = useState(false);
   const [result, setResult] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -96,29 +122,26 @@ export default function App() {
     return () => window.removeEventListener('beforeunload', warn);
   }, [anyDirty]);
 
+  // The address shows the open place while this tab is showing.
+  useEffect(() => {
+    if (active) history.replaceState(null, '', path ? `#${path}` : location.pathname);
+  }, [active, path]);
+
   const choosePlace = (p: string) => {
     setPath(p);
     setSelected(null);
     setResult(null);
-    history.replaceState(null, '', `#${p}`);
   };
 
   const setPhotos = (next: PhotoEntry[]) => setDrafts((d) => ({ ...d, [path]: next }));
   const update = (file: string, change: Partial<PhotoEntry>) =>
     setPhotos(photos.map((p) => (p.file === file ? { ...p, ...change } : p)));
 
-  // Credit and license choices: every value already used in data/, plus any typed in this session.
   const creditPairs = useMemo(() => data?.credits ?? [], [data]);
-  const creditOptions = uniq([...creditPairs.map((c) => c.credit), ...added.credits]);
-  const licenseOptions = uniq([...creditPairs.map((c) => c.license), ...added.licenses]);
-  /** The license most often used with a credit, if any. */
-  const licenseFor = (credit: string) => creditPairs.find((c) => c.credit === credit)?.license;
-
-  const remember = (credit: string, license: string) =>
-    localStorage.setItem(LAST_PAIR_KEY, JSON.stringify({ credit, license }));
+  const pairOptions = usePairOptions(creditPairs);
 
   const addFile = (file: string) => {
-    const pair = readLastPair() ?? creditPairs[0] ?? { credit: '', license: '' };
+    const pair = startingPair(creditPairs);
     setPhotos([...photos, { file, credit: pair.credit, license: pair.license }]);
     setSelected(file);
   };
@@ -150,14 +173,7 @@ export default function App() {
           delete rest[place.path];
           return rest;
         });
-        setResult({
-          ok: res.check.ok,
-          text:
-            (res.changed ? 'Saved.' : 'No change to save.') +
-            (res.check.ok
-              ? ` Data check: ${res.check.output}`
-              : `\nData check failed:\n${res.check.output}`),
-        });
+        setResult(saveResultText(res));
         await load();
       }
     } catch (e) {
@@ -170,6 +186,12 @@ export default function App() {
   if (loadError) return <p className="error">{loadError}</p>;
   if (!data) return <p className="muted">Loading…</p>;
 
+  const revert = () =>
+    setDrafts((d) => {
+      const rest = { ...d };
+      delete rest[path];
+      return rest;
+    });
   const byMunicipality = groupBy(data.places, (p) => p.path.split('/').slice(0, 2).join('/'));
   const unlisted = place ? place.files.filter((f) => !photos.some((p) => p.file === f)) : [];
   const current = photos.find((p) => p.file === selected);
@@ -177,7 +199,7 @@ export default function App() {
   return (
     <div className="tool">
       <header>
-        <h1>Photo tool</h1>
+        {tabs}
         <select value={place ? path : ''} onChange={(e) => choosePlace(e.target.value)}>
           <option value="" disabled>
             Choose a place…
@@ -246,8 +268,10 @@ export default function App() {
                         {i === 0 && <span className="tag">first</span>} {p.file}
                       </div>
                       <div className="small muted">
-                        {p.credit || <span className="error">no credit</span>} ·{' '}
-                        {p.license || <span className="error">no license</span>}
+                        {p.license === OWN_LICENSE
+                          ? 'no credit'
+                          : p.credit || <span className="error">no credit</span>}{' '}
+                        · {p.license || <span className="error">no license</span>}
                         {p.focus_y !== undefined && ` · focus_y ${p.focus_y}`}
                       </div>
                       {missing && <div className="small error">File not in the folder</div>}
@@ -296,31 +320,14 @@ export default function App() {
               ))}
             </ul>
 
-            <div className="savebar">
-              <button
-                className="primary"
-                disabled={!dirty || saving || problems.length > 0}
-                onClick={save}
-              >
-                {saving ? 'Saving…' : 'Save to YAML'}
-              </button>
-              <button
-                disabled={!dirty || saving}
-                onClick={() =>
-                  setDrafts((d) => {
-                    const rest = { ...d };
-                    delete rest[path];
-                    return rest;
-                  })
-                }
-              >
-                Revert
-              </button>
-              {dirty && problems.length > 0 && (
-                <pre className="error small">{problems.join('\n')}</pre>
-              )}
-              {result && <pre className={`small ${result.ok ? 'ok' : 'error'}`}>{result.text}</pre>}
-            </div>
+            <SaveBar
+              dirty={dirty}
+              saving={saving}
+              problems={problems}
+              result={result}
+              onSave={save}
+              onRevert={revert}
+            />
           </section>
 
           <section className="editor">
@@ -334,21 +341,9 @@ export default function App() {
                 missing={!place.files.includes(current.file)}
                 dims={dims[imgUrl(place.path, current.file)]}
                 onDims={setDimsFor(setDims)}
-                creditOptions={creditOptions}
-                licenseOptions={licenseOptions}
-                onChange={(change) => {
-                  const next = { ...current, ...change };
-                  if (change.credit !== undefined) {
-                    const license = licenseFor(change.credit);
-                    if (license) next.license = license;
-                  }
-                  if (change.credit !== undefined || change.license !== undefined)
-                    remember(next.credit, next.license);
-                  update(current.file, next);
-                }}
-                onAddCredit={(v) => setAdded((a) => ({ ...a, credits: uniq([...a.credits, v]) }))}
-                onAddLicense={(v) =>
-                  setAdded((a) => ({ ...a, licenses: uniq([...a.licenses, v]) }))
+                pairOptions={pairOptions}
+                onChange={(change) =>
+                  update(current.file, withPairChange(current, change, creditPairs))
                 }
               />
             )}
@@ -365,11 +360,8 @@ function Editor(props: {
   missing: boolean;
   dims?: Dims;
   onDims: (src: string, d: Dims) => void;
-  creditOptions: string[];
-  licenseOptions: string[];
+  pairOptions: ReturnType<typeof usePairOptions>;
   onChange: (change: Partial<PhotoEntry>) => void;
-  onAddCredit: (v: string) => void;
-  onAddLicense: (v: string) => void;
 }) {
   const { src, photo, dims } = props;
   const [hoverY, setHoverY] = useState<number | null>(null);
@@ -491,92 +483,13 @@ function Editor(props: {
           </div>
         </>
       )}
-      <ValueSelect
-        label="credit"
-        value={photo.credit}
-        options={props.creditOptions}
-        onChange={(v) => props.onChange({ credit: v })}
-        onAdd={props.onAddCredit}
+      <CreditLicenseFields
+        credit={photo.credit}
+        license={photo.license}
+        options={props.pairOptions}
+        onChange={props.onChange}
       />
-      <ValueSelect
-        label="license"
-        value={photo.license}
-        options={props.licenseOptions}
-        onChange={(v) => props.onChange({ license: v })}
-        onAdd={props.onAddLicense}
-      />
-      <p className="muted small">
-        Picking a credit also picks the license most often used with it. New photos start with the
-        last credit and license you chose.
-      </p>
     </div>
-  );
-}
-
-const ADD = '\u0000add';
-
-/** A dropdown of known values, with "Add…" to type a new one. */
-function ValueSelect(props: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (v: string) => void;
-  onAdd: (v: string) => void;
-}) {
-  const [adding, setAdding] = useState(false);
-  const [text, setText] = useState('');
-  const options = uniq([...props.options, ...(props.value ? [props.value] : [])]);
-
-  const commit = () => {
-    const v = text.trim();
-    if (!v) return;
-    props.onAdd(v);
-    props.onChange(v);
-    setAdding(false);
-    setText('');
-  };
-
-  return (
-    <label className="field">
-      <span>{props.label}</span>
-      {adding ? (
-        <span>
-          <input
-            autoFocus
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') commit();
-              if (e.key === 'Escape') setAdding(false);
-            }}
-            placeholder={`New ${props.label}`}
-          />
-          <button onClick={commit} disabled={!text.trim()}>
-            OK
-          </button>
-          <button onClick={() => setAdding(false)}>Cancel</button>
-        </span>
-      ) : (
-        <select
-          value={props.value}
-          onChange={(e) =>
-            e.target.value === ADD ? setAdding(true) : props.onChange(e.target.value)
-          }
-        >
-          {!props.value && (
-            <option value="" disabled>
-              Choose…
-            </option>
-          )}
-          {options.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-          <option value={ADD}>Add…</option>
-        </select>
-      )}
-    </label>
   );
 }
 
@@ -597,15 +510,7 @@ function Thumb(props: { src: string; onDims: (src: string, d: Dims) => void }) {
   );
 }
 
-const setDimsFor =
-  (set: React.Dispatch<React.SetStateAction<Record<string, Dims>>>) => (src: string, d: Dims) =>
-    set((all) => (all[src]?.w === d.w && all[src]?.h === d.h ? all : { ...all, [src]: d }));
-
 const pct = (part: number, whole: number) => `${(part / whole) * 100}%`;
-
-function uniq(values: string[]): string[] {
-  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ja'));
-}
 
 function groupBy<T>(items: T[], key: (t: T) => string): Map<string, T[]> {
   const m = new Map<string, T[]>();
