@@ -27,6 +27,7 @@ If a request is in that list, say so in one line and suggest R open a different 
 - **Folders must match the file.** `data/places/<prefecture>/<municipality>/` uses romaji slugs; the Japanese name goes inside the file (`municipality: 水戸市`).
 - **Append-only files:** `data/statuses.csv` and `data/closures.csv`. Add rows at the end. Never edit or delete an existing row.
 - **Private fields** (`editor_notes`, `checked_against`, `window_raw`) stay in the files for R. Never copy them into any other field.
+- **Every other field is published** in `places.json`, even ones the app doesn't show yet. Public text such as `note_ja` is for visitors only: source IDs, "checked" dates and notes to R go in `editor_notes`.
 - **X and Instagram rows:** store the post ID, post time and derived level only. `raw_text` stays empty.
 - **Photos** need a `license`, and a `credit` unless the license is `"own"` (R's own photos: leave `credit` out entirely; the build fails if it's there). Never add a photo without them. Files taken at a place (for the place, its plantings or its illuminations) go in `photos/places/<prefecture>/<municipality>/<place-id>/`; species close-ups go in `photos/species/`. `file` is the bare filename. R usually manages place photos with the photo tool (`npm run photo-tool`); edit `photos:` by hand only when asked.
 - **Dates** are ISO (`2027-02-22`), Japan time. Every YAML file keeps its `schema_version`.

@@ -32,3 +32,4 @@ Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 
 - [ ] 2027 festival dates: none announced yet except 水戸の梅まつり (2/11–3/22). Check from January.
 - [ ] ダイゴライト 2025-26 hours: not found (low priority; the 2026-27 edition has hours).
 - [ ] Illumination-only places (no plantings): hitachi-civic, kasumigaura-park, kawachi-fureai, kirakuyama. Fine as is; listed for awareness.
+- [ ] Park opening hours for those four places: their `hours_ja` only repeated the illumination hours (「イルミ期間 …」), so it was removed 2026-11-27. Add the real 営業時間 if found; until then 営業時間 is hidden.

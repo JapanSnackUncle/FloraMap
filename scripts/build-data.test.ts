@@ -135,9 +135,8 @@ describe('a valid dataset', () => {
     const place = data!.places[0]!;
     expect(place.id).toBe('test-park');
     expect(place.festival_ids).toEqual(['test-ume-matsuri']);
-    expect(place.one_off_closures).toEqual([
-      { date: '2027-02-25', reason: '台風', source: 'https://example.com/news' },
-    ]);
+    // reason and source are private
+    expect(place.one_off_closures).toEqual([{ date: '2027-02-25' }]);
     const status = place.plantings[0]!.statuses[0]!;
     expect(status).toEqual({
       planting_id: 'test-park-ume',
@@ -277,6 +276,31 @@ describe('the build fails on', () => {
       },
       'fall outside the edition',
     );
+  });
+
+  const withRow = (from: string, to: string) =>
+    PLACE.replace(
+      'hours_ja: "17:00〜21:00"',
+      `hours_ja: "17:00〜21:00"\n          - from: "${from}"\n            to: "${to}"\n            hours_ja: "17:00〜翌6:30"`,
+    );
+
+  it('illumination hours rows that partly overlap or repeat', () => {
+    fails(
+      { 'places/ibaraki/mito/test-park.yaml': withRow('2026-11-01', '2027-01-31') },
+      'repeat the same dates',
+    );
+    // The run now ends 1/10, and the second row runs 12/31–1/31: they overlap, neither inside the other.
+    const partial = withRow('2026-12-31', '2027-01-31').replace(
+      '            to: "2027-01-31"',
+      '            to: "2027-01-10"',
+    );
+    fails({ 'places/ibaraki/mito/test-park.yaml': partial }, 'partly overlap');
+  });
+
+  it('but not hours rows that nest', () => {
+    expect(
+      errorsFor({ 'places/ibaraki/mito/test-park.yaml': withRow('2026-12-31', '2026-12-31') }),
+    ).toEqual([]);
   });
 
   it('a status row for an unknown planting or with a bad level', () => {

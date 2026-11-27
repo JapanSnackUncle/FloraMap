@@ -277,6 +277,20 @@ export function buildData(
               `${where}: hours ${h.from}–${h.to} fall outside the edition ${ed.from}–${ed.to}`,
             );
         }
+        // Rows may nest (the shorter one applies: status.ts hoursOn) but not partly overlap or repeat.
+        const hrs = ed.hours ?? [];
+        hrs.forEach((a, i) =>
+          hrs.slice(i + 1).forEach((b) => {
+            const overlap = a.from <= b.to && b.from <= a.to;
+            const aInB = b.from <= a.from && a.to <= b.to;
+            const bInA = a.from <= b.from && b.to <= a.to;
+            if (overlap && aInB === bInA)
+              err(
+                file,
+                `${where}: hours ${a.from}–${a.to} and ${b.from}–${b.to} ${aInB ? 'repeat the same dates' : 'partly overlap'} (rows may only nest one inside another)`,
+              );
+          }),
+        );
       }
     }
     for (const r of doc.closures?.periods_open ?? []) {

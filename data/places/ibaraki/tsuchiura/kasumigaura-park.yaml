@@ -10,7 +10,6 @@ address_ja: "大岩田145"
 lat: 36.063432
 lng: 140.220667
 geocode_precision: manual
-hours_ja: "イルミ期間 17:00〜21:00"
 fee_ja: "無料"
 parking_ja: "170台、無料"
 official_urls: ["https://www.city.tsuchiura.lg.jp/kanko-bunka-sports/sangyobunkajigyodan/event-info/suigosakura-illumination/"]
@@ -36,5 +35,5 @@ illuminations:
           - from: "2026-12-31"
             to: "2026-12-31"
             hours_ja: "17:00〜翌6:30頃"
-            note_ja: "大晦日オールナイト点灯（公式 checked 2026-11-25: 元旦6時30頃まで）"
-        editor_notes: "LED約19万球"
+            note_ja: "大晦日オールナイト点灯"
+        editor_notes: "LED約19万球。大晦日 元旦6時30頃まで (official, checked 2026-11-25)"

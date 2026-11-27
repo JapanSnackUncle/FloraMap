@@ -47,6 +47,13 @@ export const PRIVATE_KEYS = [
   'format',
   'checked',
   'schema_version',
+  // Used only by the build: pin_photo becomes pin_src; provisional marks an unchecked window.
+  'pin_photo',
+  'provisional',
+  // CSV rows: statuses.csv `note`, closures.csv `reason` and `source`. Not shown in the app.
+  'note',
+  'reason',
+  'source',
 ] as const;
 
 const privateFields = {

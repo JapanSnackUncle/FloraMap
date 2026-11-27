@@ -11,7 +11,6 @@ lat: 35.879342
 lng: 140.274574
 geocode_precision: manual
 point_note: "parking lot"
-hours_ja: "イルミ期間 17:00〜21:00"
 parking_ja: "あり"
 official_urls: ["https://www.town.ibaraki-kawachi.lg.jp/page/page000342.html"]
 checked_against: ["https://weathernews.jp/illumi/spot/1702010/"]

@@ -400,6 +400,19 @@ export function datedEditions(il: PublicIllumination, today: string): DatedEditi
 }
 
 /**
+ * The hours row for one night. Rows may nest (a one-night exception inside the whole run); where
+ * they do, the shorter row applies. Partial overlaps fail the build, so the shortest match is unique.
+ */
+export function hoursOn<H extends { from: string; to: string }>(
+  hours: H[],
+  date: string,
+): H | undefined {
+  return hours
+    .filter((h) => h.from <= date && date <= h.to)
+    .sort((a, b) => daysBetween(a.from, a.to) - daysBetween(b.from, b.to))[0];
+}
+
+/**
  * Precedence: lit (today within an edition's dates) > soon (within LEAD days of the start) > out of season.
  * Placeholder dates (not announced) give the same states with a thin ring and no countdown.
  */
@@ -408,7 +421,7 @@ export function illuminationState(il: PublicIllumination, today: string): Illumi
   const eds = datedEditions(il, today);
   const lit = eds.find((e) => e.from <= today && today <= e.to);
   if (lit) {
-    const hours = lit.hours.find((h) => h.from <= today && today <= h.to);
+    const hours = hoursOn(lit.hours, today);
     return {
       ...base,
       state: 'lit',
@@ -463,7 +476,7 @@ export function nextOpenNight(
   if (!run) return undefined;
   for (let d = addDays(today, 1); d <= run.to; d = addDays(d, 1)) {
     if (closedToday(place, d)) continue;
-    const hours = run.hours.find((h) => h.from <= d && d <= h.to);
+    const hours = hoursOn(run.hours, d);
     return { date: d, hoursJa: hours?.hours_ja };
   }
   return undefined;

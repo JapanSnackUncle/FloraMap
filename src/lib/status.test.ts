@@ -710,6 +710,12 @@ describe('real data', () => {
     });
   });
 
+  it('kasumigaura-park: the one-night 大晦日 row beats the run it sits inside', () => {
+    expect(at('kasumigaura-park', '2026-12-30').pin).toMatchObject({ hoursJa: '17:00〜21:00' });
+    expect(at('kasumigaura-park', '2026-12-31').pin).toMatchObject({ hoursJa: '17:00〜翌6:30頃' });
+    expect(at('kasumigaura-park', '2027-01-01').pin).toMatchObject({ hoursJa: '17:00〜21:00' });
+  });
+
   it('every place has a pin on every day of the year, and the date logic never throws', () => {
     for (let d = '2026-11-01'; d <= '2027-10-31'; d = addDays(d, 1)) {
       for (const p of data!.places)
