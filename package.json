@@ -7,6 +7,7 @@
     "dev": "node scripts/build-data.ts && vite",
     "build": "node scripts/build-data.ts && tsc -b && vite build",
     "preview": "vite preview",
+    "photo-tool": "node scripts/build-data.ts && vite --open /tools/photo-tool/",
     "build-data": "node scripts/build-data.ts",
     "check-data": "node scripts/build-data.ts --check",
     "test": "vitest run",

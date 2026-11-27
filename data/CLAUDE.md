@@ -28,7 +28,7 @@ If a request is in that list, say so in one line and suggest R open a different 
 - **Append-only files:** `data/statuses.csv` and `data/closures.csv`. Add rows at the end. Never edit or delete an existing row.
 - **Private fields** (`editor_notes`, `checked_against`, `window_raw`) stay in the files for R. Never copy them into any other field.
 - **X and Instagram rows:** store the post ID, post time and derived level only. `raw_text` stays empty.
-- **Photos** need `credit` and `license`. Never add a photo without them.
+- **Photos** need `credit` and `license`. Never add a photo without them. Files taken at a place (for the place, its plantings or its illuminations) go in `photos/places/<prefecture>/<municipality>/<place-id>/`; species close-ups go in `photos/species/`. `file` is the bare filename. R usually manages place photos with the photo tool (`npm run photo-tool`); edit `photos:` by hand only when asked.
 - **Dates** are ISO (`2027-02-22`), Japan time. Every YAML file keeps its `schema_version`.
 - **English fields** (`hours_en`, `closed_en`, `fee_en`, `parking_en`, `night_events_en`, `note_en`) hold translations. Enter English text R gives you or if prompted, translate yourself and get permission before writing.
 - **Empty optional fields** are fine: leave them out rather than writing "unknown".

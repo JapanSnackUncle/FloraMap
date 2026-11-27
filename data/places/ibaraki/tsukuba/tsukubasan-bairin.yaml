@@ -15,6 +15,11 @@ fee_ja: "無料"
 parking_ja: "445台、普通車1回500円（市営）"
 official_urls: ["https://www.city.tsukuba.lg.jp/tourism/27501.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006149"]
+photos:
+  - file: "16-001-02Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 53
 plantings:
   - id: tsukubasan-bairin-ume
     kind: bloom

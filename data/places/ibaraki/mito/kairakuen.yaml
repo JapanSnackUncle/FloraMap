@@ -17,6 +17,15 @@ parking_ja: "約1,000台、有料・無料あり（梅まつり期間は有料�
 official_urls: ["https://ibaraki-kairakuen.jp/guide/"]
 checked_against: ["https://rurubu.jp/andmore/spot/80005902"]
 editor_notes: "hours and normal fees match official guide (checked 2026-11-25). 梅まつり期間以外は県民無料・開門〜9時は全員無料"
+photos:
+  - file: "Al1zI4uPoUr22jM.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 48
+  - file: "TLDNrO1NIuwmbOH.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 48
 plantings:
   - id: kairakuen-azalea
     kind: bloom

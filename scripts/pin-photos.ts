@@ -1,7 +1,7 @@
 // Photos -> small WebP files the app downloads instead of the originals:
-// - species close-ups (photos-species/) -> squares in public/photos/pins/;
-// - place header photos (photos/places/<place-id>/) -> HEADER_ASPECT bands, HEADER_WIDTH wide, in
-//   public/photos/places/ (headerBand: where the band is cut).
+// - species close-ups (photos/species/) -> squares in public/photos/pins/;
+// - place photos (photos/places/<prefecture>/<municipality>/<place-id>/) -> HEADER_ASPECT bands,
+//   HEADER_WIDTH wide, in public/photos/places/ (headerBand in src/lib/photos.ts: where the band is cut).
 //
 // The originals are full-size phone photos (MBs each). Each output name carries a hash of the
 // source bytes, the crop and the output settings, so an unchanged photo is never redone and a
@@ -12,14 +12,14 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:f
 import { join, parse } from 'node:path';
 import sharp from 'sharp';
 import type { z } from 'zod';
-import { HEADER_ASPECT } from '../src/lib/photos.ts';
+import { HEADER_ASPECT, headerBand } from '../src/lib/photos.ts';
 import type { pinPhoto } from '../src/lib/schema.ts';
 
 export type Crop = NonNullable<z.infer<typeof pinPhoto>['crop']>;
 
 /** Output side in pixels: 38 px of photo in a 48 px pin, 1.3× when selected (about 49 px), on a 3–4× screen. */
 export const PIN_SIZE = 192;
-/** Header photo width in pixels: a 400 px panel on a 2× screen. Never enlarged. */
+/** Place photo strip width in pixels: a 400 px panel on a 2× screen. Never enlarged. */
 export const HEADER_WIDTH = 800;
 const QUALITY = 80;
 export const PIN_URL_DIR = '/photos/pins';
@@ -31,7 +31,7 @@ export interface PhotoJob {
   /** A pin square (cut by `crop`), or a header band (cut around `focusY`). */
   shape: 'pin' | 'header';
   crop?: Crop;
-  /** Header photos: how far down the subject is, in % (default 50). */
+  /** Place photos: how far down the subject is, in % (default 50). */
   focusY?: number;
   /** Output file name inside the output folder. */
   out: string;
@@ -84,26 +84,6 @@ export function cropBox(
   if (top + side > height) off.push('bottom');
   if (off.length) return { error: `crop runs off the ${off.join(' and ')} edge of the photo` };
   return { left, top, side };
-}
-
-/**
- * The header band to cut, in pixels: the widest HEADER_ASPECT rectangle the photo holds.
- * - Narrower than HEADER_ASPECT (most photos): full width, moved up or down so the point `focusY`%
- *   down the photo is as near the band's middle as the photo's edges allow.
- * - Wider (panoramas): full height, centred left to right.
- */
-export function headerBand(
-  width: number,
-  height: number,
-  focusY = 50,
-): { left: number; top: number; width: number; height: number } {
-  if (width / height >= HEADER_ASPECT) {
-    const w = Math.round(height * HEADER_ASPECT);
-    return { left: Math.floor((width - w) / 2), top: 0, width: w, height };
-  }
-  const h = Math.round(width / HEADER_ASPECT);
-  const ideal = Math.round((height * focusY) / 100 - h / 2);
-  return { left: 0, top: Math.min(Math.max(ideal, 0), height - h), width, height: h };
 }
 
 /**

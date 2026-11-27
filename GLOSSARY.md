@@ -47,7 +47,8 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **シーズン外 / Out of Season** (4)    | Everything else. Hidden by default. Replaces the older 終了 / 落葉.                                                                                                                                     |
 | **分咲き**                          | The fraction of flowers open, in tenths (`5分咲き` = half). 満開 = full bloom.                                                                                                                           |
 | **mapping rule**                 | How a source's wording becomes a level (CLAUDE.md, Bloom scale).                                                                                                                                    |
-| **pin photo**                    | The image inside a pin: a species close-up (`pin_photo` in species.yaml, files in `photos-species/`, cropped by its `crop` box), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
+| **pin photo**                    | The image inside a pin: a species close-up (`pin_photo` in species.yaml, files in `photos/species/`, cropped by its `crop` box), a planting's own override, or an illumination's first on-location photo. Not a shot of the place. |
+| **photo strip**                  | The place page's row of the place's own `photos`, each cut to 2:1 around its `focus_y`, one at a time: swipe sideways, or ‹ › with a mouse. Never species close-ups. |
 | **starting days**                | Per species (`starting_days` in species.yaml): how many days of 咲き始め to show before the usual window when there's no report.                                                                        |
 | **lead window**                  | The `LEAD = 14` days before 咲き始め starts (or before an illumination starts). The only time まもなく shows.                                                                                               |
 | **in season**                    | A feature that isn't シーズン外. The default filter シーズン中 shows these.                                                                                                                                   |
@@ -115,6 +116,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **Issues tab** | The staging sheet's list of problems to resolve; a row's cell is highlighted until it's marked resolved. |
 | **reference** | The claude.ai exports in `reference/`. Read-only background. |
 | **soft launch** | Going live for the 2027 plum season (late Jan–Feb). |
+| **photo tool** | Dev-only page at `/tools/photo-tool/` (`npm run photo-tool`) for a place's `photos`: order, credit, license, `focus_y`. Writes only the YAML's `photos:` block. |
 
 ## Web development
 

@@ -15,6 +15,11 @@ fee_ja: "あじさい祭期間は入山料500円"
 parking_ja: "普通車500台、大型10台"
 official_urls: ["http://www.amabiki.or.jp/", "https://www.city.sakuragawa.lg.jp/tourism_guide/learn/page000450.html"]
 checked_against: ["https://weathernews.jp/koyo/spot/24022/", "https://www.nta.co.jp/kokunai/special/eventinfo/10625055.htm"]
+photos:
+  - file: "27-001-01Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 92
 plantings:
   - id: amabiki-kannon-hydrangea
     kind: bloom

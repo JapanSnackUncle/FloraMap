@@ -24,7 +24,7 @@ If a file is missing, ask R to export it rather than guessing at its contents.
 ## Stack (R trusts this choice; flag anything that turns out wrong)
 
 - **Front end:** Vite + React + TypeScript, MapLibre GL JS.
-- **Basemap:** Protomaps (light style). PMTiles for Japan/Kanto go on Cloudflare R2. MapTiler Streets is the fallback only if labels or polish fall short (ask first; it's paid).
+- **Basemap:** Protomaps (light style). One PMTiles file, `tiles/ibaraki.pmtiles` (Ibaraki bbox, zoom 0–13, ~35 MB; zoom 15 was >100 MB), committed to git so the GitHub Pages test site can serve it (GitHub's limit is 100 MB per file, hence zoom 13). It's over Cloudflare Pages' 25 MiB file limit, so production will load it from Cloudflare R2 (`VITE_TILES_URL`). Replace the file only when needed: git keeps every version (recipe in `README.md`). MapTiler Streets is the fallback only if labels or polish fall short (ask first; it's paid).
 - **Data:** YAML and CSV in this repo, built into static JSON at build time. No database, no server.
 - **Hosting:** Cloudflare Pages.
 - **Watcher (Phase 3):** Python on a GitHub Actions cron.
@@ -45,11 +45,14 @@ data/
   closures.csv                # append-only one-off venue closures
 scripts/
   build-data.ts               # YAML/CSV -> public/data/places.json, with validation
-  pin-photos.ts               # photos-species/ -> cropped 192 px squares in public/photos/pins/
+  pin-photos.ts               # photos/species/ -> cropped 192 px squares in public/photos/pins/
   clean_sheet.py              # retired: load/save for the staging sheet
   build-clean-sheet.py        # retired one-off: original sheet -> staging sheet
   import-sheet.py             # retired one-off: staging sheet -> data/ (run 2026-11-25; locked)
 watcher/                      # Phase 3
+tools/
+  photo-tool/                 # dev-only page (npm run photo-tool): edits a place's `photos` list
+                              # (order, credit, license, focus_y); writes only that YAML block
 src/
   lib/schema.ts               # zod schema for data/ + types for the app (one definition)
   lib/status.ts               # pure stage/visibility logic (tested)
@@ -59,8 +62,10 @@ reference/                    # exports listed above
     draft-list.xlsx           # original claude.ai export
     draft-list-clean.xlsx     # retired 2026-11-25: archive only, never edit or re-import
     import-report.md          # data to-do list from the import: tick off items as data/ is fixed
-photos-species/               # species close-up originals (pin_photo files)
-photos/places/<place-id>/     # on-location place photos (the place's `photos`; the first is the header)
+photos/species/               # species close-up originals (pin_photo files)
+photos/places/<prefecture>/<municipality>/<place-id>/
+                              # every on-location photo taken at that place (place, planting and
+                              # illumination `photos`); same path as the place's YAML
 GLOSSARY.md                   # project terms
 ```
 
@@ -70,7 +75,7 @@ GLOSSARY.md                   # project terms
 - **`data/` is the master copy** (since 2026-11-25). Edit the YAML/CSV directly; the staging sheet is an archive. Open data to-dos live in `reference/staging/import-report.md`.
 - **Private fields:** `editor_notes`, `checked_against` and `window_raw` are for R and the build checks only; never show them in the app.
 - **Hierarchy:** a place file nests what belongs only to that place: plantings (with photos), illuminations (with editions) and closures. Festivals, sources and statuses are separate and link by ID: a festival lists `place_ids`, a source lists the plantings it covers, and status rows use `planting_id`.
-- **Folders:** prefecture and municipality folders use romaji slugs (`ibaraki/mito/`); the Japanese name lives in the file (`municipality: 水戸市`). The build fails if the folder and the file's `prefecture`/`municipality` disagree. The folder is not part of the ID: if a municipality merges or is renamed, move the file and keep the ID.
+- **Folders:** prefecture and municipality folders use romaji slugs (`ibaraki/mito/`); the Japanese name lives in the file (`municipality: 水戸市`). The build fails if the folder and the file's `prefecture`/`municipality` disagree. The folder is not part of the ID: if a municipality merges or is renamed, move the file (and its photo folder) and keep the ID.
 - **Place IDs are unique across all prefectures** (build fails on duplicates).
 - **Every place** has `prefecture` and `municipality` from day one.
 - **Coordinates:** one point per place (main entrance or viewing area). `geocode_precision` is `lot` or `block` (from the GSI geocoder), `manual` (placed by hand by R) or `approximate` (neighbourhood only, still to place). Optional free-text `point_note` says where the point is ("entrance", "parking lot").
@@ -78,13 +83,14 @@ GLOSSARY.md                   # project terms
   - **bloom/foliage:** broad `species` (from species.yaml) + optional free-text `species_variety`, plus `usual_window` as month + third (`"04-2"` = mid-April): the typical **見頃** period, as sources state it (例年の見頃). The sheet only gives text like "4月上旬". Convert it, and mark every converted window `provisional: true` until checked against past data. Optional `featured: true` marks a place's flagship flora (see Pin choice).
   - Windows are a list, so roses (spring, autumn) can have two. Species-varieties that bloom weeks apart at one place (河津桜 and ソメイヨシノ) are separate plantings. Kochia is two species, `kochia-green` (bloom) and `kochia-red` (foliage), each with its own planting.
   - **illumination:** an edition per season with `from`/`to` dates, nightly `hours` by date range (かわち's change on 1/13), and `dates_announced: true|false`. Closed days are not stored here (see Closures). Rain cancellation (きらくやま) is a note only.
-- **Photos** (each with required `credit` and `license`; species close-ups in `photos-species/`, other photos under `photos/`):
+- **Photos** (each with required `credit` and `license`; species close-ups in `photos/species/`, on-location photos in `photos/places/<prefecture>/<municipality>/<place-id>/`):
   - **Pin images are species close-ups**, not location shots: `pin_photo` in species.yaml. A planting can override with its own `pin_photo` where its variety looks different (河津桜, 八重桜). Order: planting override → species photo for its kind → code-drawn placeholder. The same square is used on the pin, the list row and the feature row on the place page.
-  - **Species close-ups never appear as a place's header photo**: they weren't taken at that place. The header photo is the first of the place's own `photos` (files in `photos/places/<place-id>/`, each with credit and license), shown below the name, edge to edge as a 2:1 strip, with its credit. No photo → no header; debug builds show a grey placeholder there instead.
+  - **Species close-ups never appear in a place's photo strip**: they weren't taken at that place. The strip shows the place's own `photos` (files in `photos/places/<prefecture>/<municipality>/<place-id>/`, each with credit and license) in list order, below the name, edge to edge at 2:1, one photo at a time: swipe sideways on touch screens, ‹ › with a mouse, dots for position, and the current photo's credit (credit only: `license` is R's record of the terms and isn't published; a photo whose license requires showing it, such as Creative Commons, needs a change here first). Strip only: no full-size view. No photos → no strip; debug builds show a grey placeholder there instead.
   - **Crop:** a `pin_photo` may have `crop: { x, y, size }`: the square's centre at x%, y% of the photo's width and height, its side as size% of the shorter side. Without it, the largest centred square. A square that runs off the photo fails the build.
-  - **Resizing:** `build-data.ts` (via `scripts/pin-photos.ts`, using sharp) writes each crop as a 192 px WebP to `public/photos/pins/` (git-ignored, regenerated on build) and puts its URL in the planting's `pin_src`. The app never loads the originals. A place's header photo is cut to a 2:1 band (`HEADER_ASPECT` in `src/lib/photos.ts`, shared with the page) and saved as an 800 px wide WebP in `public/photos/places/` (the place's `header_photo`). The band is the photo's full width, moved up or down so the point `focus_y`% down the photo (optional, default 50) is as near its middle as the photo's edges allow; a panorama wider than 2:1 keeps its centre. Plantings' and illuminations' `photos` aren't resized yet.
+  - **Resizing:** `build-data.ts` (via `scripts/pin-photos.ts`, using sharp) writes each crop as a 192 px WebP to `public/photos/pins/` (git-ignored, regenerated on build) and puts its URL in the planting's `pin_src`. The app never loads the originals. Each of a place's `photos` is cut to a 2:1 band (`HEADER_ASPECT` in `src/lib/photos.ts`, shared with the page and the photo tool) and saved as an 800 px wide WebP in `public/photos/places/` (the public place's `photos`: `src`, `credit`). Each band is the photo's full width, moved up or down so the point `focus_y`% down the photo (optional, default 50) is as near its middle as the photo's edges allow; a panorama wider than 2:1 keeps its centre. Plantings' and illuminations' `photos` aren't resized yet.
   - **Illuminations use their own on-location `photos`**; the first is the pin image, else the placeholder.
   - **Plantings' `photos`** are place-specific shots for the place page, falling back to the species close-up.
+  - **One folder per place:** the place's, its plantings' and its illuminations' `photos` all live in `photos/places/<prefecture>/<municipality>/<place-id>/`, mirroring `data/places/`; `file` is the bare filename. If a place's YAML moves folder, move its photo folder too: a photo folder that matches no place path fails the build. Originals are committed to git (git keeps every version), so shrink them to about 2000 px on the long side before adding. The photo tool (`npm run photo-tool`, see README.md) is the usual way to list them and set credit, license and `focus_y`.
 - **Bilingual fields:** `name_ja`, `name_en`, `name_kana` for places; optional `name_en` for festivals and illuminations; hours, closed days, fees, parking and night events as free text per language (`*_ja`, optional `*_en`, translated by R, never machine-translated); English mode falls back to the Japanese text while `*_en` is empty. Fees that change during a festival go on the festival edition.
 - **closures.csv** is append-only: `place_id, date, reason, source`. A row beats the place YAML for that date.
 - **statuses.csv** is append-only. Columns: `planting_id, date, level, kind, source_id, raw_text, detail, note`. One level per planting per row: breakdowns by part (早咲き/遅咲き, 紅梅/白梅, park areas) go in `note`; a part that matters on its own becomes its own planting. `kind` is official / admin / user / forecast / usual. `admin` = from R or an agent reading a photo (R transcribing an official page is still `official`). Forecasts are rows with `kind: forecast`. official, admin and user rows are confirmed; forecast and usual are estimates.
@@ -126,7 +132,7 @@ GLOSSARY.md                   # project terms
 
 - **Pin choice per place** (one function, fixed order): illumination in its run > 見頃 > 咲き始め > 見頃過ぎ > まもなく (sooner start first; includes illuminations before their start) > シーズン外. Tie-break within a rank: `featured` first, then more of that stage still ahead (見頃: later peak end; 咲き始め: higher %; 見頃過ぎ: later season end). `featured` never moves a feature to a different rank. Venue closed days never affect the pin.
 - **Place page order:** illuminations in their run, then plantings and illuminations in a rolling year from today: in season first (earliest start on top), then upcoming by start date, finished ones last. On 4/15 at ひたち海浜公園: スイセン first, 梅 last.
-- **Place page** (opened by tapping a pin or a list row): replaces the list in the side panel, which sits left of the map. Top to bottom: name with 本日休園 pill (English mode adds the Japanese name below; no reading or city in the header); header photo with its credit, if any; features in season (まもなく included) in page order under a シーズン中 heading, set larger than the other section headings (stage, confirmed or estimate, status line, usual window, source name linked for report-based statuses); festivals on; practical info (hours, closed days, fees, parking, よみ in Japanese mode only, full address as 茨城県 + municipality + `address_ja`, official links); シーズン外 features last.
+- **Place page** (opened by tapping a pin or a list row): replaces the list in the side panel, which sits left of the map. Top to bottom: name with 本日休園 pill (English mode adds the Japanese name below; no reading or city in the header); photo strip with the current photo's credit, if any; features in season (まもなく included) in page order under a シーズン中 heading, set larger than the other section headings (stage, confirmed or estimate, status line, usual window, source name linked for report-based statuses); festivals on; practical info (hours, closed days, fees, parking, よみ in Japanese mode only, full address as 茨城県 + municipality + `address_ja`, official links); シーズン外 features last.
 - **Opening a place never moves the map** (desktop; phones: see Phone layout). The selected pin is about 1.3× larger, on top, with its name shown. While a page is open the filter bar's row shows 「← 一覧に戻る」 above the panel instead of the chips (desktop; no filter changes, no map jump).
 - An open page has its own address (`?place=<id>`): browser Back closes it; switching to another place replaces the address, so one Back always returns to the list. A link with no map view opens centred on the place (about zoom 12); a link to a place the default filter hides switches the filter to すべて表示.
 - Clicking an empty part of the map, ←, Esc or browser Back clears the selection.

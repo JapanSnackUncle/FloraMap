@@ -15,6 +15,11 @@ fee_ja: "無料"
 parking_ja: "専用駐車場なし（周辺の民間有料駐車場）"
 official_urls: ["https://www.city.itako.lg.jp/kankou/kankou-itakokankou/kankou-spot/kankou-mainspot/kankou-spot03/page001385.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/20002401"]
+photos:
+  - file: "79e467b35f3affb4a360cd944dc907c4.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 49
 plantings:
   - id: itako-ayame-ayame
     kind: bloom

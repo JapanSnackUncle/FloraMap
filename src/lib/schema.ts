@@ -67,7 +67,7 @@ export const photo = z.strictObject({
 const percent = z.number().min(0).max(100);
 
 /**
- * A species close-up (file in photos-species/). Optional `crop` picks the square used for pins and
+ * A species close-up (file in photos/species/). Optional `crop` picks the square used for pins and
  * feature rows: `x`, `y` = its centre in % of the photo's width and height, `size` = its side in %
  * of the photo's shorter side. Without `crop`, the largest centred square is used.
  */
@@ -76,8 +76,8 @@ export const pinPhoto = photo.extend({
 });
 
 /**
- * An on-location photo of a place (file in photos/places/<place-id>/). Optional `focus_y`: how
- * far down the photo the subject is, in %; the header band is cut to keep it as near the middle
+ * An on-location photo of a place (file in photos/places/<prefecture>/<municipality>/<place-id>/). Optional `focus_y`: how
+ * far down the photo the subject is, in %; its 2:1 strip is cut to keep it as near the middle
  * as the photo's edges allow. Without it, the middle (50).
  */
 export const placePhoto = photo.extend({
@@ -166,8 +166,8 @@ export const placeFile = z.strictObject({
   parking_en: text.optional(),
   official_urls: z.array(url).optional(),
   /**
-   * On-location photos of the place, files in photos/places/<place-id>/. The first is the place
-   * page's header photo. Never a species close-up (CLAUDE.md, "Photos").
+   * On-location photos of the place, files in photos/places/<prefecture>/<municipality>/<place-id>/. The place page shows them in
+   * this order as a swipeable photo strip. Never a species close-up (CLAUDE.md, "Photos").
    */
   photos: z.array(placePhoto).optional(),
   closures: closures.optional(),
@@ -226,7 +226,7 @@ export const species = z.strictObject({
   kind: z.enum(['bloom', 'foliage']),
   /** Days of 咲き始め (色づき始め for leaves) shown before the usual window when there's no report. */
   starting_days: z.number().int().min(0).max(60),
-  /** Close-up used as the pin image for this species' plantings. Never a place's header photo. */
+  /** Close-up used as the pin image for this species' plantings. Never in a place's photo strip. */
   pin_photo: pinPhoto.optional(),
   name_ja: text,
   name_en: text,
@@ -293,8 +293,12 @@ export type PublicPlanting = Public<Planting> & {
 };
 export type PublicPlace = Omit<Public<PlaceFile>, 'plantings' | 'municipality_slug' | 'photos'> & {
   plantings: PublicPlanting[];
-  /** The first of the place's `photos`, resized by build-data (`src`: its URL). */
-  header_photo?: { src: string; credit: string; license: string };
+  /**
+   * The place's `photos` in order, each cut by build-data to a HEADER_ASPECT strip around its own
+   * focus_y (`src`: its URL). The place page shows them as a swipeable strip with each
+   * one's credit; `license` stays in the YAML (R's record) and isn't published.
+   */
+  photos?: { src: string; credit: string }[];
   illuminations: Public<Illumination>[];
   one_off_closures: Public<Omit<ClosureRow, 'place_id'>>[];
   festival_ids: string[];

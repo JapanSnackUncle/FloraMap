@@ -4,10 +4,10 @@ import { featureName, fullAddress, placeName, stageColor, stageLabel } from '../
 import type { PublicSource, Species } from '../lib/schema';
 import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
-import { siteUrl } from '../config';
 import { DEBUG } from '../debugDate';
 import { HEADER_ASPECT } from '../lib/photos';
 import { featurePhoto } from '../pins';
+import { PhotoStrip } from './PhotoStrip';
 
 interface Props {
   ps: PlaceStatus;
@@ -149,15 +149,11 @@ export default function PlacePage(props: Props) {
         {lang === 'en' && p.name_en && <p className="page-sub">{p.name_ja}</p>}
       </header>
 
-      {/* Header photo: only a photo taken at this place, never a species close-up. Below the
-          name, so the name alone fills a phone's peek. Debug builds show where it will go. */}
-      {p.header_photo ? (
-        <figure className="page-photo">
-          <img src={siteUrl(p.header_photo.src)} alt="" style={{ aspectRatio: HEADER_ASPECT }} />
-          <figcaption>
-            {t('photoBy', lang)}: {p.header_photo.credit} · {p.header_photo.license}
-          </figcaption>
-        </figure>
+      {/* Photo strip: only photos taken at this place, never a species close-up. Below the
+          name, so the name alone fills a phone's peek. Keyed by place so a new place starts at
+          its first photo. Debug builds show where it will go. */}
+      {p.photos?.length ? (
+        <PhotoStrip key={p.id} photos={p.photos} lang={lang} />
       ) : (
         DEBUG && (
           <figure className="page-photo">

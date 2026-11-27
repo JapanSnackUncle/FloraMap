@@ -13,6 +13,11 @@ geocode_precision: lot
 parking_ja: "500（1000円）"
 official_urls: ["https://www.city.chikusei.lg.jp/map_route.php?code=422"]
 checked_against: ["https://travel.watch.impress.co.jp/docs/news/716770.html", "https://www.mapple.net/pref/08227/spot/", "https://kaika-live.com/akeno-himawari/"]
+photos:
+  - file: "iUOo6TvNAaNItCP.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 54
 plantings:
   - id: akeno-himawari-sunflower
     kind: bloom

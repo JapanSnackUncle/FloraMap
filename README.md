@@ -24,7 +24,23 @@ npm run check-data   # validate data/ only; lists every problem with file and fi
 npm run build-data   # validate and write public/data/places.json
 ```
 
-`npm run dev` and `npm run build` run the data step first, and `npm run dev` re-runs it whenever a file in `data/` changes. Any data problem stops the build, so bad data never reaches the site. The schema is `src/lib/schema.ts`; fields like `editor_notes` and `checked_against` are private and never written to the JSON.
+`npm run dev` and `npm run build` run the data step first, and `npm run dev` re-runs it whenever a file in `data/` or `photos/` changes. Any data problem stops the build, so bad data never reaches the site. The schema is `src/lib/schema.ts`; fields like `editor_notes` and `checked_against` are private and never written to the JSON.
+
+## Photo tool
+
+A page for managing a place's photos: which files from its photo folder are listed in its YAML, their order (the place page's photo strip shows them in this order), `credit`, `license`, and where each photo's 2:1 strip is cut (`focus_y`).
+
+```
+npm run photo-tool   # starts the dev server and opens localhost:5173/tools/photo-tool/
+```
+
+(Or, with `npm run dev` already running, open `/tools/photo-tool/` yourself.)
+
+1. Put the photos in `photos/places/<prefecture>/<municipality>/<place-id>/` (shrink them to about 2000 px on the long side first: they go into git). The tool picks up new files by itself.
+2. Pick the place, **Add** each photo, set credit and license (dropdowns of every value already used in `data/`, or **Add…** for a new one), and click on each photo where its 2:1 strip should sit. The preview shows the strip exactly as the build will cut it.
+3. **Save to YAML** rewrites only that place's `photos:` block (the rest of the file stays byte for byte, and the file is re-read at save time, so other edits aren't lost), then runs the data check and shows its result.
+
+The tool never moves, renames or deletes image files. It only runs under the dev server: `tools/` isn't part of `npm run build`, and the save handler (`tools/photo-tool/server.ts`) exists only in `npm run dev`.
 
 ## Basemap tiles
 

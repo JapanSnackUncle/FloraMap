@@ -4,24 +4,27 @@ import { createReadStream, statSync } from 'node:fs';
 import { join, normalize, relative, sep } from 'node:path';
 import { defineConfig, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { DATA_REBUILT_EVENT } from './tools/photo-tool/api.ts';
+import { photoTool } from './tools/photo-tool/server.ts';
 
 // In `npm run dev`, rebuild public/data/places.json (and the pin photos) whenever a file in data/
-// or photos-species/ changes,
-// print any data errors in the terminal, and reload the page.
+// or photos/ changes, print any data errors in the terminal, and tell the open pages
+// (DATA_REBUILT_EVENT): the app reloads itself, the photo tool refreshes its lists and keeps any
+// unsaved edits.
 function rebuildDataOnChange(): Plugin {
   return {
     name: 'flora-rebuild-data',
     apply: 'serve',
     configureServer(server) {
-      server.watcher.add(['data', 'photos-species']);
+      server.watcher.add(['data', 'photos']);
       server.watcher.on('all', (_event, file) => {
         const rel = relative(process.cwd(), file);
-        if (!rel.startsWith(`data${sep}`) && !rel.startsWith(`photos-species${sep}`)) return;
+        if (!rel.startsWith(`data${sep}`) && !rel.startsWith(`photos${sep}`)) return;
         execFile(process.execPath, ['scripts/build-data.ts'], (error, stdout, stderr) => {
           if (error) server.config.logger.error(stderr || error.message);
           else {
             server.config.logger.info(stdout.trim());
-            server.ws.send({ type: 'full-reload' });
+            server.ws.send({ type: 'custom', event: DATA_REBUILT_EVENT });
           }
         });
       });
@@ -74,8 +77,8 @@ function serveLocalTiles(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), rebuildDataOnChange(), serveLocalTiles()],
+  plugins: [react(), rebuildDataOnChange(), serveLocalTiles(), photoTool()],
   test: {
-    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'tools/**/*.test.ts'],
   },
 });

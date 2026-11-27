@@ -17,6 +17,11 @@ fee_ja: "渡橋料 大人320円、小中学生210円"
 parking_ja: "265台、無料"
 official_urls: ["https://www.city.hitachiota.ibaraki.jp/miryoku/miru/facility/page000237.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006055"]
+photos:
+  - file: "10-001-04Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 80
 plantings:
   - id: ryujin-otsuribashi-momiji
     kind: foliage

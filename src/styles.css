@@ -438,8 +438,7 @@ body,
   font-size: 13px;
 }
 
-/* Aging report: the age is shown prominently. */
-.list-status.aging {
+.status-sub.aging {
   color: #b45309;
   font-weight: 700;
 }
@@ -535,19 +534,78 @@ body,
   margin-left: 0;
 }
 
-/* The place's header photo: a wide strip under its name, edge to edge. */
+/* The place's photos: a wide strip under its name, edge to edge (PhotoStrip). */
 .page-photo {
   position: relative;
   margin: 8px 0 0;
 }
 
-/* The band's shape (HEADER_ASPECT, src/lib/photos.ts) is set on the element: the build cuts the
-   file to it, so `cover` only matters for a photo smaller than the band. */
-.page-photo img,
-.photo-placeholder {
-  display: block;
+/* One photo per page; sideways scrolling snaps to whole photos. The strip's shape
+   (HEADER_ASPECT, src/lib/photos.ts) is set on the element: the build cuts each file to it, so
+   `cover` only matters for a photo smaller than the band. No scrollbar: the dots show where you are. */
+.photo-strip {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.photo-strip::-webkit-scrollbar {
+  display: none;
+}
+.photo-strip img {
+  flex: 0 0 100%;
   width: 100%;
+  height: 100%;
   object-fit: cover;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+/* ‹ › for a mouse; touch screens swipe, so they're hidden there. */
+.photo-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+.photo-arrow.prev {
+  left: 8px;
+}
+.photo-arrow.next {
+  right: 8px;
+}
+@media (hover: none) {
+  .photo-arrow {
+    display: none;
+  }
+}
+
+/* Where you are in the strip: small dots, lower left (the credit has the right). */
+.photo-dots {
+  position: absolute;
+  left: 8px;
+  bottom: 6px;
+  display: flex;
+  gap: 5px;
+  pointer-events: none;
+}
+.photo-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+.photo-dots span.on {
+  background: #fff;
 }
 
 /* The credit sits on the photo's lower right corner, white on a faint dark tab. */
@@ -565,6 +623,7 @@ body,
 .photo-placeholder {
   display: grid;
   place-items: center;
+  width: 100%;
   background: var(--line);
   color: var(--mute);
   font-size: 13px;

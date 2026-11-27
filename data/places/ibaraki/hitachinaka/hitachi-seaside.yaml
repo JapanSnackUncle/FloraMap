@@ -18,6 +18,15 @@ parking_ja: "約4,350台、普通車1日600円"
 official_urls: ["https://hitachikaihin.jp/guide/schedule.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006225", "https://summer.walkerplus.com/odekake/detail/ar0308s47036/data.html"]
 editor_notes: "closed days updated from official schedule page (checked 2026-11-25); ネモフィラ・コキア見頃期は季節料金 +350円（2025年度）\nclosures written out from official schedule page (checked 2026-11-25, 内閣府 holiday list). 2/23(火・祝)→2/24休, 11/3→11/4休; 5/4→5/6 falls inside the spring open period."
+photos:
+  - file: "17-001-05Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 57
+  - file: "17-001-07Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 53
 closures:
   source_url: "https://www.hitachikaihin.jp/guide/schedule.html"
   valid_until: "2027-06-30"

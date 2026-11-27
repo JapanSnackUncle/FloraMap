@@ -114,26 +114,32 @@ export default function Sheet({
   useEffect(() => {
     const el = root.current!;
     const scroller = content.current!;
-    let start: { y: number; h: number; inContent: boolean } | null = null;
+    let start: { x: number; y: number; h: number; inContent: boolean } | null = null;
     let decided = false;
     let dragging = false;
     let last = { y: 0, t: 0, v: 0 };
     let swallowClick = false;
 
-    const begin = (y: number, target: EventTarget | null) => {
-      start = { y, h: live.current.h, inContent: scroller.contains(target as Node) };
+    const begin = (x: number, y: number, target: EventTarget | null) => {
+      start = { x, y, h: live.current.h, inContent: scroller.contains(target as Node) };
       decided = false;
       dragging = false;
       last = { y, t: performance.now(), v: 0 };
     };
 
     /** Returns true when the move belongs to the sheet (the caller then cancels scrolling). */
-    const move = (y: number): boolean => {
+    const move = (x: number, y: number): boolean => {
       if (!start) return false;
       const dy = y - start.y;
       if (!decided) {
-        if (Math.abs(dy) < DRAG_START_PX) return false;
+        const dx = x - start.x;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < DRAG_START_PX) return false;
         decided = true;
+        // Mostly sideways (the place photo strip): never the sheet's.
+        if (Math.abs(dx) > Math.abs(dy)) {
+          start = null;
+          return false;
+        }
         // At full height a swipe on the content scrolls it, unless it's a pull down from the top.
         const scrolls = live.current.snap === 'full' && start.inContent;
         dragging = !scrolls || (dy > 0 && scroller.scrollTop <= 0);
@@ -163,14 +169,14 @@ export default function Sheet({
     };
 
     const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) begin(e.touches[0]!.clientY, e.target);
+      if (e.touches.length === 1) begin(e.touches[0]!.clientX, e.touches[0]!.clientY, e.target);
       else start = null;
     };
     const onTouchMove = (e: TouchEvent) => {
-      if (move(e.touches[0]!.clientY) && e.cancelable) e.preventDefault();
+      if (move(e.touches[0]!.clientX, e.touches[0]!.clientY) && e.cancelable) e.preventDefault();
     };
     const onMouseMove = (e: MouseEvent) => {
-      if (move(e.clientY)) e.preventDefault();
+      if (move(e.clientX, e.clientY)) e.preventDefault();
     };
     const onMouseUp = () => {
       window.removeEventListener('mousemove', onMouseMove);
@@ -179,7 +185,7 @@ export default function Sheet({
     };
     const onMouseDown = (e: MouseEvent) => {
       if (e.button !== 0) return;
-      begin(e.clientY, e.target);
+      begin(e.clientX, e.clientY, e.target);
       window.addEventListener('mousemove', onMouseMove);
       window.addEventListener('mouseup', onMouseUp);
     };

@@ -1,4 +1,4 @@
-// data/ (YAML + CSV) -> public/data/places.json, photos-species/ -> public/photos/pins/,
+// data/ (YAML + CSV) -> public/data/places.json, photos/species/ -> public/photos/pins/,
 // photos/places/ -> public/photos/places/
 //
 //   node scripts/build-data.ts           validate and write the JSON and pin photos
@@ -58,15 +58,15 @@ const CLOSURE_COLUMNS = ['place_id', 'date', 'reason', 'source'];
 export interface BuildResult {
   data: PublicData | null;
   errors: string[];
-  /** Pin squares to make from photos-species/ (see pin-photos.ts). */
+  /** Pin squares to make from photos/species/ (see pin-photos.ts). */
   pinJobs: PhotoJob[];
-  /** Header photos to make from photos/places/. */
+  /** Place photo strips to make from photos/places/ (every photo of every place). */
   headerJobs: PhotoJob[];
 }
 
 export function buildData(
   dataDir: string = DATA_DIR,
-  pinPhotoDir: string = join(dataDir, '..', 'photos-species'),
+  pinPhotoDir: string = join(dataDir, '..', 'photos', 'species'),
   placePhotoDir: string = join(dataDir, '..', 'photos', 'places'),
 ): BuildResult {
   const errors: string[] = [];
@@ -188,7 +188,7 @@ export function buildData(
   );
   const plantingIds = new Set([...plantingPlace.keys()].filter((id) => featureIds.has(id)));
 
-  // ---------- pin photos: every pin_photo file must exist in photos-species/
+  // ---------- pin photos: every pin_photo file must exist in photos/species/
 
   const pinJobs = new Map<string, PhotoJob>();
   /** URL of a pin_photo's square, or undefined (and an error) if its file is missing. */
@@ -200,7 +200,7 @@ export function buildData(
     if (!p) return undefined;
     const source = join(pinPhotoDir, p.file);
     if (!existsSync(source)) {
-      err(file, `${id}: pin_photo "${p.file}" not found in photos-species/`);
+      err(file, `${id}: pin_photo "${p.file}" not found in photos/species/`);
       return undefined;
     }
     const out = photoFileName(source, 'pin', { crop: p.crop });
@@ -319,25 +319,37 @@ export function buildData(
     for (const p of doc.plantings ?? [])
       plantingPinSrc.set(p.id, pinSrc(p.pin_photo, file, p.id) ?? speciesPinSrc.get(p.species));
 
-  // ---------- header photos: a place's first photo, from photos/places/<place-id>/
+  // ---------- place photo folders: photos/places/<prefecture>/<municipality>/<place-id>/,
+  // the same path as the place's YAML. A folder that matches no place (left behind when a
+  // place moved municipality, or a typo) fails the build.
+
+  const photoFolder = (doc: PlaceFile) => `${doc.prefecture}/${doc.municipality_slug}/${doc.id}`;
+  const expectedFolders = new Set(places.map(({ doc }) => photoFolder(doc)));
+  for (const folder of subfolders(placePhotoDir, 3))
+    if (!expectedFolders.has(folder))
+      err(
+        `photos/places/${folder}/`,
+        'no place at this path (must be photos/places/<prefecture>/<municipality>/<place-id>/, matching data/places/)',
+      );
+
+  // ---------- place photos: every photo in a place's `photos`, cut to a HEADER_ASPECT strip
+  // around its own focus_y (the place page's swipeable strip; the first shows first)
 
   const headerJobs: PhotoJob[] = [];
-  const headerPhoto = new Map<string, PublicPlace['header_photo']>();
+  const stripPhotos = new Map<string, PublicPlace['photos']>();
   for (const { file, doc } of places) {
-    const first = doc.photos?.[0];
-    if (!first) continue;
-    const source = join(placePhotoDir, doc.id, first.file);
-    if (!existsSync(source)) {
-      err(file, `photo "${first.file}" not found in photos/places/${doc.id}/`);
-      continue;
+    const list: NonNullable<PublicPlace['photos']> = [];
+    for (const photo of doc.photos ?? []) {
+      const source = join(placePhotoDir, photoFolder(doc), photo.file);
+      if (!existsSync(source)) {
+        err(file, `photo "${photo.file}" not found in photos/places/${photoFolder(doc)}/`);
+        continue;
+      }
+      const out = photoFileName(source, 'header', { focusY: photo.focus_y });
+      headerJobs.push({ source, shape: 'header', focusY: photo.focus_y, out, where: file });
+      list.push({ src: `${HEADER_URL_DIR}/${out}`, credit: photo.credit });
     }
-    const out = photoFileName(source, 'header', { focusY: first.focus_y });
-    headerJobs.push({ source, shape: 'header', focusY: first.focus_y, out, where: file });
-    headerPhoto.set(doc.id, {
-      src: `${HEADER_URL_DIR}/${out}`,
-      credit: first.credit,
-      license: first.license,
-    });
+    if (list.length) stripPhotos.set(doc.id, list);
   }
 
   if (errors.length || !speciesDoc || !sourcesDoc)
@@ -366,7 +378,7 @@ export function buildData(
       void _photos;
       return stripPrivate({
         ...rest,
-        header_photo: headerPhoto.get(doc.id),
+        photos: stripPhotos.get(doc.id),
         plantings: plantings.map((p) => ({
           ...p,
           starting_days: speciesById.get(p.species)!.starting_days,
@@ -397,6 +409,22 @@ export function buildData(
 }
 
 // ---------- helpers
+
+/**
+ * Folders exactly `depth` levels below `dir`, as "a/b/c" paths, plus any shallower folder
+ * that has no subfolders (a dead end that can't be a valid path). Files are ignored.
+ */
+function subfolders(dir: string, depth: number, prefix = ''): string[] {
+  let names: string[];
+  try {
+    names = readdirSync(dir).filter((n) => statSync(join(dir, n)).isDirectory());
+  } catch {
+    return [];
+  }
+  if (depth === 0) return [prefix];
+  if (names.length === 0) return prefix ? [prefix] : [];
+  return names.flatMap((n) => subfolders(join(dir, n), depth - 1, prefix ? `${prefix}/${n}` : n));
+}
 
 function yamlFiles(dir: string): string[] {
   let names: string[];
@@ -490,7 +518,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     mkdirSync(dirname(OUT_FILE), { recursive: true });
     writeFileSync(OUT_FILE, JSON.stringify(data));
     console.log(
-      `Wrote ${relative(ROOT, OUT_FILE)}: ${summary}, ${pinJobs.length} pin photos, ${headerJobs.length} header photos`,
+      `Wrote ${relative(ROOT, OUT_FILE)}: ${summary}, ${pinJobs.length} pin photos, ${headerJobs.length} place photos`,
     );
   }
 }

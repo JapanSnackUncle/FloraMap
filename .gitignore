@@ -30,5 +30,5 @@ __pycache__/
 tiles/*
 !tiles/ibaraki.pmtiles
 
-# resized pin photos (made from photos-species/ by build-data)
+# resized pin photos (made from photos/species/ by build-data)
 public/photos/

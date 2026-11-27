@@ -15,6 +15,11 @@ fee_ja: "無料"
 parking_ja: "170台、無料"
 official_urls: ["https://www.city.tsuchiura.lg.jp/kanko-bunka-sports/sangyobunkajigyodan/event-info/suigosakura-illumination/"]
 checked_against: ["https://weathernews.jp/illumi/spot/1702005/"]
+photos:
+  - file: "03-002-01Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 42
 illuminations:
   - id: kasumigaura-park-illumination
     kind: illumination

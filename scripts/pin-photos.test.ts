@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { cropBox, headerBand } from './pin-photos.ts';
+import { headerBand } from '../src/lib/photos.ts';
+import { cropBox } from './pin-photos.ts';
 
 describe('cropBox', () => {
   it('no crop: the largest centred square', () => {

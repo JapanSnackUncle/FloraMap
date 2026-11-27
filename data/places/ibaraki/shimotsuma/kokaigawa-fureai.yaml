@@ -17,6 +17,15 @@ parking_ja: "普通379台、バス6台"
 official_urls: ["https://www.city.shimotsuma.lg.jp/shogaigakushu-bunka-sports/park/kokaigawafureai/page000195.html"]
 checked_against: ["https://www.asoview.com/note/6964/"]
 editor_notes: "checked 2026-11-25: the closed days on the city pages are for the ネイチャーセンター only, not the park, so the place has no closures. Park renamed ホーミックふれあい公園 from 2025-12-01 (naming rights)."
+photos:
+  - file: "7e78e0a579cce88296f2d470b5cb47d8.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 53
+  - file: "a7caKICmplw1w0g.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 39
 plantings:
   - id: kokaigawa-fureai-cosmos
     kind: bloom

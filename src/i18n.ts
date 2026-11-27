@@ -23,9 +23,10 @@ export const strings = {
   close: { ja: '閉じる', en: 'Close' },
   /** Phones: the sheet's grab bar (screen readers; tapping it changes the sheet's height). */
   sheetHandle: { ja: 'パネルの高さを変える', en: 'Resize panel' },
-  /** Before a place photo's credit. */
-  photoBy: { ja: '写真', en: 'Photo' },
-  /** Debug builds only: where a place's header photo will go. */
+  /** The place photo strip's ‹ › buttons (mouse; phones swipe). */
+  photoPrev: { ja: '前の写真', en: 'Previous photo' },
+  photoNext: { ja: '次の写真', en: 'Next photo' },
+  /** Debug builds only: where a place's photo strip will go. */
   photoPlaceholder: { ja: '場所の写真（仮）', en: 'Place photo (placeholder)' },
   source: { ja: '情報源', en: 'Source' },
   visitorInfo: { ja: '施設情報', en: 'Visitor info' },

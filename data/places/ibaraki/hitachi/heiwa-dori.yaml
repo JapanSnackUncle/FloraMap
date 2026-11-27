@@ -16,6 +16,11 @@ fee_ja: "無料"
 parking_ja: "専用駐車場なし（民間有料）。さくらまつりメイン日は臨時無料駐車場あり"
 official_urls: ["https://www.city.hitachi.lg.jp/citypromotion/hitachi_donnamachi/1007306/1004679/1004681.html"]
 checked_against: ["https://weathernews.jp/sakura/spot/4009/", "https://rurubu.jp/andmore/spot/20001392"]
+photos:
+  - file: "02-003-01Z.jpg"
+    credit: "いばらき観光キャンペーン推進協議会"
+    license: "ibaraki-photo-library"
+    focus_y: 44
 plantings:
   - id: heiwa-dori-sakura
     kind: bloom

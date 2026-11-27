@@ -295,7 +295,7 @@ describe('the build fails on', () => {
           '    name_en: "Plum"\n    pin_photo:\n      file: "missing.jpg"\n      credit: "R"\n      license: "own"\n',
         ),
       },
-      'pin_photo "missing.jpg" not found in photos-species/',
+      'pin_photo "missing.jpg" not found in photos/species/',
     );
   });
 
@@ -356,7 +356,7 @@ describe('pin photos', () => {
   });
 });
 
-// ---------- place header photos
+// ---------- place photos
 
 /** PLACE with two photos; the first is the header. */
 const PLACE_WITH_PHOTOS = PLACE.replace(
@@ -366,34 +366,57 @@ const PLACE_WITH_PHOTOS = PLACE.replace(
     'closures:\n',
 );
 
-describe('place header photos', () => {
-  it("uses the place's first photo from photos/places/<place-id>/; no photos → none", () => {
+describe('place photos', () => {
+  it('cuts every photo in order to a strip with its own focus_y; no photos → none', () => {
     const d = dataset({ 'places/ibaraki/mito/test-park.yaml': PLACE_WITH_PHOTOS });
     const placePhotos = join(d, 'place-photos');
-    mkdirSync(join(placePhotos, 'test-park'), { recursive: true });
-    writeFileSync(join(placePhotos, 'test-park', 'gate.jpg'), 'gate');
+    const folder = join(placePhotos, 'ibaraki', 'mito', 'test-park');
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(join(folder, 'gate.jpg'), 'gate');
+    writeFileSync(join(folder, 'pond.jpg'), 'pond');
 
     const r = buildData(d, join(d, 'photos'), placePhotos);
     expect(r.errors).toEqual([]);
-    expect(r.headerJobs).toHaveLength(1);
-    expect(r.headerJobs[0]!.focusY).toBe(70);
-    const place = r.data!.places[0]!;
-    expect(place.header_photo).toEqual({
-      src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/),
-      credit: 'R',
-      license: 'own',
-    });
-    // The raw photo list (file names) isn't in the public JSON.
-    expect(place).not.toHaveProperty('photos');
+    expect(r.headerJobs.map((j) => j.focusY)).toEqual([70, undefined]);
+    // The public list replaces the raw one (file names and licenses aren't published).
+    expect(r.data!.places[0]!.photos).toEqual([
+      {
+        src: expect.stringMatching(/^\/photos\/places\/gate-[0-9a-f]{10}\.webp$/),
+        credit: 'R',
+      },
+      {
+        src: expect.stringMatching(/^\/photos\/places\/pond-[0-9a-f]{10}\.webp$/),
+        credit: 'R',
+      },
+    ]);
 
     const none = buildData(dataset(), join(d, 'photos'), placePhotos);
-    expect(none.data!.places[0]!.header_photo).toBeUndefined();
+    expect(none.data!.places[0]!.photos).toBeUndefined();
   });
 
-  it("fails when the header photo's file is missing", () => {
+  it("fails when any photo's file is missing, not just the first", () => {
     const d = dataset({ 'places/ibaraki/mito/test-park.yaml': PLACE_WITH_PHOTOS });
-    const r = buildData(d, join(d, 'photos'), join(d, 'place-photos'));
-    expect(r.errors.join('\n')).toContain('photo "gate.jpg" not found in photos/places/test-park/');
+    const placePhotos = join(d, 'place-photos');
+    const folder = join(placePhotos, 'ibaraki', 'mito', 'test-park');
+    mkdirSync(folder, { recursive: true });
+    writeFileSync(join(folder, 'gate.jpg'), 'gate');
+    const r = buildData(d, join(d, 'photos'), placePhotos);
+    expect(r.errors.join('\n')).toContain(
+      'photo "pond.jpg" not found in photos/places/ibaraki/mito/test-park/',
+    );
+  });
+
+  it('fails on a photo folder that matches no place path (e.g. left behind after a move)', () => {
+    const d = dataset();
+    const placePhotos = join(d, 'place-photos');
+    mkdirSync(join(placePhotos, 'ibaraki', 'mito', 'test-park'), { recursive: true });
+    expect(buildData(d, join(d, 'photos'), placePhotos).errors).toEqual([]);
+
+    mkdirSync(join(placePhotos, 'ibaraki', 'hitachi', 'test-park'), { recursive: true });
+    mkdirSync(join(placePhotos, 'test-park'), { recursive: true });
+    const errors = buildData(d, join(d, 'photos'), placePhotos).errors.join('\n');
+    expect(errors).toContain('photos/places/ibaraki/hitachi/test-park/: no place at this path');
+    expect(errors).toContain('photos/places/test-park/: no place at this path');
   });
 });
 
