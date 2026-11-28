@@ -104,7 +104,11 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **aggregator** | A third-party listing site (Weathernews, Walkerplus, るるぶ…). For checking our data only. |
 | **checked_against** | Sheet column: aggregator links used to check a value. Private, never shown. |
 | **candidate source** | A source found but not yet approved by R (`checked: candidate`). |
-| **watcher** | The Phase 3 daily script that fetches official sources and flags changes. |
+| **watcher** | The Phase 2 daily script (GitHub Actions) that fetches the sources, reads changed pages with an LLM and proposes status rows and event date changes. |
+| **check window** | When the watcher checks a planting's sources: from `EARLY_REPORT_DAYS` (30) before its season starts until the season ends. Its first day is the start-of-season check. |
+| **proposal** | A status row or edition date change the watcher drafted. Published only when R merges the watcher PR. |
+| **watcher PR** | The single open pull request holding every proposal not yet approved; each run adds to it, merging publishes them. |
+| **date basis** | Where a status's `date` came from: `as_of` (the date the source says it describes), `published` (the post's date) or `fetched` (the day the watcher read it). Private column in statuses.csv. |
 | **morning digest** | The one daily email/LINE message listing what needs a manual check. |
 
 ## Project and workflow

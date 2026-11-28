@@ -27,7 +27,7 @@ If a file is missing, ask R to export it rather than guessing at its contents.
 - **Basemap:** Protomaps (light style). One PMTiles file, `tiles/ibaraki.pmtiles` (Ibaraki bbox, zoom 0–13, ~35 MB; zoom 15 was >100 MB), committed to git so the GitHub Pages test site can serve it (GitHub's limit is 100 MB per file, hence zoom 13). It's over Cloudflare Pages' 25 MiB file limit, so production will load it from Cloudflare R2 (`VITE_TILES_URL`). Replace the file only when needed: git keeps every version (recipe in `README.md`). MapTiler Streets is the fallback only if labels or polish fall short (ask first; it's paid).
 - **Data:** YAML and CSV in this repo, built into static JSON at build time. No database, no server.
 - **Hosting:** Cloudflare Pages.
-- **Watcher (Phase 3):** Python on a GitHub Actions cron.
+- **Watcher (Phase 2):** Python on a GitHub Actions cron. It fetches the sources, reads pages whose content changed with an LLM (behind one interface, so the provider can change; any paid key is a GitHub secret with a spending cap), and proposes status rows and festival/illumination date changes in **one rolling pull request**. R merges, edits or rejects it; nothing is published without that merge. Each run appends one line per source to a log in `watcher/` (fetched, unchanged, changed, failed, proposed).
 - **PWA:** manifest + service worker (offline shell; data cached with a short TTL).
 
 ## Repo layout (target)
@@ -49,7 +49,7 @@ scripts/
   clean_sheet.py              # retired: load/save for the staging sheet
   build-clean-sheet.py        # retired one-off: original sheet -> staging sheet
   import-sheet.py             # retired one-off: staging sheet -> data/ (run 2026-11-25; locked)
-watcher/                      # Phase 3
+watcher/                      # Phase 2
 tools/
   photo-tool/                 # dev-only page (npm run photo-tool): edits a place's `photos` list
                               # (order, credit, license, focus_y); writes only that YAML block
@@ -73,8 +73,8 @@ GLOSSARY.md                   # project terms
 
 - **IDs:** readable, permanent slugs, e.g. `kairakuen`, `kairakuen-ume`, `mito-ume-matsuri`. Never rename one once it's live.
 - **`data/` is the master copy** (since 2026-11-25). Edit the YAML/CSV directly; the staging sheet is an archive. Open data to-dos live in `reference/staging/import-report.md`.
-- **Private fields:** `editor_notes`, `checked_against` and `window_raw` are for R and the build checks only; never show them in the app. The full list of fields kept out of `places.json` is `PRIVATE_KEYS` in `src/lib/schema.ts` (also `pin_photo`, `provisional`, statuses' `note`, closures' `reason` and `source`). Every other field is published, shown or not, so public free text (`note_ja`, `*_ja`) is written for visitors only.
-- **Hierarchy:** a place file nests what belongs only to that place: plantings (with photos), illuminations (with editions) and closures. Festivals, sources and statuses are separate and link by ID: a festival lists `place_ids`, a source lists the plantings it covers, and status rows use `planting_id`.
+- **Private fields:** `editor_notes`, `checked_against` and `window_raw` are for R and the build checks only; never show them in the app. The full list of fields kept out of `places.json` is `PRIVATE_KEYS` in `src/lib/schema.ts` (also `pin_photo`, `provisional`, statuses' `note` and `date_basis`, closures' `reason` and `source`). Every other field is published, shown or not, so public free text (`note_ja`, `*_ja`) is written for visitors only.
+- **Hierarchy:** a place file nests what belongs only to that place: plantings (with photos), illuminations (with editions) and closures. Festivals, sources and statuses are separate and link by ID: a festival lists `place_ids`, a source lists the plantings, festivals and illuminations it covers, and status rows use `planting_id`.
 - **Folders:** prefecture and municipality folders use romaji slugs (`ibaraki/mito/`); the Japanese name lives in the file (`municipality: 水戸市`). The build fails if the folder and the file's `prefecture`/`municipality` disagree. The folder is not part of the ID: if a municipality merges or is renamed, move the file (and its photo folder) and keep the ID.
 - **Place IDs are unique across all prefectures** (build fails on duplicates).
 - **Every place** has `prefecture` and `municipality` from day one.
@@ -85,6 +85,7 @@ GLOSSARY.md                   # project terms
   - **What counts as an illumination:** a light show whose run outlasts the plants it lights (or that lights no planting). It is judged by the whole event, never split into parts: Moonlight Rose Garden runs past the roses, so both its parts are one illumination. A light-up that ends with its plants (もみじ谷, 花貫 紅葉, あじさい, sakura light-ups) is not a feature: it's a festival linked to the planting, or `night_events_ja` on the planting's festival, so the planting keeps its stage ring.
   - **Illumination scope:** only illuminations at a park, garden or natural site, the kind of place people already visit for the season. Street, plaza, station and shopping-centre displays are out (ヒタチ スターライト at 日立シビックセンター was removed 2026-11-28; git history keeps it).
   - **illumination:** an edition per season with `from`/`to` dates, nightly `hours` by date range (かわち's change on 1/13), and `dates_announced: true|false`. Hours rows may nest, as sources state them (the whole run plus a 大晦日 night inside it): the shorter row applies. Rows that partly overlap or repeat the same dates fail the build. Closed days are not stored here (see Closures). Rain cancellation (きらくやま) is a note only.
+  - **Cancelled:** a festival or illumination edition may have `cancelled: true`. The place page shows 「2027年は中止」 / "Cancelled in 2027" where it would appear, with no festival dot, no gold pin and no borrowed dates. A postponement is just new `from`/`to` dates.
 - **Photos** (each with a required `license`, and a `credit` unless the license is `own`: R's own photos have no credit, and the build fails if one has; species close-ups in `photos/species/`, on-location photos in `photos/places/<prefecture>/<municipality>/<place-id>/`):
   - **Pin images are species close-ups**, not location shots: `pin_photo` in species.yaml. A planting can override with its own `pin_photo` where its variety looks different (河津桜, 八重桜). Order: planting override → species photo for its kind → code-drawn placeholder. The same square is used on the pin, the list row and the feature row on the place page. A species' `pin_photo` file is named after the species: `photos/species/<species id>.<jpg|jpeg|png|webp>` (`ume.jpg` for `ume`); the build fails otherwise. A planting override's file is free-named.
   - **Species close-ups never appear in a place's photo strip**: they weren't taken at that place. The strip shows the place's own `photos` (files in `photos/places/<prefecture>/<municipality>/<place-id>/`, each with credit and license) in list order, below the name, edge to edge at 2:1, one photo at a time: swipe sideways on touch screens, ‹ › with a mouse, dots for position, and the current photo's credit (credit only: `license` is R's record of the terms and isn't published; a photo whose license requires showing it, such as Creative Commons, needs a change here first). Strip only: no full-size view. No photos → no strip; debug builds show a grey placeholder there instead.
@@ -96,7 +97,7 @@ GLOSSARY.md                   # project terms
 - **Bilingual fields:** `name_ja`, `name_en`, `name_kana` for places; optional `name_en` for festivals and illuminations; hours, closed days, fees, parking and night events as free text per language (`*_ja`, optional `*_en`, translated by R, never machine-translated); English mode falls back to the Japanese text while `*_en` is empty. Fees that change during a festival go on the festival edition.
 - **Ranges:** Japanese uses 〜 (U+301C), in data and in app strings (`日没〜21:00`, `2月下旬〜3月上旬`); the build fails on `–`, `—`, `~` or `～` in a public `*_ja` field (private fields are exempt). English app text uses `–` (`late Feb – early Mar`). English fallback shows the `*_ja` text as is, 〜 included.
 - **closures.csv** is append-only: `place_id, date, reason, source`. A row beats the place YAML for that date.
-- **statuses.csv** is append-only. Columns: `planting_id, date, level, kind, source_id, raw_text, detail, note`. One level per planting per row: breakdowns by part (早咲き/遅咲き, 紅梅/白梅, park areas) go in `note`; a part that matters on its own becomes its own planting. `kind` is official / admin / user / forecast / usual. `admin` = from R or an agent reading a photo (R transcribing an official page is still `official`). Forecasts are rows with `kind: forecast`. official, admin and user rows are confirmed; forecast and usual are estimates.
+- **statuses.csv** is append-only. Columns: `planting_id, date, date_basis, level, kind, source_id, raw_text, detail, note`. `date_basis` (private) says where `date` came from: `as_of` (the date the source says the status describes), `published` (the post's date) or `fetched` (the day the watcher read it). One level per planting per row: breakdowns by part (早咲き/遅咲き, 紅梅/白梅, park areas) go in `note`; a part that matters on its own becomes its own planting. `kind` is official / admin / user / forecast / usual. `admin` = from R or an agent reading a photo (R transcribing an official page is still `official`, and so is a watcher-proposed row from an official page once R approves it). Forecasts are rows with `kind: forecast`. official, admin and user rows are confirmed; forecast and usual are estimates.
 - **Rows from X or Instagram:** store the post ID, post time and derived level only. **`raw_text` stays empty.** Both platforms require stored post content to be deleted when the original is. (Open question from R: whether storing anything from X/Instagram is needed at all; the purpose would be reading photos to judge stage.)
 - Dates are ISO (`2027-02-22`) in Japan time. Each YAML file has a `schema_version`.
 - Empty optional fields are fine: hide them in the UI, never show "unknown", never guess a value.
@@ -106,6 +107,7 @@ GLOSSARY.md                   # project terms
 **Bloom scale (levels 0–4):** まもなく / 咲き始め / 見頃 / 見頃過ぎ / シーズン外. In English: Soon / Starting to Bloom / Peak / Past Peak / Out of Season. Leaves use 青葉 / 色づき始め / 見頃 / 見頃過ぎ / シーズン外. In English: Green / Turning Color / Peak / Past Peak / Out of Season.
 
 - Mapping rule: anything before 7分 = 咲き始め; 7分 to 満開 = 見頃; 散り始め / 見頃後半 / 色あせ = 見頃過ぎ.
+- The level is for the planting as a whole. A report of a few flowers or one early tree (一輪咲きました, 早咲きの八重寒紅が開花) is まもなく; 咲き始め needs the planting itself to have started (a 分咲き figure, or the source saying it's starting overall). Early or late parts go in `note`.
 
 **Visibility:**
 
@@ -124,6 +126,7 @@ GLOSSARY.md                   # project terms
   2. else the last confirmed stage, shown as an estimate;
   3. the usual window only if there's been no report this season: `starting_days` before the window = 咲き始め (half filled), the 14 days before that = まもなく, inside = 見頃, first third of a month after = 見頃過ぎ, then シーズン外. All estimates.
 - **Season:** a planting's usual window plus its 咲き始め and まもなく periods before and the following month after. For an illumination, the season is its edition. Reports from outside the current season never carry into it.
+- **An early report opens the season:** a confirmed report dated up to `EARLY_REPORT_DAYS` (30) before a season's usual start belongs to that season and starts it on the report's date. An earlier report is saved (the watcher flags it) but not used.
 - **Never go backwards** within a season. Never advance a stale status on a guess: only a forecast, or the usual window when there's no report, may set the level. After 3 weeks of silence, show "no recent info". Statuses older than 60 days are ignored.
 - A status's date is the source's own "as of" date, else its publish date, else the fetch date; record which.
 
@@ -200,6 +203,10 @@ GLOSSARY.md                   # project terms
 - **X:** official API only (pay-per-use). **No scraping.** Store post ID, time and derived level only.
 - **Instagram:** only the Graph API Business Discovery endpoint, once R confirms it returns caption and timestamp. **No scraping.**
 - **Never use Google Maps / Places photos or reviews, or Gemini's Maps grounding,** to judge bloom stage or to fill our data. The Maps Platform terms ban extracting content or creating content from it.
+- **A status row needs a new dated report** (a new post, a new 撮影日, changed wording). An unchanged page is not a re-confirmation, so the status ages. A page that returns 404, redirects or comes back empty is flagged in the watcher PR; R finds the new URL.
+- **Index sources:** a source may be marked `index: true` when its URL lists the pages that carry the status: a season index (one page per year, updated in place, e.g. 土浦's tulip pages) or a blog-style news list (one post per update, e.g. 弘道館). The watcher follows links one level deep, to pages on the same site only, and reads the newest season's page or every post newer than the last report.
+- **Check cadence:** the watcher runs twice a day (~7:00 and ~18:00 JST). A planting's sources are checked on every run from `EARLY_REPORT_DAYS` before its season starts until the season ends, past peak included. A festival or illumination edition that isn't announced is checked weekly from 90 days before its expected start (the last edition with dates, one year on), then on every run from 30 days before until it's announced. An announced edition is checked weekly until it ends, and a cancelled one not at all. Outside these windows a source isn't checked.
+- **Start-of-season check:** on the first day of a planting's check window (`EARLY_REPORT_DAYS` before its season), the watcher reads each of its sources once even if unchanged. If the newest report there is from an earlier season (a live page that's no longer updated), it's flagged in the watcher PR as last season's page.
 - **Aggregators** (Weathernews, Walkerplus, Jorudan, るるぶ, いこーよ) are for checking our data only. Never scrape or republish them.
 - **Photos:** only ones R owns or has permission for, each with a license (and a credit unless it's R's own, `license: "own"`). Instagram/X posts may be shown only through official embeds.
 

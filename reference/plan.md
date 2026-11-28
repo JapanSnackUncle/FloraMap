@@ -19,7 +19,7 @@ v1 has to work with zero users and fit around a day job. Everything deferred dep
 **In v1**
 
 - **Ibaraki only, 24 hand-picked places** (32 more are listed in the retired staging sheet with `in_v1: no`): the ones with official status updates, plus the rest showing their usual bloom window.
-- **Bloom stages, semi-automatic:** a script checks the official pages each day and alerts R when one changes; R confirms the stage. No automatic parsing yet.
+- **Bloom stages and event dates, semi-automatic:** a script checks the official pages each day, reads changed ones with an LLM and proposes status rows and date changes in a pull request; R approves before anything is published (changed 29 Nov, A1).
 - **Festivals and illuminations entered by hand:** festivals for February–May 2027, about 5 illuminations for 2026–27 (park, garden or natural-site light shows only; see 6.15).
 - **Web app (installable PWA):** map with ring pins, festival badge, filters, a list, a place page, and a freshness label ("公式 · 2日前" / "例年"), service worker
 - **Photos:** R's own, the prefecture's photo library (いばらきフォトダウンロード, terms to check), park photos used with permission, and hand-picked Instagram embeds.
@@ -58,7 +58,7 @@ User reports and accounts, push notifications, a forecasting model, an AI auto-r
 - One **morning digest** by email or LINE rather than an alert per place. (preferably via Claude somehow?)
 - **Triggers:** a status goes stale while the place is in season (usual window open, or a forecast says it should be blooming); no update for 3 weeks after the last report; the watcher sees a source page change; a closures block is past its `valid_until`.
 - **Each entry shows:** place and flower, last stage and 分咲き figure, days since, source link, and why it's flagged (e.g. "筑波山梅林: no update for 6 days, usually at peak now").
-- **R's action:** check the source or the park's social media, then add a status row. If nothing has changed, add a row with the same level and today's date: that confirms it and resets freshness.
+- **R's action:** review the watcher PR (merge, edit a row, or drop it); for flagged places, check the source or the park's social media and add a row if there's a new report. An unchanged page is not a new report, so no same-level row for it (changed 29 Nov, A1); R's own visit can still be an `admin` row.
 
 **Status dates.** Use the source's own "as of" date, else its publish date, else the watcher's fetch date, and record which.
 
@@ -160,40 +160,63 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Changes: もみじ谷 ライトアップ → festival `kairakuen-momiji-lightup`; place `hitachi-civic` removed; Flower Park's gap between parts (11/24–27) was already in its closures, so no logic change.
   - [x] 6.15 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
 - [x] Debug date bar in dev builds, showing why each pin was chosen (done early, in 5.3).
-- [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
 - [x] Self-host the map's label fonts and icons (2026-11-29: `public/basemap/`, see README.md).
 - [x] Make loading faster
 	- [x] **Start the map without waiting for `places.json`.** Load both at once. This saves roughly 300–400 ms on every visit. It's a small change.
     - [x] **Fetch hints in `index.html`.** Done 2026-11-29 (`preloadHints` in `vite.config.ts`, builds only): MapLibre's worker script and the opening view's two label fonts now download alongside the app's JavaScript. Measured first: on the test site the worker started only after the JavaScript had run, and the fonts only after the first tiles. Not done: `places.json` (about 0.1 s later than it could start; cheap to add the same way). A "preconnect" for the R2 tiles subdomain may help once it exists (Phase 4).
 
-### Phase 2 – Status pipeline
+### Phase 2 – Status pipeline and place page details
 
-- [ ] Specs for this whole thing, from tracking yaml files for dates to navigating to and searching for,  websites, scraping or interpreting information from the website, writing back to the yaml, keeping a log of everything
-- [ ] Statuses and monitoring behavior for events and illuminations (need to flesh out):
-	- completed: the event is > N months away. don't check, except for a single check at N months before its typical start date, which will put it into tentative if there is no info, confirmed if there is
-	- tentative: no details, but the event is > M months away from its typical start date. check periodically
-	- unconfirmed: the even is < M months away from its typical start date, but not confirmed. check frequently
-	-  confirmed-notsoon: check less frequently
-	-  confirmed-soon: check more frequently
-	-  cancelled: stop checks (optional: check sometimes for reinstatement/postponement)
-	-  postponed: check regularly for replacement date
-- [ ] Statuses and sub-statuses and monitoring behavior for plantings (need to flesh out):
-	- out-of-season: don't check
-	- soon: either at some time before the typical period, or as determined by a model. check daily
-	- starting-to-bloom: check daily
-	- peak: check daily
-	- past-peak: don't check, switch to out-of-season after some time
-	- soon, starting-to-bloom, and peak all get fresh/aging/stale sub-statuses
-- [ ] Specs that determine the links that appear for plantings, illuminations, 公式サイト, 開催中のイベント
-  - Includes the place page's シーズン外 rows: each repeats the place's official link (ひたち海浜公園: ten identical `hitachikaihin.jp ↗`), which is the loudest thing in that section and duplicates the one under 施設情報. Decide which rows get a link at all. (From 6.10's second pass, 28 Nov.)
-- [ ] Finish translating all Japanese text. It's also something for the pipeline as it needs to handle JA -> EN
-- [ ] New fields that need to be found and written: dogs allowed (yes or blank (not shown)), disabled parking spaces (yes or blank (not shown))
-- [ ] Practical info layout on the place page (施設情報): long values such as ひたち海浜公園's 休業日 run to four dense lines. Decide how hours, closed days and fees are written and laid out once the pipeline writes them. (From 6.10's second pass, 28 Nov.)
-- [ ] Morning digest
-- [ ] Watcher sanity checks: flag a status dated outside its planting's season, or one that would go backwards.
-- [ ] Place page: show whether each feature's status is confirmed or an estimate (the map no longer has an indication: every ring is 3 px since 26 Nov). This is here since there are no confirmed planting statuses now, but after this pipeline is done, there will be.
-- [x] Validation that stages are in the scale (build-data) and display never goes backwards (status.ts).
-- [x] Automatic fallback when a status goes stale (status.ts).
+Two tracks. **A** (the pipeline) is the critical path: real status rows have to be flowing before plum season. **B** (place page) needs only test rows in debug mode, so it can fill gaps while A waits on decisions. **C** is data work that doesn't depend on either. Within each track, do the items in order.
+
+Done already: stage validation (build-data), never going backwards (status.ts), the stale fallback (status.ts).
+
+**A. Status pipeline**
+
+- [x] A1. **Pipeline spec.** Decided 2026-11-29 (grill-me; rules in CLAUDE.md: Stack "Watcher", statuses.csv, Source rules).
+  - **The watcher proposes, R approves.** It reads changed pages (text and photo) with an LLM and drafts rows; nothing is published until R merges. Why: alerts-only left R reading every page (筑波山 and ひたち海浜公園 give the stage mainly in a photo, others bury one line in a news post), which wouldn't fit 15 minutes a day; publishing on its own, with no track record, would let one misread 見頃 go live.
+  - **One rolling pull request.** Each run adds to the single open watcher PR; merging publishes and redeploys. Why: it works from the GitHub phone app with nothing new to host, git records who approved what, and a skipped weekend means one PR, not three with conflicting rows.
+  - **Model behind one interface.** R will try a free LLM first, the Claude API (paid, spending cap) if it falls short. Called only when a page's content changed. Free tiers: check daily limits and whether inputs are used for training (acceptable for public pages).
+  - **Events too.** Sources may cover festivals and illuminations as well as plantings (schema change); the watcher proposes edition dates (`from`, `to`, `hours`, `dates_announced`). Plant stages always go to `statuses.csv`, never the YAML.
+  - **A row only from a new dated report.** An unchanged page doesn't refresh a status. Why: otherwise "fresh" would mean "page still up", not "someone looked at the flowers". This replaces Operations' "add a same-level row to confirm".
+  - **`date_basis` column** (private: `as_of` / `published` / `fetched`): the existing "record which" rule had nowhere to go. A post published 2/8 reporting 2/6 is 2 days older than it looks, which matters against 3–4 day freshness limits.
+  - **Moved pages are flagged** (404, redirect, empty page); R finds the new URL. Why: a dead link would otherwise look like "nothing changed".
+  - **Index sources** (`index: true` in sources.yaml; first chosen "flag only", changed the same day): the source URL is a list, and the watcher follows one link deep on the same site. Covers season indexes (土浦's `…/tulip-kaika-jokyo/` lists the last 3 years' pages; each year's page has a new URL) and blog-style lists with one post per update (弘道館's `/news/`). Why: a per-year URL goes silent every season, and with an index the new page is found without R. No new sources: same site only.
+  - **Start-of-season check**: on the first day of a planting's check window, every one of its sources is read once even if unchanged; a newest report from an earlier season is flagged as last season's page. Why: a live page that's no longer updated looks unchanged forever, so the LLM would never run and the planting would quietly run on its usual window all season. Flagging at the start of まもなく leaves weeks to find the new URL.
+  - **The log**: one line per source per run, appended to a file in `watcher/` and committed. Why: it's kept across seasons (Actions logs last 90 days) and proves the watcher ran on a quiet day.
+  - Decided without asking: page snapshots and photos aren't stored (only `raw_text` and a link); ひたち海浜公園 needs a headless browser (plain fetchers get an empty page); an approved row read from an official page is `kind: official`.
+  - Parked: auto-publishing confident rows; X/Instagram (open question under Sources and platforms); cancelled/postponed (A3).
+  - To build first: `date_basis` in the schema and CSV header, sources covering festivals/illuminations, and `index: true` on sources (CLAUDE.md now describes all three; the code doesn't have them yet). Then review which existing sources are index pages (弘道館, フラワーパーク, 笠間 look like it; 潮来's 令和8年 page should become its index).
+- [x] A2. **When to check plantings.** Decided 2026-11-29 (grill-me; rules in CLAUDE.md: Source rules "Check cadence", Bloom scale, Freshness "An early report opens the season").
+  - **Per source, not per stage:** a source is checked on every run from `EARLY_REPORT_DAYS` (30) before any of its plantings' seasons until that season ends, past peak included. Why: a source covers several plantings (ひたち: 10), so stage-by-stage cadence (R's first draft: out-of-season / soon / starting / peak daily / past-peak never) can't be applied to a fetch. Fetching is nearly free and the LLM only runs on changed pages, so the window mainly keeps year-round news lists (弘道館 `/news/`) from triggering reads off-season. Past peak stays checked: dropping it would leave 見頃過ぎ's freshness limits meaningless and miss late corrections.
+  - **Twice a day** (~7:00 and ~18:00 JST): a 10:00 見頃 post can be live that night instead of next morning, a day out of a 4-day freshness limit.
+  - **An early report opens the season** (up to `EARLY_REPORT_DAYS` early). Why: kodokan-ume's season starts 1/31 only because "2月下旬" became 2/21, minus `starting_days` (7) and the lead (14), numbers we picked; 弘道館 posted on 1/9, 1/20 and 1/30 last season, and R trusts the park over that chain. The bound stays so reports can't attach to the wrong season (roses' two windows) or carry across years. One constant serves the watcher's lead and the early-report limit.
+  - **Earlier reports are saved, flagged, unused** (弘道館's 12/23 post, 39 days early): the record of real dates feeds window review and v2's forecasting.
+  - **Mapping rule: the level is for the planting as a whole.** The 12/23 post was one flower on a famously early tree; under "anything before 7分 = 咲き始め" it would have counted as 咲き始め. Now a few flowers or one early tree is まもなく, and parts go in `note` (as 早咲き/遅咲き already did).
+- [ ] A2b. **Window review after each season**: a small script lists, per planting, the first 咲き始め and 見頃 report dates against its usual window, so R can correct windows and drop `provisional`. The usual-window fallback gets less made-up every year. First run after plum season (March 2027).
+- [x] A3. **When to check festivals and illuminations.** Decided 2026-11-29 (grill-me; rules in CLAUDE.md: Source rules "Check cadence", Features "Cancelled").
+  - **Two speeds by distance**: not announced → weekly from 90 days before the expected start (the last edition with dates, one year on), every run from 30 days before; announced → weekly until it ends (catches added hours, fee changes, cancellation); cancelled → not checked. Why: the data only knows announced or not, so R's seven states collapse: completed / tentative / unconfirmed are the > 90 / 90–30 / < 30-day distances, confirmed-notsoon / -soon are one weekly state, postponed is just new dates.
+  - **`cancelled: true`** on an edition, shown as 「2027年は中止」 on the place page; no dot, no gold pin, no borrowed dates. Why: a visitor who heard of the event gets an answer instead of silence that looks like missing data. Parked: checking a cancelled edition for reinstatement.
+  - To build (with A1's schema changes): `cancelled` on editions, `EARLY_REPORT_DAYS` in status.ts (early-opening seasons, with tests), the place page's 中止 line.
+- [ ] A4. **Sanity checks in `build-data`**: fail (or warn) on a status row dated outside its planting's season, or one that would go backwards. In the build rather than only the watcher, so they also catch rows R types by hand.
+- [ ] A5. **Watcher**: fetch the sources on the cadence from A2/A3 (polite: identifying user agent, robots.txt), detect changes, write the A1 log. Python on a GitHub Actions cron.
+- [ ] A6. **Morning digest**: triggers and per-entry content are already in Operations. Still to decide: channel (email, LINE, or something Claude reads), and what an empty day sends (nothing, or "all checked, nothing changed", which doubles as proof the watcher ran). If this is a github PR, I can log onto github every day and check.
+- [ ] A7. **Entering a status**: the quickest way for R to act on a digest entry (a small script or photo-tool tab that appends a valid row, versus editing the CSV). Measure against the 15-minutes-a-day target.
+
+**B. Place page details**
+
+- [ ] B1. **Confirmed vs estimate on the place page**, with the freshness label ("公式 · 2日前" / "例年") and the source link. The map no longer shows it (one ring width since 26 Nov), so this is the only place a visitor can tell. Design it together with the still-open "no recent info" look (6.2), since that's the third case of the same question. Test with made-up rows in debug mode.
+- [ ] B2. **Links spec**: which links appear for plantings, illuminations, 公式サイト and 開催中のイベント. Includes the シーズン外 rows: each repeats the place's official link (ひたち海浜公園: ten identical `hitachikaihin.jp ↗`), the loudest thing in that section and a duplicate of the one under 施設情報. Decide which rows get a link at all. (From 6.10's second pass, 28 Nov.)
+- [ ] B3. **Practical info layout (施設情報)**: long values such as ひたち海浜公園's 休業日 run to four dense lines. Decide how hours, closed days and fees are written and laid out. (From 6.10's second pass, 28 Nov.) Do after C1 if new fields are added, so the layout is done once.
+- [ ] B4. **Directions button** (opens the phone's maps app at the place's point; check what Google/Apple Maps links allow).
+- [ ] B5. **Timeline**: needs a definition first. Presumably this season's status history for a planting, which only means something once A is producing rows.
+- [ ] B6. **Instagram embeds** on the place page (official embeds only, per CLAUDE.md). Last: depends on which accounts and posts, and on the Instagram questions under Sources and platforms.
+- (Photos: the place's photo strip is done. Plantings' and illuminations' own `photos` aren't resized or shown yet; add when one exists.)
+
+**C. Data**
+
+- [ ] C1. **New fields**: dogs allowed, accessible parking. Each "yes" or empty (empty is not shown). A schema change, so decide the field names and the yes-only rule first, then look the values up per place from official pages.
+- [ ] C2. **English translations** of all `*_ja` text. Per CLAUDE.md, R translates and nothing is machine-translated, so "the pipeline handles JA → EN" would break that rule. Options: keep it fully manual; or let the pipeline flag `*_ja` text that changed so R knows which `*_en` to update; or change the rule (R's call). The second seems the useful part.
 
 ### Phase 3 – Polish and field test 
 
