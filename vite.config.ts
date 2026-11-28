@@ -4,6 +4,7 @@ import { createReadStream, statSync } from 'node:fs';
 import { join, normalize, relative, sep } from 'node:path';
 import { defineConfig, type Connect, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { PRELOAD_GLYPHS } from './src/basemap-assets.ts';
 import { DATA_REBUILT_EVENT } from './tools/photo-tool/api.ts';
 import { photoTool } from './tools/photo-tool/server.ts';
 
@@ -28,6 +29,40 @@ function rebuildDataOnChange(): Plugin {
           }
         });
       });
+    },
+  };
+}
+
+// In builds, add preload hints to index.html so files the map needs start downloading with the
+// app's JavaScript instead of one after another (measured 2026-11-29: the map worker started only
+// after the app's JavaScript had run, and the label fonts only after the first tiles arrived).
+//   - MapLibre's worker script (its file name has a content hash, so it's looked up in the bundle).
+//   - The opening view's label fonts (PRELOAD_GLYPHS).
+// `as="fetch"` + `crossorigin`: MapLibre fetches fonts the same way, so the browser hands the
+// preloaded copy straight over. The worker can't take a preloaded copy directly (Chrome rejects
+// `as="worker"`: tried 2026-11-29), but it finds the file already in the HTTP cache; Chrome still
+// logs a harmless "preloaded but not used" warning for it.
+function preloadHints(): Plugin {
+  let base = '/';
+  return {
+    name: 'flora-preload-hints',
+    apply: 'build',
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml: {
+      order: 'post',
+      handler(_html, ctx) {
+        const worker = Object.keys(ctx.bundle ?? {}).find((f) =>
+          /maplibre-gl-worker-[\w-]+\.mjs$/.test(f),
+        );
+        if (!worker) throw new Error('preloadHints: MapLibre worker not found in the bundle');
+        return [worker, ...PRELOAD_GLYPHS].map((path) => ({
+          tag: 'link',
+          attrs: { rel: 'preload', as: 'fetch', crossorigin: '', href: `${base}${path}` },
+          injectTo: 'head',
+        }));
+      },
     },
   };
 }
@@ -77,7 +112,7 @@ function serveLocalTiles(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), rebuildDataOnChange(), serveLocalTiles(), photoTool()],
+  plugins: [react(), rebuildDataOnChange(), serveLocalTiles(), photoTool(), preloadHints()],
   test: {
     include: ['src/**/*.test.ts', 'scripts/**/*.test.ts', 'tools/**/*.test.ts'],
   },

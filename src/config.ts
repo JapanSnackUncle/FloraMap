@@ -1,5 +1,7 @@
 // Map settings in one place.
 
+import { GLYPHS_PATH, SPRITE_PATH } from './basemap-assets';
+
 /**
  * Where the basemap tiles live. In `npm run dev` the dev server serves tiles/ at /tiles/.
  * The GitHub Pages test site has a copy beside the app. For the live site set VITE_TILES_URL
@@ -23,12 +25,11 @@ export const RAIL_URL = `${import.meta.env.BASE_URL}rail.geojson`;
 /**
  * Label fonts (non-Japanese glyphs) and map icons for the Protomaps style, served from our own
  * site: copies of protomaps/basemaps-assets in public/basemap/ (source and licenses in
- * public/basemap/README.md). MapLibre fills in {fontstack} and {range} itself.
- * Japanese text is drawn with the device's own fonts (localIdeographFontFamily), so no
- * large CJK font files are downloaded.
+ * public/basemap/README.md; paths in basemap-assets.ts). Japanese text is drawn with the
+ * device's own fonts (localIdeographFontFamily), so no large CJK font files are downloaded.
  */
-export const GLYPHS_URL = `${import.meta.env.BASE_URL}basemap/fonts/{fontstack}/{range}.pbf`;
-export const SPRITE_URL = `${import.meta.env.BASE_URL}basemap/sprites/light`;
+export const GLYPHS_URL = `${import.meta.env.BASE_URL}${GLYPHS_PATH}`;
+export const SPRITE_URL = `${import.meta.env.BASE_URL}${SPRITE_PATH}`;
 
 export const JAPANESE_FONTS =
   '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif';
