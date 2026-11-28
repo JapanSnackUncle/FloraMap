@@ -72,8 +72,9 @@ export function basemapLayers(lang: Lang): maplibregl.LayerSpecification[] {
 export function basemapStyle(lang: Lang): maplibregl.StyleSpecification {
   return {
     version: 8,
-    glyphs: GLYPHS_URL,
-    sprite: SPRITE_URL,
+    // MapLibre wants absolute URLs here. new URL() would percent-encode the {placeholders}.
+    glyphs: `${window.location.origin}${GLYPHS_URL}`,
+    sprite: `${window.location.origin}${SPRITE_URL}`,
     sources: {
       protomaps: {
         type: 'vector',

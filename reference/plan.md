@@ -76,13 +76,13 @@ Official pages stay the main source; social accounts only through official APIs.
 
 About 9 weeks of build before the plum-season soft launch. Week 1 started 24 Nov 2026. Phases 1–4 overlap; spring is the real test.
 
-### Phase 0 – Decisions (week 1)
+### Phase 0 – Decisions
 
 - [x] Bloom stage scale, data schema, freshness rules, pin ranking, closures, illuminations (all in CLAUDE.md).
 - [x] Repo: https://github.com/JapanSnackUncle/FloraMap (private; set up 25 Nov).
 - [x] Working name and domain.
 
-### Phase 1 – Data and core app (weeks 1–4)
+### Phase 1 – Data and core app
 
 The numbered items are CLAUDE.md's "Phase 1: first tasks".
 
@@ -158,22 +158,20 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Why: a light-up of plants as an illumination outranks its own planting, so 偕楽園 showed a gold pin whatever the leaves were doing, and its dates move with the colouring, so a countdown would be a guess. As a festival it gets the event dot and the planting keeps the stage ring. Judging the whole event keeps one branded event as one thing (Moonlight Rose Garden's rose part and LED part aren't split). City displays fall outside a map of seasonal nature.
     - Changes: もみじ谷 ライトアップ → festival `kairakuen-momiji-lightup`; place `hitachi-civic` removed; Flower Park's gap between parts (11/24–27) was already in its closures, so no logic change.
 - [x] 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
-### Phase 2 – App complete (weeks 4–6)
+### Phase 2 – App complete
 
 - [x] Debug date bar in dev builds, showing why each pin was chosen (done early, in 5.3).
 - [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
 - [ ] English/Japanese toggle; installable as a PWA.
-- [ ] Connect the repo to Cloudflare Pages (settings in README.md).
-- [ ] Self-host the map's label fonts and icons (now loaded from protomaps.github.io), and put the basemap on Cloudflare R2 (`VITE_TILES_URL`).
-- [ ] Once it's running on Cloudflare, test and look at Cloudflare's analytics for performance. Also run own diagnostics. Improve if necessary/practical.
+- [x] Self-host the map's label fonts and icons (2026-11-29: `public/basemap/`, see README.md).
 - [ ] Make loading faster
 	- [x] **Start the map without waiting for `places.json`.** Load both at once. This saves roughly 300–400 ms on every visit. It's a small change.
-    - [ ] **Fetch hints in `index.html`.** A "preload" line tells the browser to start downloading `places.json` alongside the JavaScript instead of after it. A "preconnect" line opens the connection to protomaps.github.io (fonts and icons) early. Once you self-host those, as plan.md already says, that second connection goes away.
+    - [ ] **Fetch hints in `index.html`.** A "preload" line tells the browser to start downloading `places.json` alongside the JavaScript instead of after it. (The fonts and icons are self-hosted now, so no "preconnect" is needed for them; one for the R2 tiles subdomain may help once it exists.)
     - [ ] **A skeleton instead of the white screen.** Put a few lines of CSS and HTML straight into `index.html`: the map's background colour and an empty chip row, or the bottom sheet's grab bar on phones. These show the moment the HTML arrives, before any JavaScript.
     - [ ] **Put the pins on earlier.** At the moment they wait for MapLibre's `load` event, which fires only after every first tile, the 370 KB railway file and the fonts have arrived. They could go on once the style is ready instead. This one is medium effort.
     - [ ] **Service worker (already planned for the PWA).** It saves the app's files on the phone, so later visits skip most of the download and open almost instantly. For repeat visitors this matters more than anything above.
 
-### Phase 3 – Status pipeline (weeks 4–7)
+### Phase 3 – Status pipeline
 
 - [ ] Specs for this whole thing, from tracking yaml files for dates to navigating to and searching for,  websites, scraping or interpreting information from the website, writing back to the yaml, keeping a log of everything
 - [ ] Statuses and monitoring behavior for events and illuminations (need to flesh out):
@@ -202,8 +200,14 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [x] Validation that stages are in the scale (build-data) and display never goes backwards (status.ts).
 - [x] Automatic fallback when a status goes stale (status.ts).
 
-### Phase 4 – Polish and field test (weeks 7–9)
+### Phase 4 – Polish and field test 
 
+- [ ] **By early January 2027** (about a month of slack before plum season): set up production hosting. Tabled until then on 2026-11-29; the GitHub Pages test site covers testing meanwhile.
+    - New Cloudflare account for this project (not the one hosting R's wife's site): separate billing, free-tier limits and API tokens, and the project can be handed on alone.
+    - Buy a domain in that account (Cloudflare Registrar, at cost; no `.jp` there). Before launch, because installed PWAs and shared `?place=` links are tied to the address. No "ibaraki" in the name if other prefectures may come.
+    - Connect the repo to Cloudflare Pages (settings in README.md) on that domain.
+    - Basemap on Cloudflare R2 (`VITE_TILES_URL`) on a `tiles.` subdomain, with a CORS rule for the app's address (r2.dev is rate-limited and not for production).
+- [ ] Once it's running on Cloudflare, test and look at Cloudflare's analytics for performance. Also run own diagnostics. Improve if necessary/practical.
 - [ ] Visit 2–3 places to test on a phone outdoors.
 - [ ] Attribution, source links, disclaimer ("check official site"), privacy policy.
 - [ ] Privacy-friendly analytics (e.g. Plausible or Cloudflare Web Analytics).

@@ -63,6 +63,8 @@ The tiles have no railways below zoom 12, so the main lines are also copied into
 npm run build-rail
 ```
 
+The map's label fonts (Noto Sans, OFL) and icons (MIT) are copies of protomaps/basemaps-assets in `public/basemap/`, served from our own site. `public/basemap/README.md` has the source commit and how to update them.
+
 ## Test site (GitHub Pages)
 
 For testing only: https://japansnackuncle.github.io/FloraMap/. Every push to `main` rebuilds it (`.github/workflows/pages.yml`). Like any production build it has no debug date bar, so it shows today's status. A second copy with the debug date bar is at https://japansnackuncle.github.io/FloraMap/debug/ (built with `VITE_DEBUG=true`; it shares the main copy's tiles). Real production builds never set `VITE_DEBUG`.

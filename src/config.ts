@@ -21,14 +21,14 @@ export const TILES_URL: string =
 export const RAIL_URL = `${import.meta.env.BASE_URL}rail.geojson`;
 
 /**
- * Label fonts (non-Japanese glyphs) and map icons for the Protomaps style.
- * Hosted by Protomaps for now; to self-host before launch (see plan.md).
+ * Label fonts (non-Japanese glyphs) and map icons for the Protomaps style, served from our own
+ * site: copies of protomaps/basemaps-assets in public/basemap/ (source and licenses in
+ * public/basemap/README.md). MapLibre fills in {fontstack} and {range} itself.
  * Japanese text is drawn with the device's own fonts (localIdeographFontFamily), so no
  * large CJK font files are downloaded.
  */
-export const GLYPHS_URL =
-  'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf';
-export const SPRITE_URL = 'https://protomaps.github.io/basemaps-assets/sprites/v4/light';
+export const GLYPHS_URL = `${import.meta.env.BASE_URL}basemap/fonts/{fontstack}/{range}.pbf`;
+export const SPRITE_URL = `${import.meta.env.BASE_URL}basemap/sprites/light`;
 
 export const JAPANESE_FONTS =
   '"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif';
