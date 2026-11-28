@@ -1,5 +1,51 @@
 import { describe, expect, it } from 'vitest';
-import { breakName } from './labels';
+import { accessibleParkingText, breakName, petsText } from './labels';
+import type { PlaceStatus } from './lib/status';
+
+type Place = PlaceStatus['place'];
+const place = (fields: Partial<Place>) => fields as Place;
+
+// CLAUDE.md, "Pets and disabled parking".
+describe('petsText', () => {
+  it('is empty when pets is', () => {
+    expect(petsText(place({}), 'ja')).toBe('');
+  });
+
+  it('says 可 / Allowed, with the note in brackets', () => {
+    expect(petsText(place({ pets: 'allowed' }), 'ja')).toBe('可');
+    expect(petsText(place({ pets: 'allowed' }), 'en')).toBe('Allowed');
+    const leash = place({
+      pets: 'allowed',
+      pets_note_ja: 'リード着用',
+      pets_note_en: 'on a leash',
+    });
+    expect(petsText(leash, 'ja')).toBe('可（リード着用）');
+    expect(petsText(leash, 'en')).toBe('Allowed (on a leash)');
+  });
+
+  it('adds 補助犬は可 to every 不可, sharing the brackets with a note', () => {
+    expect(petsText(place({ pets: 'not_allowed' }), 'ja')).toBe('不可（補助犬は可）');
+    expect(petsText(place({ pets: 'not_allowed' }), 'en')).toBe(
+      'Not allowed (assistance dogs welcome)',
+    );
+    const note = place({ pets: 'not_allowed', pets_note_ja: '駐車場まで可' });
+    expect(petsText(note, 'ja')).toBe('不可（補助犬は可、駐車場まで可）');
+  });
+
+  it('falls back to the Japanese note in English mode', () => {
+    expect(petsText(place({ pets: 'allowed', pets_note_ja: 'リード着用' }), 'en')).toBe(
+      'Allowed (リード着用)',
+    );
+  });
+});
+
+describe('accessibleParkingText', () => {
+  it('says あり / なし, and nothing when empty', () => {
+    expect(accessibleParkingText(place({ accessible_parking: true }), 'ja')).toBe('あり');
+    expect(accessibleParkingText(place({ accessible_parking: false }), 'en')).toBe('None');
+    expect(accessibleParkingText(place({}), 'ja')).toBe('');
+  });
+});
 
 // CLAUDE.md, "Place names": English names over 16 characters go on two lines.
 describe('breakName', () => {

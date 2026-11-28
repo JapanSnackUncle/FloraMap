@@ -194,6 +194,12 @@ export const placeFile = z.strictObject({
   fee_en: text.optional(),
   parking_ja: text.optional(),
   parking_en: text.optional(),
+  /** CLAUDE.md, "Pets and disabled parking". Empty = not shown. */
+  accessible_parking: z.boolean().optional(),
+  pets: z.enum(['allowed', 'not_allowed']).optional(),
+  /** Conditions on `pets` (リード着用, まつり期間中は不可), shown in brackets after it. */
+  pets_note_ja: text.optional(),
+  pets_note_en: text.optional(),
   official_urls: z.array(url).optional(),
   /**
    * On-location photos of the place, files in photos/places/<prefecture>/<municipality>/<place-id>/. The place page shows them in

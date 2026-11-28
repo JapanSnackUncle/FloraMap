@@ -700,7 +700,9 @@ body,
 
 .page-info {
   display: grid;
-  grid-template-columns: 5.5em minmax(0, 1fr);
+  /* Labels as wide as the longest needs, up to 7.5em: 障害者用駐車場 (7 characters) on one line.
+     Longer English labels wrap inside it. */
+  grid-template-columns: fit-content(7.5em) minmax(0, 1fr);
   gap: 6px 10px;
   margin: 0;
   padding: 12px 16px 16px;
@@ -708,6 +710,7 @@ body,
 }
 
 .page-feature .page-info {
+  grid-template-columns: 5.5em minmax(0, 1fr);
   padding: 4px 0 0;
   font-size: 14px;
 }

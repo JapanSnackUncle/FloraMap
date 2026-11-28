@@ -211,11 +211,14 @@ Done already: stage validation (build-data), never going backwards (status.ts), 
 - [ ] B4. **Directions button** (opens the phone's maps app at the place's point; check what Google/Apple Maps links allow).
 - [ ] B5. **Timeline**: needs a definition first. Presumably this season's status history for a planting, which only means something once A is producing rows.
 - [ ] B6. **Instagram embeds** on the place page (official embeds only, per CLAUDE.md). Last: depends on which accounts and posts, and on the Instagram questions under Sources and platforms.
+- [ ] B7. **Punctuation**: ・ or some other character
 - (Photos: the place's photo strip is done. Plantings' and illuminations' own `photos` aren't resized or shown yet; add when one exists.)
 
 **C. Data**
 
-- [ ] C1. **New fields**: dogs allowed, accessible parking. Each "yes" or empty (empty is not shown). A schema change, so decide the field names and the yes-only rule first, then look the values up per place from official pages.
+- [ ] C1. **New fields: pets, disabled parking.** Schema, build checks and the two 施設情報 rows built 2026-11-29; the 施設情報 label column now fits its longest label up to 7.5em (障害者用駐車場 broke mid-word at 5.5em). Values still to look up. Decided 2026-11-29 (rule in CLAUDE.md, "Pets and disabled parking"): `pets` (`allowed` / `not_allowed`, plus `pets_note_ja`/`_en`) and `accessible_parking` (`true` / `false`), empty = not shown.
+  - Why: first drafted as "yes or empty", dropped because some places explicitly forbid pets and that's worth saying. Pets, not dogs: official pages say ペット. A note field because 可 for a park that bans pets during its まつり would mislead; festival-only rules go in the place's note rather than a festival field until a real case needs more. 「（補助犬は可）」 is added by the app to every 不可, since assistance dogs can't legally be refused and a bare 不可 would suggest they are. "Parking for disabled visitors" over "Accessible parking", which reads as "easy-to-reach parking" outside the US; 障害者用駐車場 over the formal 車いす使用者用駐車施設 (narrower and long).
+  - To do: schema + build check, the two 施設情報 rows (do with B3's layout), then look the values up per place on official pages (empty where a page doesn't say).
 - [ ] C2. **English translations** of all `*_ja` text. Per CLAUDE.md, R translates and nothing is machine-translated, so "the pipeline handles JA → EN" would break that rule. Options: keep it fully manual; or let the pipeline flag `*_ja` text that changed so R knows which `*_en` to update; or change the rule (R's call). The second seems the useful part.
 
 ### Phase 3 – Polish and field test 

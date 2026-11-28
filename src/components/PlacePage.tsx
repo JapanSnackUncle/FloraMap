@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
-import { featureName, fullAddress, placeName } from '../labels';
+import { accessibleParkingText, featureName, fullAddress, petsText, placeName } from '../labels';
 import type { PublicSource, Species } from '../lib/schema';
 import { OUT_OF_SEASON, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
@@ -212,6 +212,8 @@ export default function PlacePage(props: Props) {
           <Info label={t('closedDays', lang)}>{pick(lang, p.closed_ja, p.closed_en)}</Info>
           <Info label={t('fees', lang)}>{pick(lang, p.fee_ja, p.fee_en)}</Info>
           <Info label={t('parking', lang)}>{pick(lang, p.parking_ja, p.parking_en)}</Info>
+          <Info label={t('accessibleParking', lang)}>{accessibleParkingText(p, lang)}</Info>
+          <Info label={t('pets', lang)}>{petsText(p, lang)}</Info>
           {/* The reading and the address: what you type or say to get there. */}
           <Info label={t('reading', lang)}>{lang === 'ja' ? p.name_kana : null}</Info>
           <Info label={t('address', lang)}>{fullAddress(p)}</Info>

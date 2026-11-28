@@ -256,6 +256,12 @@ export function buildData(
       );
     else muniSlugs.set(doc.municipality, { slug: doc.municipality_slug, file });
 
+    // A pets note qualifies the pets value; on its own it would show under no answer.
+    if ((doc.pets_note_ja || doc.pets_note_en) && !doc.pets)
+      err(file, 'pets_note_ja/pets_note_en need pets (allowed or not_allowed)');
+    if (doc.pets_note_en && !doc.pets_note_ja)
+      err(file, 'pets_note_en needs pets_note_ja (English is R’s translation of it)');
+
     for (const p of doc.plantings ?? []) {
       if (speciesDoc && !speciesIds.has(p.species))
         err(file, `planting ${p.id}: unknown species "${p.species}"`);

@@ -38,6 +38,15 @@ export const strings = {
   closedDays: { ja: '休業日', en: 'Closed' },
   fees: { ja: '料金', en: 'Fees' },
   parking: { ja: '駐車場', en: 'Parking' },
+  /** CLAUDE.md, "Pets and disabled parking". */
+  accessibleParking: { ja: '障害者用駐車場', en: 'Parking for disabled visitors' },
+  accessibleParkingYes: { ja: 'あり', en: 'Available' },
+  accessibleParkingNo: { ja: 'なし', en: 'None' },
+  pets: { ja: 'ペット同伴', en: 'Pets' },
+  petsAllowed: { ja: '可', en: 'Allowed' },
+  petsNotAllowed: { ja: '不可', en: 'Not allowed' },
+  /** Added to every 不可: facilities open to the public can't refuse assistance dogs (身体障害者補助犬法). */
+  petsAssistanceDogs: { ja: '補助犬は可', en: 'assistance dogs welcome' },
   /** The place name's reading (Japanese mode only). */
   reading: { ja: 'よみ', en: 'Reading' },
   address: { ja: '住所', en: 'Address' },

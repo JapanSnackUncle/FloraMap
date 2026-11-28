@@ -266,6 +266,18 @@ describe('the build fails on', () => {
     ).toEqual([]);
   });
 
+  it('a pets value other than allowed / not_allowed, or a pets note with no pets', () => {
+    const at = (s: string) => ({
+      'places/ibaraki/mito/test-park.yaml': PLACE.replace('geocode_precision: lot\n', `$&${s}`),
+    });
+    fails(at('pets: yes\n'), 'pets');
+    fails(at('pets_note_ja: "リード着用"\n'), 'need pets');
+    fails(at('pets: allowed\npets_note_en: "on a leash"\n'), 'pets_note_en needs pets_note_ja');
+    expect(
+      errorsFor(at('pets: allowed\npets_note_ja: "リード着用"\naccessible_parking: false\n')),
+    ).toEqual([]);
+  });
+
   it('illumination hours outside their edition', () => {
     fails(
       {

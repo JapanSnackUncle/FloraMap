@@ -1,5 +1,5 @@
 import { NAME_BREAK_CHARS } from './config';
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import type { Species } from './lib/schema';
 import {
   ILLUMINATION_LABELS,
@@ -49,6 +49,29 @@ const PREFECTURES: Record<string, string> = { ibaraki: '茨城県' };
 export function fullAddress(place: PlaceStatus['place']): string {
   if (!place.address_ja) return '';
   return `${PREFECTURES[place.prefecture] ?? ''}${place.municipality}${place.address_ja}`;
+}
+
+/**
+ * The 施設情報 pets line (CLAUDE.md, "Pets and disabled parking"): 可 / 不可（補助犬は可）, with the
+ * note in the same brackets (可（リード着用）, 不可（補助犬は可、駐車場まで可）). English mode uses
+ * pets_note_en, else the Japanese note as is. Empty when `pets` is.
+ */
+export function petsText(place: PlaceStatus['place'], lang: Lang): string {
+  if (!place.pets) return '';
+  const note = (lang === 'en' && place.pets_note_en) || place.pets_note_ja;
+  const parts = [
+    ...(place.pets === 'not_allowed' ? [t('petsAssistanceDogs', lang)] : []),
+    ...(note ? [note] : []),
+  ];
+  const value = t(place.pets === 'allowed' ? 'petsAllowed' : 'petsNotAllowed', lang);
+  if (!parts.length) return value;
+  return lang === 'ja' ? `${value}（${parts.join('、')}）` : `${value} (${parts.join('; ')})`;
+}
+
+/** The 施設情報 disabled parking line: あり / なし. Empty when the field is. */
+export function accessibleParkingText(place: PlaceStatus['place'], lang: Lang): string {
+  if (place.accessible_parking === undefined) return '';
+  return t(place.accessible_parking ? 'accessibleParkingYes' : 'accessibleParkingNo', lang);
 }
 
 /** The place's display name in the current language. */
