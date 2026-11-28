@@ -35,7 +35,7 @@ If a request is in that list, say so in one line and suggest R open a different 
 - **Empty optional fields** are fine: leave them out rather than writing "unknown".
 - **Sources:** do not invent source URLs. Skip a source that has no URL and list it in the import report.
 - **Converted bloom windows** get `provisional: true` until checked against past data.
-- **Do not edit** `reference/staging/draft-list.xlsx`, `reference/staging/draft-list-clean.xlsx`, or `reference/prototype.html`. They are archives.
+- **Do not edit** `reference/staging/draft-list-clean.xlsx` or `reference/staging/prototype.html`. They are archives.
 
 ## Checks: run after every edit
 

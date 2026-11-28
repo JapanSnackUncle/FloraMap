@@ -4,7 +4,7 @@ A map of photogenic seasonal places in Ibaraki Prefecture (flowers, autumn leave
 
 The edge over existing listing sites is the live status and user-friendly map, not necessarily the listings. Keep that in mind when trading things off.
 
-**This file is the source of truth for rules.** Where `reference/plan.md` or `reference/prototype.html` disagree with it, this file wins.
+**This file is the source of truth for rules.** Where `reference/plan.md` or `reference/staging/prototype.html` disagree with it, this file wins.
 
 **Glossary:** `GLOSSARY.md` defines project terms (place, planting, edition, estimate, season…). Read it when a term is unclear, and add to it when a term gets a project-specific meaning.
 
@@ -16,8 +16,8 @@ The edge over existing listing sites is the live status and user-friendly map, n
 | File                        | What it is                                                                                                   | How to treat it                                                                                                                                                                                                                       |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `reference/plan.md`         | "Ibaraki Flora Map — Long-term plan": goals, roadmap, reasoning behind the rules, operations, parked ideas    | **Planning document.** Holds no rules. When a decision becomes a rule, it goes here in CLAUDE.md and plan.md keeps only the why.                                                                                                     |
-| `reference/staging/draft-list.xlsx` | "Ibaraki flower spots — draft list": 79 place × flower rows, 25 places with details, Status sources, Festivals 2027 | Original export. Superseded by `reference/staging/draft-list-clean.xlsx`; don't read either at runtime.                                                                                                                                        |
-| `reference/prototype.html`  | Single-file prototype with a debug date bar                                                                  | **Reference for behaviour and look** (stage logic, pin rings, filters, illuminations). Its labels are older (まだ/終了, 点灯前/本日休み). Its bloom windows, statuses and photos are **made up**. Never copy its data into `data/`. |
+| `reference/staging/draft-list-clean.xlsx` | "Ibaraki flower spots — draft list", cleaned: 79 place × flower rows, 25 places with details, Status sources, Festivals 2027 | Retired 2026-11-25: imported into `data/`, archive only. Never edit, re-import or read at runtime. (The original export, `draft-list.xlsx`, was deleted 2026-11-28; git history keeps it.) |
+| `reference/staging/prototype.html`  | Single-file prototype with a debug date bar                                                                  | **Reference for behaviour and look** (stage logic, pin rings, filters, illuminations). Its labels are older (まだ/終了, 点灯前/本日休み). Its bloom windows, statuses and photos are **made up**. Never copy its data into `data/`. |
 
 If a file is missing, ask R to export it rather than guessing at its contents.
 
@@ -59,9 +59,9 @@ src/
   ...
 reference/                    # exports listed above
   staging/
-    draft-list.xlsx           # original claude.ai export
     draft-list-clean.xlsx     # retired 2026-11-25: archive only, never edit or re-import
     import-report.md          # data to-do list from the import: tick off items as data/ is fixed
+    prototype.html            # the prototype listed above
 photos/species/               # species close-up originals (pin_photo files)
 photos/places/<prefecture>/<municipality>/<place-id>/
                               # every on-location photo taken at that place (place, planting and
