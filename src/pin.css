@@ -23,9 +23,10 @@
 }
 
 .pin {
-  --pz: 54px; /* pin size: (pz-6) of photo inside the 3px ring */
-  /* Ring width: the same for every pin, confirmed or estimate (the place page says which). */
-  --rw: 3px;
+  --pz: var(--pin-size); /* the pin's size, ring included (config.ts PIN) */
+  /* Ring width (config.ts PIN_RING_PX): the same for every pin, confirmed or estimate (the
+     place page says which). */
+  --rw: var(--pin-ring);
   position: relative;
   width: var(--pz);
   height: var(--pz);
@@ -108,21 +109,11 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #f97316;
+  background: var(--festival);
   border: 2px solid #fff;
 }
 
-.pin-clock {
-  position: absolute;
-  right: -6px;
-  bottom: -5px;
-  width: 20px;
-  height: 20px;
-  display: grid;
-  /* Both: place-content also centres an icon bigger than the space inside the border. */
-  place-content: center;
-  place-items: center;
-  border-radius: 50%;
-  background: #fff;
-  border: 2px solid #b0245c;
+/* Lit illumination: a soft glow in the ring's own colour (--ring is a plain colour when lit). */
+.pin.glow {
+  box-shadow: 0 0 8px 3px color-mix(in srgb, var(--ring) 75%, transparent);
 }

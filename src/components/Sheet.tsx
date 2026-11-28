@@ -1,8 +1,9 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { SHEET_HALF, SHEET_TOP_PX } from '../config';
 
-/** The sheet's resting heights (CLAUDE.md, "Phone layout"). */
-export type Snap = 'peek' | 'half' | 'full';
+/** The sheet's resting heights (CLAUDE.md, "Phone layout"). `fit`: down to the content's
+ *  [data-fit] element, never above half (the legend at its own height). */
+export type Snap = 'peek' | 'fit' | 'half' | 'full';
 
 interface Props {
   snap: Snap;
@@ -47,7 +48,11 @@ export default function Sheet({
   const content = useRef<HTMLDivElement>(null);
   const [area, setArea] = useState(0);
   const [peek, setPeek] = useState(PEEK_FALLBACK_PX);
+  const [fit, setFit] = useState<number | null>(null);
   const [dragH, setDragH] = useState<number | null>(null);
+  // False until the sheet has been painted at its measured height: the first render has no
+  // map height yet, and animating from there would show the sheet sliding down on every load.
+  const [settled, setSettled] = useState(false);
 
   // The map area's height (the sheet's parent), on every resize.
   useLayoutEffect(() => {
@@ -59,24 +64,31 @@ export default function Sheet({
     return () => ro.disconnect();
   }, []);
 
-  // Peek height: down to the content's [data-peek] element (the list's count line; a place
-  // page's name and top feature), measured after every render. No loop: an unchanged value
-  // doesn't re-render.
+  // Peek height: down to the content's [data-peek] element (the tab row; a place page's
+  // name), and fit: down to its [data-fit] element (the legend's rows), measured after every
+  // render. No loop: an unchanged value doesn't re-render.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
-    const el = content.current?.querySelector('[data-peek]');
-    if (!el || !root.current || !content.current) return;
-    const bottom =
-      el.getBoundingClientRect().bottom -
-      root.current.getBoundingClientRect().top +
-      content.current.scrollTop;
-    setPeek(Math.ceil(bottom) + PEEK_PAD_PX);
+    const down = (selector: string) => {
+      const el = content.current?.querySelector(selector);
+      if (!el || !root.current || !content.current) return null;
+      const bottom =
+        el.getBoundingClientRect().bottom -
+        root.current.getBoundingClientRect().top +
+        content.current.scrollTop;
+      return Math.ceil(bottom) + PEEK_PAD_PX;
+    };
+    const p = down('[data-peek]');
+    if (p !== null) setPeek(p);
+    setFit(down('[data-fit]'));
   });
 
   const maxH = Math.max(0, area - SHEET_TOP_PX);
+  const half = Math.min(Math.round(area * SHEET_HALF), maxH);
   const heights: Record<Snap, number> = {
     peek: Math.min(peek, maxH),
-    half: Math.min(Math.round(area * SHEET_HALF), maxH),
+    fit: Math.min(fit ?? half, half),
+    half,
     full: maxH,
   };
   const h = dragH ?? heights[snap];
@@ -85,6 +97,15 @@ export default function Sheet({
   useLayoutEffect(() => {
     root.current?.parentElement?.style.setProperty('--sheet-h', `${h}px`);
   }, [h]);
+
+  // Turn transitions on two frames after the first measured render (one frame to paint it).
+  useEffect(() => {
+    if (area === 0 || settled) return;
+    let id = requestAnimationFrame(() => {
+      id = requestAnimationFrame(() => setSettled(true));
+    });
+    return () => cancelAnimationFrame(id);
+  }, [area, settled]);
 
   const restH = heights[snap];
   useEffect(() => {
@@ -220,7 +241,7 @@ export default function Sheet({
   return (
     <div
       ref={root}
-      className={`sheet sheet-${snap}${dragH !== null ? ' dragging' : ''}`}
+      className={`sheet sheet-${snap}${dragH !== null ? ' dragging' : ''}${settled ? '' : ' unsettled'}`}
       style={{ height: maxH, transform: `translateY(${maxH - h}px)` }}
     >
       <button

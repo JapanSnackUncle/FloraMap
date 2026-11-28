@@ -119,36 +119,83 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Decided 28 Nov (rule in CLAUDE.md, "Pin choice per place"). The list keeps sharing one order with pin choice, group pins and name collisions, so the list's top row and the map always agree. Reasoning: a visitor wants "worth going now, and can I trust it", so stage comes first and confirmed beats estimate within a stage. A lit illumination is the night-time 見頃, so it shares that tier; in late February a mid-run illumination shouldn't outrank 偕楽園's confirmed ume. End dates were dropped from the order both ways: for blooms they're guesses from the usual window, and for illuminations "ends soon" is better said by a label than by position. Freshness uses the fresh/aging buckets, not exact age (1 vs 2 days means nothing to a visitor); illuminations get no reports, so announced dates count as fresh. A planting with a report beats an illumination on a tie: someone checked the flowers, the illumination is just on schedule (otherwise ID decides, e.g. kairakuen-illumination over kairakuen-momiji only because i < m). Kept: 咲き始め higher % (real report data, matches the ring) and まもなく sooner start ("next up" beats alphabetical).
     - Accepted: while statuses.csv is empty, every announced lit illumination lists above every estimated 見頃, which is the effect noticed on 11/26. It fixes itself as reports come in.
     - Parked: a 終了間近 tag on lit illuminations with announced dates in their last 3 (or 7) days, list and place page only. A popularity/fame tie-break for the 名所 (schema change; ties fall to ID until then).
-  - [ ] 6.2 Map icon legend (pin borders, coming soon, event happening, etc)
+  - [x] 6.2 Map icon legend (pin borders, coming soon, event happening, etc)
+    - 28 Nov: pin look settled first, in the photo tool's Pins tab: まもなく keeps its photo in colour (grey read as finished), 咲き始め a deeper pink #E0457B (the pale pink arc was hard to see), 4 px ring that grows the pin, lit gold #E6B333 with a glow, blue festival dot (orange vanished against autumn rings), paler leaf 見頃過ぎ, clock badge not drawn for now.
+    - 28 Nov, legend grilled; rules in CLAUDE.md ("Legend"). Why:
+      - 凡例 is the standard word on Japanese maps (地理院地図, hazard maps). Bottom-left because bottom-right has MapLibre's ⓘ credit, and that corner already rides above the phone sheet.
+      - Rows show only when in use: the leaves row would be useless ~10 months a year, and in April there's no gold or festival to explain. Judged on the filter, not the screen, so it doesn't change while panning. Whole sequences, because the order is what explains the colours.
+      - Labels only: R's call, smallest; the place page carries the detail.
+      - Phones: fit to content up to half, so the map stays visible beside the key.
+      - Desktop: a card, open on load, so newcomers see it without a click; it stays open while using the map so pins can be compared with it. Not in history: with places opening and closing under it, Back would sometimes close a place and sometimes the card.
+    - 28 Nov, after a first look: group pin dropped from the legend (tapping one explains it); desktop card now grows out of the button, its title row gone (278 × 229 px on 11/28 at 1280 × 800); phones lower the sheet with the legend still in it before the list appears.
+    - 28 Nov, phones: the floating 凡例 button replaced by tabs on the sheet's count line (一覧 | 凡例), rules in CLAUDE.md. Why: the button sat over pins and repeated 凡例 with the sheet's header; a tab is always visible at peek; no history step because sheet heights aren't in the history either. Dropped: the legend over a place page (a page replaces the tabs; it names every stage in words anyway). × or a map tap always goes to peek; ← and Back return to the tab and height the page was opened from. The last tab stays underlined at peek, and dragging up shows it.
+    - Next: R looks at the card's size on desktop and decides what to do after (e.g. whether to pad the opening view so 古河公方公園 and the southwest don't start under it).
+    - Parked: a popup on first visit; a row for "no recent info"; an always-on desktop legend that collapses (considered, replaced by the card open on load).
+    - Open: what "no recent info" looks like on the map (still grey, which now means over).
   - [x] 6.3 Small visual issue: when de-selecting a pin, the pin's text and text background disappear, and then the text reappears if nothing is colliding with it. But I would like this the other way: disappear the background, but not the text, and then if the text is colliding with something, disappear the text. Small visual change but it makes it more smooth.
-  - [ ] 6.4 偕楽園 has 桜 listed, but it's not in the park proper. It's outside of the park, across the train tracks, in a place called 偕楽園 桜山. 
+  - [x] 6.4 moved to places/plantings todo section
   - [x] 6.5 title above current happenings section (26 Nov: シーズン中, larger than the other section headings)
-  - [ ] 6.6 Place page: show whether each feature's status is confirmed or an estimate (the map no longer does: every ring is 3 px since 26 Nov)
+  - [x] 6.6 confirmed/estimate plantings indicator: moved to status pipeline
   - [x] 6.7 Make the map change language too when the language is switched
-  - [ ] 6.8 Make loading faster or add a loading screen
+  - [x] 6.8 Make loading faster tabled to phase 2
   - [x] 6.9 Single top bar for desktop for title, filters, language
-  - [ ] 6.10 Aesthetic polishes. Curved edges, subtle drop shadows (Google / Apple Maps as reference)
+  - [x] 6.10 Aesthetic polishes. Curved edges, subtle drop shadows (Google / Apple Maps as reference)
+    - Done 2026-11-28: shadows instead of border lines (`--shadow-edge`, `--shadow-float`), rounded map controls, pink-tint selected chip, inset list dividers, hover/focus states, softer phone sheet.
+    - Parked: a floating side panel (Apple Maps style); it would change what "visible map area" means for the list.
+    - Second pass 28 Nov: no stage tag on シーズン外 rows (the heading says it), secondary text 11→12 px and status lines 13→14 px, app name at the left of the desktop bar, opening view fitted to the places instead of all of Ibaraki (`START_BOUNDS`), photo arrows 28 px and see-through. Links and practical info moved to the status pipeline.
+    - Third pass 28 Nov: stage tags tinted (pale stage colour, dark text: white on 咲き始め pink and 点灯中 gold was hard to read). Count line 「一覧（Nか所）」 / "List (N places)" without the total, which only changed with the filter; か所 instead of 件 because these are places, not search hits (group hover is just "+2" in both languages: the group pin makes the meaning clear there).
   - [x] 6.11 Photo tool: Species tab for species close-ups (`pin_photo` file, license, credit, `crop` circle).
     - Decided 27 Nov (grill-me; rules in CLAUDE.md, Photos). Why: cropping by typing `{ x, y, size }` and rebuilding is guesswork; a circle on the photo shows exactly what the round pin shows. Files are found by name (`<species id>.jpg`), checked by the build, so a hand edit can't point nemophila at tulip.jpg, and the tool needs no file picker. The previews show real-size pins (54 px, 44 px phone) in every stage, because a close-up that reads well large can turn to mush at 44 px or once greyed for まもなく.
     - Parked: planting `pin_photo` overrides in the tool (none exist yet; add when 河津桜 or 八重桜 needs one).
   - [x] 6.12 Clock icon: put the hands in the outer circle, no inner circle
-  - [ ] 6.13 Specs that determine the links that appear for plantings, illuminations, 公式サイト, 開催中のイベント
-  - [ ] 6.13 adjust pin english name aesthetics
-
+  - [x] 6.13 specs for links that appear on place details: moved to status pipeline
+  - [x] 6.14 adjust pin english name aesthetics. 1 line? 2 lines?
+    - Decided 2026-11-28 (rule in CLAUDE.md, "Place names"): English names over 16 characters break at a space onto two lines; Japanese stays one line.
+    - Why: the old one-line rule existed because MapLibre and the HTML label wrapped differently. Choosing the break in code and giving both the same text removes that, and long English names (up to 28 characters, over 3 pin widths) lost too many collisions on one line. A character count over pixel width because it's deterministic and testable. Shorter line on top so the name widens away from the pin, like its taper.
+    - Parked: hand-marked breaks for Japanese names (a schema change), if a real name such as 日立シビックセンター新都市広場 looks bad.
+- [ ] 6.15 Specs that nail down what is a standalone illumination (gets its own "planting"), and what illuminations are merely attached to events (e.g. 花貫渓谷 紅葉ライトアップ). Also the scope of what illuminations to put. The Hitachi Civic Center illumination has no relation to plants or nature. かわちイルミネーション2026 and 第15回 光がつくる“Art”水郷桜イルミネーション are in もみじ谷　ライトアップ is in an actual place where people go for regular 紅葉 viewing.
+- [x] 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
 ### Phase 2 – App complete (weeks 4–6)
 
 - [x] Debug date bar in dev builds, showing why each pin was chosen (done early, in 5.3).
-- [ ] Finish translating all Japanese text, position of language switcher icon
 - [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
 - [ ] English/Japanese toggle; installable as a PWA.
 - [ ] Connect the repo to Cloudflare Pages (settings in README.md).
 - [ ] Self-host the map's label fonts and icons (now loaded from protomaps.github.io), and put the basemap on Cloudflare R2 (`VITE_TILES_URL`).
 - [ ] Once it's running on Cloudflare, test and look at Cloudflare's analytics for performance. Also run own diagnostics. Improve if necessary/practical.
+- [ ] Make loading faster
+	- [x] **Start the map without waiting for `places.json`.** Load both at once. This saves roughly 300–400 ms on every visit. It's a small change.
+    - [ ] **Fetch hints in `index.html`.** A "preload" line tells the browser to start downloading `places.json` alongside the JavaScript instead of after it. A "preconnect" line opens the connection to protomaps.github.io (fonts and icons) early. Once you self-host those, as plan.md already says, that second connection goes away.
+    - [ ] **A skeleton instead of the white screen.** Put a few lines of CSS and HTML straight into `index.html`: the map's background colour and an empty chip row, or the bottom sheet's grab bar on phones. These show the moment the HTML arrives, before any JavaScript.
+    - [ ] **Put the pins on earlier.** At the moment they wait for MapLibre's `load` event, which fires only after every first tile, the 370 KB railway file and the fonts have arrived. They could go on once the style is ready instead. This one is medium effort.
+    - [ ] **Service worker (already planned for the PWA).** It saves the app's files on the phone, so later visits skip most of the download and open almost instantly. For repeat visitors this matters more than anything above.
 
 ### Phase 3 – Status pipeline (weeks 4–7)
 
+- [ ] Specs for this whole thing, from tracking yaml files for dates to navigating to and searching for,  websites, scraping or interpreting information from the website, writing back to the yaml, keeping a log of everything
+- [ ] Statuses and monitoring behavior for events and illuminations (need to flesh out):
+	- completed: the event is > N months away. don't check, except for a single check at N months before its typical start date, which will put it into tentative if there is no info, confirmed if there is
+	- tentative: no details, but the event is > M months away from its typical start date. check periodically
+	- unconfirmed: the even is < M months away from its typical start date, but not confirmed. check frequently
+	-  confirmed-notsoon: check less frequently
+	-  confirmed-soon: check more frequently
+	-  cancelled: stop checks (optional: check sometimes for reinstatement/postponement)
+	-  postponed: check regularly for replacement date
+- [ ] Statuses and sub-statuses and monitoring behavior for plantings (need to flesh out):
+	- out-of-season: don't check
+	- soon: either at some time before the typical period, or as determined by a model. check daily
+	- starting-to-bloom: check daily
+	- peak: check daily
+	- past-peak: don't check, switch to out-of-season after some time
+	- soon, starting-to-bloom, and peak all get fresh/aging/stale sub-statuses
+- [ ] Specs that determine the links that appear for plantings, illuminations, 公式サイト, 開催中のイベント
+  - Includes the place page's シーズン外 rows: each repeats the place's official link (ひたち海浜公園: ten identical `hitachikaihin.jp ↗`), which is the loudest thing in that section and duplicates the one under 施設情報. Decide which rows get a link at all. (From 6.10's second pass, 28 Nov.)
+- [ ] Finish translating all Japanese text. It's also something for the pipeline as it needs to handle JA -> EN
+- [ ] New fields that need to be found and written: dogs allowed (yes or blank (not shown)), disabled parking spaces (yes or blank (not shown))
+- [ ] Practical info layout on the place page (施設情報): long values such as ひたち海浜公園's 休業日 run to four dense lines. Decide how hours, closed days and fees are written and laid out once the pipeline writes them. (From 6.10's second pass, 28 Nov.)
 - [ ] Watcher for the official sources on a daily schedule, plus the morning digest.
 - [ ] Watcher checks: flag a status dated outside its planting's season, or one that would go backwards.
+- [ ] Place page: show whether each feature's status is confirmed or an estimate (the map no longer has an indication: every ring is 3 px since 26 Nov). This is here since there are no confirmed planting statuses now, but after this pipeline is done, there will be.
 - [x] Validation that stages are in the scale (build-data) and display never goes backwards (status.ts).
 - [x] Automatic fallback when a status goes stale (status.ts).
 
@@ -173,21 +220,25 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Decide on v2 from the numbers.
 - [ ] Add more blooms for less crowded seasons, like chrysanthemum in the fall.
 
-## Places/plantings to add for v1
+## Places/plantings to add for v1 (not sure )
 
 - [ ] Sairenji 西蓮寺: ginkgo, sakura, red spider lily
 - [ ] Kasama Inari Shrine: chrysanthemum, wisteria
 - [ ] Kasumigaura park: tulips https://www.city.tsuchiura.lg.jp/kasumigaurasogokoen/ohana-joho/tulip-kaika-jokyo/
+- [ ] 偕楽園 has 桜 listed, but it's not in the park proper. It's outside of the park, across the train tracks, in a place called 偕楽園 桜山. 
+- [ ] Tsukuba Science Expo Memorial Park: ginkgo, sakura
 ## Ideas parked for later
 
 Not v1 unless a real place needs it.
 
 - **Stages:** per-flower LEAD values; per-species freshness limits; official vs user report conflicts (v2, once user reports exist).
-- **Filters:** Filter by species (drop-down list?)
+- **Filters/Menu UI:** Filter by species (drop-down list?), menu, position of language switcher icon
 - **Data:** the 32 `in_v1: no` places; 桜川市総合運動公園 and SAKURAフェスティバル (parked: no plantings); general events via the `kind` field; other prefectures (the folder layout is ready for them).
 - **Look-ahead**: similar to the debug mode, users can select a date in the future, up to a reasonable limit (couple weeks to a month), to see what's happening on that date. UI will indicate that blooms are predictions.
 - **Platforms:** Android and iOS apps
 - **In-app search function:** As more places get added, it would be handy for users. Search for places, species, event names
+- **Sakura split:** split sakura into different species that have vastly different flowering periods. the main upshot I can think of now is that kawazu, which is a much brigher pink, gets its own icon
+- **Agentic place finder/analyzer** Finds places, or if given a place, finds the relevant info so a yaml file of that place and its plantings can be fully written
 
 ## Success metrics and risk
 

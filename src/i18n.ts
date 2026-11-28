@@ -12,13 +12,17 @@ export const strings = {
   filtersLabel: { ja: '表示する場所', en: 'Places to show' },
   noMatches: { ja: '該当する場所はありません', en: 'No places match' },
   listLabel: { ja: '場所の一覧', en: 'Places' },
-  listCount: { ja: '表示範囲内 {n}件（全{m}件）', en: '{n} in view ({m} in all)' },
+  // The places in the visible map area (CLAUDE.md, "List"); English has a singular.
+  listCount: { ja: '一覧（{n}か所）', en: 'List ({n} places)' },
+  listCountOne: { ja: '一覧（1か所）', en: 'List (1 place)' },
   listEmpty: {
     ja: 'この範囲に該当する場所はありません。地図を動かすか縮小してください。',
     en: 'No matching places here. Move or zoom out the map.',
   },
   closedToday: { ja: '本日休園', en: 'Closed today' },
   back: { ja: '一覧に戻る', en: 'Back to list' },
+  /** Phones: a place page's ← when it was opened from the 凡例 tab. */
+  backToLegend: { ja: '凡例に戻る', en: 'Back to legend' },
   /** Phones: closes a place page, or lowers the full list, back to the map (list at peek). */
   close: { ja: '閉じる', en: 'Close' },
   /** Phones: the sheet's grab bar (screen readers; tapping it changes the sheet's height). */
@@ -40,8 +44,11 @@ export const strings = {
   officialSite: { ja: '公式サイト', en: 'Official site' },
   nightEvents: { ja: '夜の催し', en: 'Evening events' },
   outOfSeason: { ja: 'シーズン外', en: 'Out of season' },
+  /** The map legend (CLAUDE.md, "Legend"): its button, and its festival dot label. */
+  legend: { ja: '凡例', en: 'Legend' },
+  legendFestival: { ja: 'イベント開催中', en: 'Festival on' },
   /** Hover text on a group pin: the best place's name and how many more. */
-  groupMore: { ja: '{name} +{n}件', en: '{name} +{n}' },
+  groupMore: { ja: '{name} +{n}', en: '{name} +{n}' },
   loadError: {
     ja: 'データを読み込めませんでした。再読み込みしてください。',
     en: 'Could not load the data. Please reload.',

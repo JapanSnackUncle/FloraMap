@@ -36,24 +36,35 @@ export const JAPANESE_FONTS =
 /** The area covered by tiles/ibaraki.pmtiles (west, south, east, north). */
 export const TILE_BOUNDS: [number, number, number, number] = [139.68, 35.73, 140.86, 36.96];
 
-/** Ibaraki itself, for the opening view. */
-export const IBARAKI_BOUNDS: [[number, number], [number, number]] = [
-  [139.69, 35.74],
-  [140.85, 36.95],
+/**
+ * The opening view: the area the places are in (koga-kubo-park in the west, kitaibaraki-ajisai
+ * in the north-east, kawachi-fureai in the south), not all of Ibaraki, so the map opens closer.
+ * Widen it when a place is added outside it.
+ */
+export const START_BOUNDS: [[number, number], [number, number]] = [
+  [139.69, 35.87],
+  [140.71, 36.83],
 ];
 
 /**
- * A map pin in CSS px: the photo circle (`size`) and the taper below it (`tipHalfW` each side,
- * `tipH` tall). Phones use smaller pins. App hands the one in use to the CSS as --pin-* (pins.ts
- * pinStyle), so the sizes live only here.
+ * A map pin in CSS px: the photo circle with its ring (`size`) and the taper below it
+ * (`tipHalfW` each side, `tipH` tall). Phones use smaller pins. App hands the one in use to the
+ * CSS as --pin-* (pins.ts pinStyle), so the sizes live only here.
  */
 export interface PinSize {
   size: number;
   tipHalfW: number;
   tipH: number;
 }
-export const PIN: PinSize = { size: 54, tipHalfW: 7, tipH: 11 };
-export const PHONE_PIN: PinSize = { size: 44, tipHalfW: 6, tipH: 9 };
+/** The stage ring's width, the same on every pin. It sits outside the photo: a wider ring
+ *  makes the pin bigger, not the photo smaller. */
+export const PIN_RING_PX = 4;
+export const PIN: PinSize = { size: 48 + 2 * PIN_RING_PX, tipHalfW: 7, tipH: 11 };
+export const PHONE_PIN: PinSize = { size: 38 + 2 * PIN_RING_PX, tipHalfW: 6, tipH: 9 };
+/** The legend's pins (CLAUDE.md, "Legend"): small, with the map's ring. */
+export const LEGEND_PIN: PinSize = { size: 24 + 2 * PIN_RING_PX, tipHalfW: 4, tipH: 7 };
+/** The festival dot (on pins, and before the festival line in the list and place page). */
+export const FESTIVAL_COLOR = '#2563EB';
 /** The taper tucks this far up under the circle. */
 export const PIN_TIP_TUCK_PX = 3;
 /** The selected pin is drawn this much larger, growing from its tip. */

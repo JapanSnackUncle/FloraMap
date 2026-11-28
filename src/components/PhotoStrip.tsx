@@ -92,7 +92,7 @@ export function PhotoStrip({
             aria-label={t('photoPrev', lang)}
             onClick={() => step(-1)}
           >
-            ‹
+            <Chevron points="8 2.5 4 6 8 9.5" />
           </button>
           <button
             type="button"
@@ -100,7 +100,7 @@ export function PhotoStrip({
             aria-label={t('photoNext', lang)}
             onClick={() => step(1)}
           >
-            ›
+            <Chevron points="4 2.5 8 6 4 9.5" />
           </button>
           <div className="photo-dots" aria-hidden="true">
             {photos.map((p, i) => (
@@ -111,5 +111,25 @@ export function PhotoStrip({
       )}
       {current.credit && <figcaption>{current.credit}</figcaption>}
     </figure>
+  );
+}
+
+/**
+ * The ‹ › arrows, drawn rather than typed: a font's ‹ › sit off-centre (they're punctuation,
+ * placed for text), so they never centre on a round button. Each chevron's box is centred on the
+ * 12 × 12 view, which the button centres.
+ */
+function Chevron({ points }: { points: string }) {
+  return (
+    <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden="true">
+      <polyline
+        points={points}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

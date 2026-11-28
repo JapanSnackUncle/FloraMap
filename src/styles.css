@@ -5,6 +5,17 @@
   --mute: #78716c;
   --line: #e7e5e4;
   --bg: #fafaf9;
+  --hover: #f5f5f4; /* hover fill for rows and buttons */
+  --accent: #b0245c; /* links and icon buttons; the 見頃 ring colour */
+  --accent-tint: #fbeaf1; /* selected chip */
+  /* Shadows, Google/Apple Maps style: a tight dark one for the edge plus a wide faint one.
+     - edge: a bar or panel that meets the map (top bar, side panel, phone sheet);
+     - float: anything that floats over the map (zoom buttons, notices, phone chips). */
+  --shadow-edge: 0 1px 2px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.12);
+  /* Phones: how long the sheet, and the map controls riding on it, take to move. */
+  --sheet-move: 0.25s;
+  --radius-ctrl: 10px; /* map controls */
   --panel-w: 400px; /* list / place page, as in the prototype */
   /* Layout edges in front of the map sit on multiples of 4 CSS px, so the map (and its pins)
      starts on a whole screen pixel at every common display scaling (100%, 125%, 150%, 200%…).
@@ -18,6 +29,25 @@
 
 * {
   box-sizing: border-box;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A keyboard focus ring only (not on click or tap). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Thin, quiet scrollbars in the side panel and sheet. */
+.place-list,
+.place-page,
+.debug-panel,
+.sheet-content {
+  scrollbar-width: thin;
+  scrollbar-color: #d6d3d1 transparent;
 }
 
 html,
@@ -51,6 +81,9 @@ body,
 .map {
   flex: 1;
   min-width: 0;
+  /* Its own layer: pins' z-indexes (ranking, hover, selected) stay inside the map, under what
+     sits over it (the 凡例 button and card, notices). */
+  isolation: isolate;
 }
 
 .load-error {
@@ -64,6 +97,30 @@ body,
   font-family: inherit;
   font-size: 0.85rem;
   line-height: 1.4;
+  border-radius: var(--radius-ctrl);
+  box-shadow: var(--shadow-float);
+}
+
+/* Map controls: rounded white cards with a soft shadow instead of MapLibre's outline. */
+.maplibregl-ctrl-group:not(:empty) {
+  border-radius: var(--radius-ctrl);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  width: 36px;
+  height: 36px;
+}
+
+@media (hover: hover) {
+  .maplibregl-ctrl-group button:not(:disabled):hover {
+    background-color: var(--hover);
+  }
+}
+
+.maplibregl-ctrl-bottom-right .maplibregl-ctrl-attrib {
+  border-top-left-radius: 6px;
 }
 
 /* ---------- filters */
@@ -77,7 +134,10 @@ body,
   padding: 0 1rem;
   overflow-x: auto;
   background: #fff;
-  border-bottom: 1px solid var(--line);
+  /* A shadow over the panel and map instead of a line (the bar sits above them). */
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-edge);
   scrollbar-width: none;
 }
 
@@ -92,12 +152,37 @@ body,
   background: #fff;
   color: var(--ink);
   cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
 
+/* The chips' group is only for screen readers; the chips are laid out as part of the bar. */
+.chips {
+  display: contents;
+}
+
+/* Desktop: the app's name at the bar's left end. */
+.app-name {
+  flex: none;
+  margin: 0 0.6rem 0 0;
+  font-size: 16px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--hover);
+  }
+}
+
+/* Selected: a tint of the accent, as Google Maps does with its blue, instead of solid black. */
 .chip[aria-pressed='true'] {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: #fff;
+  background: var(--accent-tint);
+  border-color: transparent;
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .map-notice {
@@ -114,7 +199,7 @@ body,
   white-space: nowrap;
   border-radius: 999px;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-float);
   font-size: 0.85rem;
 }
 
@@ -178,7 +263,7 @@ body,
 }
 
 /* Group pin: the number of places in the group, on the pin's upper-left edge (the festival
-   dot has the upper right, the clock the lower right). */
+   dot has the upper right). */
 .pin-count {
   position: absolute;
   top: -5px;
@@ -215,7 +300,9 @@ body,
   width: var(--panel-w);
   max-width: var(--panel-max);
   overflow-y: auto;
-  border-right: 1px solid var(--line);
+  position: relative; /* above the map, so its shadow falls on it */
+  z-index: 1;
+  box-shadow: var(--shadow-edge);
   background: #fff;
   font-size: 15px;
   line-height: 1.5;
@@ -246,28 +333,42 @@ body,
 }
 
 .list-row {
+  --row-pad: 16px;
+  --row-gap: 12px;
+  position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--row-gap);
   width: 100%;
-  padding: 12px 16px;
+  padding: 12px var(--row-pad);
   border: 0;
-  border-bottom: 1px solid var(--line);
   background: none;
   font: inherit;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+/* The divider starts under the text, not under the photo (as in Google and Apple Maps). */
+.list-row::after {
+  content: '';
+  position: absolute;
+  left: calc(var(--row-pad) + var(--list-pin) + var(--row-gap));
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
 }
 
 @media (hover: hover) {
   .list-row:hover {
-    background: var(--bg);
+    background: var(--hover);
   }
 }
 
 .list-pin {
-  --pz: 54px;
+  --pz: var(--list-pin);
   flex: none;
 }
 
@@ -293,12 +394,16 @@ body,
   vertical-align: 0.1em;
 }
 
+/* Tinted, like the selected chip: a pale shade of the stage's ring colour (--stage, set by
+   StageTag) behind a dark shade of it, so the text is always dark on light. 60% keeps the
+   lightest ring colour (lit #E6B333) above 4.5:1 contrast. */
 .stage-tag {
   padding: 1px 8px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 600;
-  color: #fff;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--stage) 18%, #fff);
+  color: color-mix(in srgb, var(--stage) 60%, #000);
 }
 
 .stage-tag.muted {
@@ -308,7 +413,7 @@ body,
 
 .list-status {
   color: var(--mute);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* The secondary part (source and age, end date, last check): smaller, on the same baseline,
@@ -319,7 +424,7 @@ body,
 
 .status-sub {
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 /* Aging report: the source and age are shown prominently. */
@@ -332,7 +437,7 @@ body,
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .list-fest::before {
@@ -340,7 +445,7 @@ body,
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #f97316;
+  background: var(--festival);
 }
 
 .pill-closed {
@@ -358,7 +463,9 @@ body,
   width: var(--panel-w);
   max-width: var(--panel-max);
   overflow-y: auto;
-  border-right: 1px solid var(--line);
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-edge);
   background: #fff;
   font-size: 15px;
   line-height: 1.5;
@@ -404,7 +511,7 @@ body,
   border: 0;
   border-radius: 50%;
   background: none;
-  color: #b0245c;
+  color: var(--accent);
   font: inherit;
   font-size: 24px;
   line-height: 1;
@@ -417,6 +524,12 @@ body,
 
 .icon-btn.close {
   margin-left: 0;
+}
+
+@media (hover: hover) {
+  .icon-btn:hover {
+    background: var(--hover);
+  }
 }
 
 /* The place's photos: a wide strip under its name, edge to edge (PhotoStrip). */
@@ -451,14 +564,17 @@ body,
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  font-size: 22px;
-  line-height: 1;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: var(--shadow-float);
+  color: var(--ink);
+  /* The chevron (an SVG) in the exact middle. */
+  display: grid;
+  place-items: center;
+  padding: 0;
   cursor: pointer;
 }
 .photo-arrow.prev {
@@ -593,7 +709,7 @@ body,
 
 .page-feature .page-info {
   padding: 4px 0 0;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .page-info dt {
@@ -609,11 +725,11 @@ body,
   display: flex;
   flex-wrap: wrap;
   gap: 2px 12px;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .place-page a {
-  color: #b0245c;
+  color: var(--accent);
 }
 
 /* The filter bar's row while a place page is open. */
@@ -621,22 +737,21 @@ body,
   align-items: center;
 }
 
-/* Lined up with the side panel below (on the left, like Google Maps). */
+/* After the app's name, above the side panel. */
 .page-bar .back {
-  width: min(var(--panel-w), var(--panel-max));
-  margin-left: -1rem;
   border: 0;
   border-radius: 0;
   background: none;
   text-align: left;
-  padding: 0 16px;
+  padding: 0 0.4rem;
   font-size: 15px;
-  color: #b0245c;
+  color: var(--accent);
   font-weight: 700;
 }
 
 .page-bar .back:hover {
   text-decoration: underline;
+  background: none;
 }
 
 /* Desktop: the language button sits at the right end of the filter row. */
@@ -667,8 +782,12 @@ body,
   overscroll-behavior-x: contain;
 }
 
-.phone .filter-bar > * {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+.phone .filter-bar {
+  box-shadow: none;
+}
+
+.phone .filter-bar .chip {
+  box-shadow: var(--shadow-float);
   border-color: transparent;
 }
 
@@ -684,15 +803,17 @@ body,
 .phone .maplibregl-ctrl-bottom-right,
 .phone .maplibregl-ctrl-bottom-left {
   bottom: var(--sheet-h, 0px);
-  transition: bottom 0.25s ease;
+  transition: bottom var(--sheet-move) ease;
 }
 
 .sheet {
   /* The first row under the grab bar, a place page's name row or the list's count line, starts
      --sheet-row-top below the grab bar and is --sheet-row-h tall (the name's line height), so
-     their × buttons sit at the same place. */
+     their × buttons sit at the same place. Both end --sheet-row-bottom below that, so the list
+     and a place page have the same peek height. */
   --sheet-row-top: 4px;
   --sheet-row-h: 28px;
+  --sheet-row-bottom: 4px;
   position: absolute;
   left: 0;
   right: 0;
@@ -700,10 +821,12 @@ body,
   z-index: 4;
   display: flex;
   flex-direction: column;
-  border-radius: 14px 14px 0 0;
+  border-radius: 16px 16px 0 0;
   background: #fff;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.18);
-  transition: transform 0.25s ease;
+  box-shadow:
+    0 -1px 2px rgba(0, 0, 0, 0.06),
+    0 -4px 16px rgba(0, 0, 0, 0.12);
+  transition: transform var(--sheet-move) ease;
   /* Below full the sheet takes every vertical swipe itself (Sheet.tsx). */
   touch-action: none;
   overscroll-behavior: contain;
@@ -714,6 +837,13 @@ body,
 .phone .main:has(.sheet.dragging) .maplibregl-ctrl-bottom-left {
   transition: none;
   user-select: none;
+}
+
+/* Until the sheet has been painted at its measured height (Sheet.tsx): no slide on load. */
+.sheet.unsettled,
+.phone .main:has(.sheet.unsettled) .maplibregl-ctrl-bottom-right,
+.phone .main:has(.sheet.unsettled) .maplibregl-ctrl-bottom-left {
+  transition: none;
 }
 
 .sheet.sheet-full {
@@ -740,13 +870,17 @@ body,
   background: #d6d3d1;
 }
 
-/* Phones: the count line is the sheet's first row (see .sheet) and, on the full list, ends with
-   the same × as a place page (lowers the list to peek). */
+/* Phones: the count line is the sheet's first row (see .sheet): the tab row, ending with
+   the same × as a place page whenever the sheet is above peek. */
 .phone .list-count {
   display: flex;
   align-items: center;
   padding-top: var(--sheet-row-top);
+  padding-bottom: var(--sheet-row-bottom);
   line-height: var(--sheet-row-h);
+  /* The divider drawn inside the row, so it adds no height (a place page's header has none). */
+  border-bottom: 0;
+  box-shadow: inset 0 -1px var(--line);
 }
 
 .phone .list-count > span {
@@ -776,6 +910,7 @@ body,
 
 .phone .page-head {
   padding-top: var(--sheet-row-top);
+  padding-bottom: var(--sheet-row-bottom);
 }
 
 .sheet .page-title {
@@ -839,7 +974,9 @@ body,
   width: var(--panel-w);
   max-width: var(--panel-max);
   overflow-y: auto;
-  border-right: 1px solid var(--line);
+  position: relative;
+  z-index: 1;
+  box-shadow: var(--shadow-edge);
   background: #fff;
   font-size: 0.8rem;
 }
@@ -903,4 +1040,132 @@ body,
 .debug-chip.fest {
   background: #ffedd5;
   color: #c2410c;
+}
+
+/* ---------- legend (CLAUDE.md, "Legend") */
+
+/* The 凡例 button sits in the map's lower-left corner with the margin MapLibre gives its corner
+   controls (the OSM credit opposite). */
+.map-area {
+  --legend-gap: 10px;
+  --legend-pad: 6px; /* the open card's edge around the button */
+}
+
+.legend-btn[aria-expanded='true'] {
+  background: var(--accent-tint);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* Desktop: closed, just the button, floating. Open, the legend grows out of it:
+   one rounded card, the rows on top and the button and × on its bottom edge. */
+.legend-dock {
+  position: absolute;
+  left: var(--legend-gap);
+  bottom: var(--legend-gap);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 2 * var(--legend-gap));
+  border-radius: 12px;
+}
+
+.legend-dock:not(.open) .legend-btn {
+  box-shadow: var(--shadow-float);
+  border-color: transparent;
+}
+
+.legend-dock.open {
+  /* Out by the padding around the button, so the button stays where it was. */
+  left: calc(var(--legend-gap) - var(--legend-pad));
+  bottom: calc(var(--legend-gap) - var(--legend-pad));
+  background: #fff;
+  box-shadow: var(--shadow-float);
+  transform-origin: 0 100%;
+  animation: legend-open 0.15s ease-out;
+}
+
+@keyframes legend-open {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+.legend-dock .legend-rows {
+  overflow-y: auto;
+}
+
+/* The bottom edge: the button where it sat while closed. */
+.legend-dock.open .legend-foot {
+  display: flex;
+  border-top: 1px solid var(--line);
+}
+
+.legend-dock.open .legend-btn {
+  margin: var(--legend-pad);
+}
+
+/* Phones: the sheet's tab row (一覧（Nか所） | 凡例, then × at the right end). The open tab, the
+   last one used, is underlined on the row's divider, even at peek. */
+.sheet-tabs {
+  gap: 20px;
+}
+
+.sheet-tab {
+  /* Down to the divider: the underline sits on it. */
+  margin-bottom: calc(-1 * var(--sheet-row-bottom));
+  padding: 0 0 var(--sheet-row-bottom);
+  border: 0;
+  background: none;
+  color: var(--mute);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sheet-tab[aria-selected='true'] {
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: inset 0 -2px var(--accent);
+}
+
+.sheet-tabs > .icon-btn.close {
+  margin-left: auto;
+}
+
+.legend-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 12px 14px;
+}
+
+.legend-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 2px;
+}
+
+.legend-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-width: 68px;
+  font-size: 11px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Legend pins are pictures: no hover zoom, no name pill. */
+.legend .pin-marker {
+  cursor: default;
+}
+
+.legend .pin-marker:hover .pin-body {
+  transform: none;
+}
+
+.legend .pin-label {
+  display: none !important;
 }

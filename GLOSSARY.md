@@ -68,7 +68,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | Term | Meaning |
 |---|---|
 | **confirmed** | Shown from an official, admin (later, user) status that isn't stale. The place page marks it as confirmed. |
-| **estimate** | Shown from anything else: a forecast, a stale fallback, the usual window, or last season's illumination dates. The place page marks it as an estimate; the map draws the same 3 px ring as for confirmed. |
+| **estimate** | Shown from anything else: a forecast, a stale fallback, the usual window, or last season's illumination dates. The place page marks it as an estimate; the map draws the same ring as for confirmed. |
 | **fresh / aging / stale** | A status's age against its stage's limits: fresh within the first limit, aging up to the second, stale beyond it. |
 | **fallback** | What a stale status is replaced with: newer forecast, then last confirmed stage, then the usual window. |
 | **never backwards** | Within a season, the stage shown can't be earlier than the last confirmed report. |
@@ -84,7 +84,7 @@ What words mean **in this project**. Definitions only: the rules that use them a
 | **track**                 | The empty grey ring under a partial fill.                                                                                              |
 | **pin choice**            | The one function that picks which feature fronts a place's pin.                                                                        |
 | **festival dot**          | Orange dot on a pin while a festival is on.                                                                                            |
-| **clock badge**           | "Peak within ~5 days" mark, only when backed by an official report or announced illumination dates.                                    |
+| **clock badge**           | "Peak within ~5 days" mark, only when backed by an official report or announced illumination dates. Not drawn for now (2026-11-28).                                    |
 | **本日休園 pill**             | "Closed today" label beside the place name in the list and place page. Never on the map.                                               |
 | **list**                  | The list of places that match the current filter and sit in the map view: in the side panel on desktop, in the sheet on phones.        |
 | **side panel**            | Desktop: the column left of the map holding the list or place page.                                                                    |

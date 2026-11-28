@@ -1,9 +1,32 @@
 // The status line under each place in the list (CLAUDE.md: source, age, 分咲き figure and dates
 // go in the list, never on the pin). One pure function per feature state; tested.
 
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 import { daysBetween, weekdayOf } from './lib/dates';
-import type { FeatureState, WindowInstance } from './lib/status';
+import {
+  compareFeatures,
+  type FeatureState,
+  type PlaceStatus,
+  type WindowInstance,
+} from './lib/status';
+
+/** The visible map area: west, south, east, north (MapView reports it). */
+export type ViewBounds = [number, number, number, number];
+
+const inside = (ps: PlaceStatus, [w, s, e, n]: ViewBounds) =>
+  ps.place.lng >= w && ps.place.lng <= e && ps.place.lat >= s && ps.place.lat <= n;
+
+/** Places that pass the filter and are on screen, best pin first (CLAUDE.md, "List"). */
+export function listedPlaces(places: PlaceStatus[], bounds: ViewBounds | null): PlaceStatus[] {
+  return places
+    .filter((ps) => ps.pin && (!bounds || inside(ps, bounds)))
+    .sort((a, b) => compareFeatures(a.pin!, b.pin!));
+}
+
+/** The list's count line: 一覧（Nか所） / "List (N places)". */
+export function listCountText(n: number, lang: Lang): string {
+  return n === 1 ? t('listCountOne', lang) : t('listCount', lang).replace('{n}', String(n));
+}
 
 export interface RowText {
   /** The main part: stage figure, tonight's hours, usual window… */

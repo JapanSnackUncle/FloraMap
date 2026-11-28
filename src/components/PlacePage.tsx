@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 import { t, type Lang } from '../i18n';
-import { featureName, fullAddress, placeName, stageColor, stageLabel } from '../labels';
+import { featureName, fullAddress, placeName } from '../labels';
 import type { PublicSource, Species } from '../lib/schema';
-import { OUT_OF_SEASON, RING_COLORS, type FeatureState, type PlaceStatus } from '../lib/status';
+import { OUT_OF_SEASON, type FeatureState, type PlaceStatus } from '../lib/status';
 import { md, rowText, usualWindowText } from '../listText';
+import StageTag from './StageTag';
 import StatusLine from './StatusLine';
 import { DEBUG } from '../debugDate';
 import { HEADER_ASPECT } from '../lib/photos';
@@ -18,6 +19,8 @@ interface Props {
   lang: Lang;
   /** Phones: ← in the name row (一覧に戻る), when there's a list to go back to. */
   onBack?: () => void;
+  /** ←'s spoken label (phones: 一覧に戻る or 凡例に戻る). */
+  backLabel?: string;
   /** Phones: × in the name row (閉じる: back to the map). */
   onClose?: () => void;
 }
@@ -54,7 +57,6 @@ function Info({ label, children }: { label: string; children: ReactNode }) {
 }
 
 function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureState }) {
-  const color = stageColor(s);
   const status = rowText(s, today, lang);
   const planting = s.type === 'planting' ? ps.place.plantings.find((p) => p.id === s.id) : null;
   const il = s.type === 'illumination' ? ps.place.illuminations.find((x) => x.id === s.id) : null;
@@ -80,12 +82,8 @@ function Feature({ s, ps, species, sources, today, lang }: Props & { s: FeatureS
       <span className="feature-body">
         <span className="list-feature">
           <strong>{featureName(s, ps, species, lang)}</strong>
-          <span
-            className={`stage-tag${color === RING_COLORS.track ? ' muted' : ''}`}
-            style={color === RING_COLORS.track ? undefined : { background: color }}
-          >
-            {stageLabel(s, lang)}
-          </span>
+          {/* No tag under シーズン外: the heading already says it. */}
+          {!isOff(s) && <StageTag s={s} lang={lang} />}
         </span>
         <StatusLine status={status} />
         {usual && <span className="list-status">{usual}</span>}
@@ -123,7 +121,7 @@ export default function PlacePage(props: Props) {
             <button
               type="button"
               className="icon-btn"
-              aria-label={t('back', lang)}
+              aria-label={props.backLabel ?? t('back', lang)}
               onClick={onBack}
             >
               ←

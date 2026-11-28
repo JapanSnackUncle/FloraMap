@@ -3,8 +3,11 @@
 
 import type { CSSProperties } from 'react';
 import {
+  FESTIVAL_COLOR,
   NAME_FONT_PX,
   NAME_LINE_HEIGHT,
+  PIN,
+  PIN_RING_PX,
   PIN_SELECTED_SCALE,
   PIN_TIP_TUCK_PX,
   siteUrl,
@@ -27,10 +30,12 @@ export interface PinLook {
   ring: string;
   /** Colour of the taper under the circle: the stage colour (solid even while 咲き始め fills). */
   tip: string;
-  /** Photo treatment: grey for まもなく / シーズン外 / unlit, part-faded for 見頃過ぎ. */
+  /** Photo treatment: grey for over (シーズン外, no recent info), part-faded for 見頃過ぎ. まもなく
+   *  keeps its colour: grey would read as over, not soon. */
   photoFilter: 'none' | 'grey' | 'faded';
+  /** Lit illumination: a soft glow in the ring's gold around the pin. */
+  glow: boolean;
   festival: boolean;
-  clock: boolean;
   /** Stacking: better pins sit on top when they overlap. */
   zIndex: number;
   /** For screen readers only; not drawn. */
@@ -61,10 +66,7 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
   const ring =
     pct === null ? color : `conic-gradient(${color} 0 ${pct}%, ${RING_COLORS.track} ${pct}% 100%)`;
 
-  const greyed =
-    pin.type === 'illumination'
-      ? pin.state !== 'lit'
-      : pin.level === 0 || pin.level === 4 || noInfo;
+  const greyed = pin.type === 'illumination' ? pin.state === 'off' : pin.level === 4 || noInfo;
   const faded = pin.type === 'planting' && pin.level === 3;
   const name = (lang === 'en' && ps.place.name_en) || ps.place.name_ja;
 
@@ -73,25 +75,21 @@ export function pinLook(ps: PlaceStatus, lang: Lang): PinLook | null {
     ring,
     tip: color,
     photoFilter: greyed ? 'grey' : faded ? 'faded' : 'none',
+    glow: pin.type === 'illumination' && pin.state === 'lit',
     festival: ps.festivals.length > 0,
-    clock: pin.peakSoon,
     zIndex: rank(pin) * 10 + (pin.confirmed ? 1 : 0),
     ariaLabel: `${name}: ${stageLabel(pin, lang)}`,
   };
 }
 
-const CLOCK_SVG =
-  '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0245C" stroke-width="3" aria-hidden="true"><path d="M11.5 5.5v8l5 3.5"/></svg>';
-
 /**
  * A group pin (CLAUDE.md, "Grouped pins"): the best place's photo and ring, the festival dot if
- * any place in the group has a festival on, no clock badge.
+ * any place in the group has a festival on.
  */
 export function groupLook(leader: PinLook, festival: boolean, label: string): PinLook {
   return {
     ...leader,
     festival,
-    clock: false,
     ariaLabel: label,
   };
 }
@@ -109,10 +107,9 @@ export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1
   el.setAttribute('aria-label', look.ariaLabel);
   el.innerHTML =
     '<div class="pin-body">' +
-    '<div class="pin">' +
+    `<div class="pin${look.glow ? ' glow' : ''}">` +
     `<img alt="" src="${look.photo}" class="photo-${look.photoFilter}">` +
     (look.festival ? '<span class="pin-fest"></span>' : '') +
-    (look.clock ? `<span class="pin-clock">${CLOCK_SVG}</span>` : '') +
     (count > 1 ? `<span class="pin-count">${count}</span>` : '') +
     '</div><span class="pin-tip"></span></div><span class="pin-label"><span></span></span>';
   el.classList.toggle('group', count > 1);
@@ -124,10 +121,17 @@ export function drawPin(el: HTMLElement, look: PinLook, label: string, count = 1
   el.querySelector('.pin-label > span')!.textContent = label;
 }
 
-/** The map pin's sizes as CSS variables (styles.css: .pin-marker, .pin-tip, selected pin). */
+/**
+ * The map pin's sizes as CSS variables (pin.css; styles.css: .pin-marker, .pin-tip, selected
+ * pin), plus what every pin shares: ring width, festival colour and the list's pin size (rows
+ * keep the desktop pin on phones too).
+ */
 export function pinStyle(pin: PinSize): CSSProperties {
   return {
     '--pin-size': `${pin.size}px`,
+    '--pin-ring': `${PIN_RING_PX}px`,
+    '--list-pin': `${PIN.size}px`,
+    '--festival': FESTIVAL_COLOR,
     '--pin-tip-w': `${pin.tipHalfW}px`,
     '--pin-tip-h': `${pin.tipH}px`,
     '--pin-tip-tuck': `${PIN_TIP_TUCK_PX}px`,

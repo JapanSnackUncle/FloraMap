@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-// MapLibre decodes tiles in a background worker. Importing the worker file's URL makes Vite
-// copy it into the build; MapLibre's own runtime lookup is invisible to the bundler.
-import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import { Protocol } from 'pmtiles';
-import { layers, namedFlavor } from '@protomaps/basemaps';
+import { basemapLayers, basemapStyle, registerPmtiles } from '../basemap';
+import type { ViewBounds } from '../listText';
 import {
-  GLYPHS_URL,
   GROUP_MAX_ZOOM,
+  START_BOUNDS,
   GROUP_RADIUS_PX,
-  IBARAKI_BOUNDS,
   JAPANESE_FONTS,
-  MAP_ATTRIBUTION,
   NAME_FONT_PX,
   NAME_LINE_HEIGHT,
   PAN_MARGIN_PX,
@@ -21,26 +16,14 @@ import {
   PIN,
   PIN_SELECTED_SCALE,
   PIN_TIP_TUCK_PX,
-  RAIL_URL,
   SHEET_HALF,
-  SPRITE_URL,
   TILE_BOUNDS,
-  TILES_URL,
 } from '../config';
 import type { Feature, Point } from 'geojson';
 import { t, type Lang } from '../i18n';
 import { compareFeatures, type PlaceStatus } from '../lib/status';
 import { pinName } from '../labels';
 import { drawPin, groupLook, pinLook, type PinLook } from '../pins';
-
-// MapLibre reads "pmtiles://..." URLs through this protocol handler. Register it once per page.
-let protocolRegistered = false;
-function registerPmtiles() {
-  if (protocolRegistered) return;
-  maplibregl.setWorkerUrl(workerUrl);
-  maplibregl.addProtocol('pmtiles', new Protocol().tile);
-  protocolRegistered = true;
-}
 
 /**
  * The view (#zoom/lat/lng) in the address bar when the page opened, if any. Read once: in dev,
@@ -52,55 +35,6 @@ function parseView(hash: string): { zoom: number; center: [number, number] } | n
   const [z, lat, lng] = hash.replace(/^#/, '').split('/').map(Number);
   if ([z, lat, lng].some((n) => n === undefined || Number.isNaN(n))) return null;
   return { zoom: z!, center: [lng!, lat!] };
-}
-
-/**
- * Protomaps' light style, with railway lines made easy to see (people orient by stations).
- * Main lines come from public/rail.geojson (scripts/build-rail.ts), because the tiles have no
- * railways below zoom 12; they get the Japanese paper-map look: a dark line with a white dash
- * inside. Sidings, yards and crossovers (`service` tag) stay faint, drawn from the tiles.
- */
-function basemapLayers(lang: Lang): maplibregl.LayerSpecification[] {
-  // `lang` picks the label language: OSM's name:en where it exists (with the local name on a
-  // second line), else the Japanese name.
-  const base = layers('protomaps', namedFlavor('light'), { lang });
-  const i = base.findIndex((l) => l.id === 'roads_rail');
-  const original = base[i] as maplibregl.LineLayerSpecification;
-  const width = (scale: number): maplibregl.ExpressionSpecification => [
-    'interpolate',
-    ['linear'],
-    ['zoom'],
-    6,
-    0.8 * scale,
-    8,
-    1.2 * scale,
-    12,
-    2.5 * scale,
-    15,
-    4 * scale,
-    18,
-    7 * scale,
-  ];
-  const rail: maplibregl.LayerSpecification[] = [
-    {
-      ...original,
-      id: 'roads_rail_service',
-      filter: ['all', ['==', ['get', 'kind'], 'rail'], ['has', 'service']],
-    },
-    {
-      id: 'rail_main',
-      type: 'line',
-      source: 'rail',
-      paint: { 'line-color': '#7f898d', 'line-width': width(1) },
-    },
-    {
-      id: 'rail_main_dash',
-      type: 'line',
-      source: 'rail',
-      paint: { 'line-color': '#ffffff', 'line-width': width(0.5), 'line-dasharray': [3, 3] },
-    },
-  ];
-  return [...base.slice(0, i), ...rail, ...base.slice(i + 1)];
 }
 
 /** Let the map pan and zoom out past the tiles (grey beyond them) so all of Ibaraki fits any screen. */
@@ -124,6 +58,23 @@ export interface MapInsets {
 function pinBox(phone: boolean): [number, number] {
   const pin = phone ? PHONE_PIN : PIN;
   return [pin.size, pin.size + pin.tipH - PIN_TIP_TUCK_PX];
+}
+
+/**
+ * Padding for the opening view, so the outermost pins show whole: a pin stands above its point
+ * (its full height on top), its name hangs below (one line), and half its width sits either side.
+ * Phones add the chips above and the sheet below.
+ */
+function startPadding(ins: MapInsets | null | undefined, phone: boolean) {
+  const [w, h] = pinBox(phone);
+  const gap = 8;
+  const name = Math.ceil(NAME_FONT_PX * NAME_LINE_HEIGHT) + gap;
+  return {
+    top: (ins?.top ?? 0) + h + gap,
+    bottom: (ins?.bottom ?? 0) + name,
+    left: w / 2 + gap,
+    right: w / 2 + gap,
+  };
 }
 
 const groupRadius = (phone: boolean) => (phone ? PHONE_GROUP_RADIUS_PX : GROUP_RADIUS_PX);
@@ -189,7 +140,7 @@ function viewHash(map: maplibregl.Map): string {
   return `#${Math.round(zoom * 100) / 100}/${Math.round(c.lat * m) / m}/${Math.round(c.lng * m) / m}`;
 }
 
-export type ViewBounds = [number, number, number, number];
+export type { ViewBounds };
 
 // ---------- place names (CLAUDE.md, "Place names")
 
@@ -400,21 +351,8 @@ export default function MapView({
     registerPmtiles();
     const map = new maplibregl.Map({
       container: container.current,
-      style: {
-        version: 8,
-        glyphs: GLYPHS_URL,
-        sprite: SPRITE_URL,
-        sources: {
-          protomaps: {
-            type: 'vector',
-            url: `pmtiles://${new URL(TILES_URL, window.location.href).href}`,
-            attribution: MAP_ATTRIBUTION,
-          },
-          rail: { type: 'geojson', data: RAIL_URL },
-        },
-        layers: basemapLayers(langRef.current),
-      },
-      // Open on all of Ibaraki, unless the address bar already holds a view.
+      style: basemapStyle(langRef.current),
+      // Open on the places' area, unless the address bar already holds a view.
       ...(OPENED_WITH_VIEW ??
         (startCenter.current
           ? {
@@ -422,18 +360,9 @@ export default function MapView({
               zoom: PLACE_LINK_ZOOM,
             }
           : {
-              bounds: IBARAKI_BOUNDS,
-              // Phones: all of Ibaraki between the chips and the sheet at peek.
-              fitBoundsOptions: {
-                padding: insetsRef.current
-                  ? {
-                      top: insetsRef.current.top + 8,
-                      bottom: insetsRef.current.bottom + 8,
-                      left: 16,
-                      right: 16,
-                    }
-                  : 16,
-              },
+              bounds: START_BOUNDS,
+              // Phones: the places' area between the chips and the sheet at peek.
+              fitBoundsOptions: { padding: startPadding(insetsRef.current, phoneRef.current) },
             })),
       maxBounds: MAX_BOUNDS,
       minZoom: 6,

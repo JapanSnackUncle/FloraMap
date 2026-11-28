@@ -85,9 +85,9 @@ export const ILLUMINATION_LABELS = {
 
 export const RING_COLORS = {
   track: '#E7E5E4',
-  bloom: { 1: '#E58FAD', 2: '#B0245C', 3: '#9E7F89' },
-  foliage: { 1: '#E9A23B', 2: '#C2410C', 3: '#8C6A4F' },
-  lit: '#D4A017',
+  bloom: { 1: '#E0457B', 2: '#B0245C', 3: '#9E7F89' },
+  foliage: { 1: '#E9A23B', 2: '#C2410C', 3: '#A88E7C' },
+  lit: '#E6B333',
 } as const;
 
 // ---------- planting state

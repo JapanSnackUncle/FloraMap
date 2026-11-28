@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import DebugBar from './components/DebugBar';
 import DebugPanel from './components/DebugPanel';
 import FilterBar from './components/FilterBar';
+import LegendTab, { LegendDock } from './components/Legend';
 import MapView, { type ViewBounds } from './components/MapView';
 import PlaceList from './components/PlaceList';
 import PlacePage from './components/PlacePage';
@@ -11,13 +12,20 @@ import { useData } from './data';
 import { DEBUG, useAppDate } from './debugDate';
 import { t, type Lang } from './i18n';
 import { passesFilter, pinForFilter, placeStatus, type Filter } from './lib/status';
+import { legendRows } from './legend';
+import { listCountText, listedPlaces } from './listText';
 import { pinStyle } from './pins';
 import { OPENED_WITH_PLACE, useSelectedPlace } from './selectedPlace';
 import { useIsPhone } from './usePhone';
 
-/** Sheet heights: a place page uses all three; the list skips half (it's for browsing). */
+/** Sheet heights: a place page uses peek, half and full; the list skips half (it's for
+ *  browsing); the legend rests at its own height (fit, up to half) instead of half. */
 const ALL_SNAPS: readonly Snap[] = ['peek', 'half', 'full'];
 const LIST_SNAPS: readonly Snap[] = ['peek', 'full'];
+const LEGEND_SNAPS: readonly Snap[] = ['peek', 'fit', 'full'];
+
+/** Phones: the sheet's two tabs on its count line (CLAUDE.md, "Legend"). */
+type Tab = 'list' | 'legend';
 
 export default function App() {
   const [lang, setLang] = useState<Lang>('ja');
@@ -30,12 +38,15 @@ export default function App() {
   const [filter, setFilter] = useState<Filter>('in-season');
   const { selected, open, close } = useSelectedPlace();
   const phone = useIsPhone();
+  // The legend (CLAUDE.md, "Legend"). Desktop: a card over the map, open when the page loads.
+  // Phones: the 凡例 tab in the sheet; `tab` is the last tab opened (underlined even at peek).
+  const [cardOpen, setCardOpen] = useState(true);
+  const [tab, setTab] = useState<Tab>('list');
 
   // Phones (CLAUDE.md, "Phone layout"): the sheet starts at peek, or at half for a place link.
-  // Opening a place raises it to half. The page's buttons say where closing goes: 一覧に戻る to
-  // the list at its earlier height, 閉じる to the map (list at peek). A map tap also closes to
-  // peek. Back and Esc return the list to its earlier height, unless the page was lowered to
-  // peek: then the list stays at peek.
+  // Opening a place raises it to half and remembers the tab's height (`listSnap`). Closing: ×
+  // and a map tap go to peek; ← goes back to that tab and height; Back and Esc too, unless the
+  // page was lowered to peek: then peek. The tab stays as it was throughout.
   const [snap, setSnap] = useState<Snap>(OPENED_WITH_PLACE ? 'half' : 'peek');
   const [listSnap, setListSnap] = useState<Snap>('peek');
   const [prevSelected, setPrevSelected] = useState(selected);
@@ -81,15 +92,51 @@ export default function App() {
     [statuses, filter, selected],
   );
 
-  // Esc closes the place page.
+  // The legend's rows: from the places passing the filter, with the filter's pin (not only those
+  // on screen). Its photos: each species' pin close-up, as on the map.
+  const legendRowSet = useMemo(
+    () =>
+      legendRows(
+        statuses
+          .filter((ps) => passesFilter(ps, filter))
+          .map((ps) => ({ pin: pinForFilter(ps, filter), festivals: ps.festivals })),
+      ),
+    [statuses, filter],
+  );
+  const pinSrc = useMemo(() => {
+    const out: Record<string, string> = {};
+    for (const p of data?.places ?? [])
+      for (const pl of p.plantings) if (pl.pin_src) out[pl.species] ??= pl.pin_src;
+    return out;
+  }, [data]);
+
+  // No rows (nothing passes the filter): no 凡例 button or tab. A legend tab that loses its rows
+  // while open gives way to the list at peek.
+  const hasLegend = legendRowSet.size > 0;
+  if (tab === 'legend' && !hasLegend && statuses.length) {
+    setTab('list');
+    if (!selected) setSnap('peek');
+  }
+  // Esc closes the desktop card first, then the place page.
+  const cardShown = !phone && cardOpen && hasLegend;
   useEffect(() => {
-    if (!selected) return;
+    if (!selected && !cardShown) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') close();
+      if (e.key !== 'Escape') return;
+      if (cardShown) setCardOpen(false);
+      else close();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [selected, close]);
+  }, [selected, close, cardShown]);
+
+  // Phones: tapping a tab. The underlined tab above peek lowers the sheet to peek. Otherwise
+  // 一覧 opens the list at full, and 凡例 the legend at its own height (full when the list was).
+  const tapTab = (to: Tab) => {
+    if (to === tab && snap !== 'peek') return setSnap('peek');
+    setTab(to);
+    setSnap(to === 'list' || snap === 'full' ? 'full' : 'fit');
+  };
 
   // Debug panel only: fly to a place. Opening a place never moves the map.
   const flyTo = (id: string) => {
@@ -100,31 +147,58 @@ export default function App() {
   const linkPlace = data?.places.find((p) => p.id === OPENED_WITH_PLACE);
 
   const debugOpen = DEBUG && panelOpen;
-  // The list never rests at half (CLAUDE.md, "Phone layout"). The one way the list can meet a
-  // half sheet is closing the debug panel there: it shows at full.
-  const sheetSnaps = selectedStatus || debugOpen ? ALL_SNAPS : LIST_SNAPS;
+  // A height the content doesn't use shows as full (closing the debug panel at half, say).
+  const sheetSnaps =
+    selectedStatus || debugOpen ? ALL_SNAPS : tab === 'legend' ? LEGEND_SNAPS : LIST_SNAPS;
   const sheetSnap = sheetSnaps.includes(snap) ? snap : 'full';
 
-  // Phones: closing buttons. A place page has × (閉じる: back to the map) in its name row, and ←
-  // (一覧に戻る) when there's a list to go back to: the page was opened from the full list (at
-  // peek the list shows no rows, so a page opened then came from a pin or a link). The full list,
-  // which hides the map, has the same × on its count line: it lowers the list to peek.
+  // Phones: closing buttons. A place page has × (閉じる: back to the map, the tab at peek) in its
+  // name row, and ← when it was opened while the sheet was above peek: back to that tab and
+  // height, its spoken label saying which (at peek the sheet shows no rows, so a page opened then
+  // came from a pin or a link). The tab row has the same × whenever the sheet is above peek.
   const pageActions =
     phone && !debugOpen
       ? {
-          onBack: listSnap === 'full' ? () => closeTo('full') : undefined,
+          onBack: listSnap !== 'peek' ? () => closeTo(listSnap) : undefined,
+          backLabel: t(tab === 'legend' ? 'backToLegend' : 'back', lang),
           onClose: () => closeTo('peek'),
         }
       : {};
-  const listClose = phone && !debugOpen && !selectedStatus && sheetSnap === 'full' && (
-    <button
-      type="button"
-      className="icon-btn close"
-      aria-label={t('close', lang)}
-      onClick={() => setSnap('peek')}
-    >
-      ×
-    </button>
+  const listCount = listCountText(listedPlaces(visible, bounds).length, lang);
+  // data-peek: a phone's sheet at peek shows down to here (grab bar and this row).
+  const tabRow = (
+    <div className="list-count sheet-tabs" data-peek="" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        className="sheet-tab"
+        aria-selected={tab === 'list'}
+        onClick={() => tapTab('list')}
+      >
+        {listCount}
+      </button>
+      {hasLegend && (
+        <button
+          type="button"
+          role="tab"
+          className="sheet-tab"
+          aria-selected={tab === 'legend'}
+          onClick={() => tapTab('legend')}
+        >
+          {t('legend', lang)}
+        </button>
+      )}
+      {sheetSnap !== 'peek' && (
+        <button
+          type="button"
+          className="icon-btn close"
+          aria-label={t('close', lang)}
+          onClick={() => setSnap('peek')}
+        >
+          ×
+        </button>
+      )}
+    </div>
   );
 
   const panel =
@@ -140,6 +214,8 @@ export default function App() {
         lang={lang}
         {...pageActions}
       />
+    ) : phone && tab === 'legend' ? (
+      <LegendTab rows={legendRowSet} pinSrc={pinSrc} lang={lang} head={tabRow} />
     ) : (
       <PlaceList
         places={visible}
@@ -148,7 +224,7 @@ export default function App() {
         today={date}
         lang={lang}
         onSelect={open}
-        countAction={listClose}
+        head={phone ? tabRow : undefined}
       />
     ));
 
@@ -168,7 +244,8 @@ export default function App() {
       lang={lang}
       style={pinStyle(phone ? PHONE_PIN : PIN)}
     >
-      {/* No title bar: on desktop the filter row (with the language button) is the only bar. */}
+      {/* No title bar: on desktop the filter row (with the app's name and the language button)
+          is the only bar. */}
       {DEBUG && (
         <DebugBar
           date={date}
@@ -187,6 +264,7 @@ export default function App() {
           lang={lang}
           openPlace={selectedStatus ? { onBack: close } : null}
           extra={langToggle}
+          title={<h1 className="app-name">{t('appTitle', lang)}</h1>}
         />
       )}
       <div className="main">
@@ -204,10 +282,20 @@ export default function App() {
               onViewChange={setBounds}
               selectedId={selected}
               onPinClick={open}
-              onEmptyClick={() => closeTo('peek')}
+              onEmptyClick={() => (selected ? closeTo('peek') : setSnap('peek'))}
               initialCenter={linkPlace ? { lng: linkPlace.lng, lat: linkPlace.lat } : null}
               insets={phone ? { top: SHEET_TOP_PX, bottom: sheetH } : null}
               phone={phone}
+            />
+          )}
+          {/* Desktop: the 凡例 button with the legend card growing out of it (phones: a tab). */}
+          {data && hasLegend && !phone && (
+            <LegendDock
+              rows={legendRowSet}
+              pinSrc={pinSrc}
+              lang={lang}
+              open={cardOpen}
+              onToggle={() => setCardOpen((o) => !o)}
             />
           )}
           {data && visible.length === 0 && (
@@ -231,7 +319,7 @@ export default function App() {
             snaps={sheetSnaps}
             onRest={setSheetH}
             handleLabel={t('sheetHandle', lang)}
-            contentKey={debugOpen ? 'debug' : (selected ?? 'list')}
+            contentKey={debugOpen ? 'debug' : (selected ?? tab)}
           >
             {panel}
           </Sheet>
