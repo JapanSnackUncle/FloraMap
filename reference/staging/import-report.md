@@ -31,5 +31,5 @@ Started as the import report (2026-11-25, `scripts/import-sheet.py`: 25 places, 
 - [ ] 2026 dates not found: 春バラ (フラワーパーク: bloom page only, no event range), フラワリング (ひたち海浜公園), あじさい祭り (北茨城: start 6/13, no end found).
 - [ ] 2027 festival dates: none announced yet except 水戸の梅まつり (2/11–3/22). Check from January.
 - [ ] ダイゴライト 2025-26 hours: not found (low priority; the 2026-27 edition has hours).
-- [ ] Illumination-only places (no plantings): hitachi-civic, kasumigaura-park, kawachi-fureai, kirakuyama. Fine as is; listed for awareness.
-- [ ] Park opening hours for those four places: their `hours_ja` only repeated the illumination hours (「イルミ期間 …」), so it was removed 2026-11-27. Add the real 営業時間 if found; until then 営業時間 is hidden.
+- [ ] Illumination-only places (no plantings): kasumigaura-park, kawachi-fureai, kirakuyama. Fine as is; listed for awareness. (hitachi-civic removed 2026-11-28: out of illumination scope.)
+- [ ] Park opening hours for those three places: their `hours_ja` only repeated the illumination hours (「イルミ期間 …」), so it was removed 2026-11-27. Add the real 営業時間 if found; until then 営業時間 is hidden.

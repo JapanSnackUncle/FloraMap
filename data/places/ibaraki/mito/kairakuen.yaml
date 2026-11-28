@@ -78,18 +78,3 @@ plantings:
     provisional: true
     window_raw: "2月下旬〜3月上旬"
     official_urls: ["https://www.pref.ibaraki.jp/bugai/koho/kenmin/syun/20260205.html"]
-illuminations:
-  - id: kairakuen-illumination
-    kind: illumination
-    name_ja: "もみじ谷　ライトアップ"
-    editions:
-      - season: "2026-27"
-        from: "2026-11-07"
-        to: "2026-11-29"
-        dates_announced: true
-        hours:
-          - from: "2026-11-07"
-            to: "2026-11-29"
-            hours_ja: "日没〜21:00"
-            note_ja: "期間は色づき状況により変更の場合あり（公式サイトで告知）"
-        editor_notes: "https://ibaraki-kairakuen.jp/news/detail?id=5899 (2026-09-27). 約170本のモミジ・カエデ。dates marked （予定）"

@@ -1,0 +1,15 @@
+schema_version: 1
+id: kairakuen-momiji-lightup
+name_ja: "もみじ谷　ライトアップ"
+place_ids: [kairakuen]
+planting_ids: [kairakuen-momiji]
+night_events_ja: "もみじ谷ライトアップ 日没〜21:00（期間は色づき状況により変更の場合あり）"
+official_urls: ["https://ibaraki-kairakuen.jp/news/detail?id=5899"]
+editor_notes: "Moved from illumination kairakuen-illumination (6.15: a light-up that ends with its plants is a festival). Official news 2026-09-27; 約170本のモミジ・カエデ; dates marked （予定）."
+editions:
+  - id: kairakuen-momiji-lightup-2026
+    from: "2026-11-07"
+    to: "2026-11-29"
+    dates_announced: true
+  - id: kairakuen-momiji-lightup-2027
+    dates_announced: false

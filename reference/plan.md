@@ -18,9 +18,9 @@ v1 has to work with zero users and fit around a day job. Everything deferred dep
 
 **In v1**
 
-- **Ibaraki only, 25 hand-picked places** (32 more are listed in the retired staging sheet with `in_v1: no`): the ones with official status updates, plus the rest showing their usual bloom window.
+- **Ibaraki only, 24 hand-picked places** (32 more are listed in the retired staging sheet with `in_v1: no`): the ones with official status updates, plus the rest showing their usual bloom window.
 - **Bloom stages, semi-automatic:** a script checks the official pages each day and alerts R when one changes; R confirms the stage. No automatic parsing yet.
-- **Festivals and illuminations entered by hand:** festivals for February–May 2027, about 7 illuminations for 2026–27.
+- **Festivals and illuminations entered by hand:** festivals for February–May 2027, about 5 illuminations for 2026–27 (park, garden or natural-site light shows only; see 6.15).
 - **Web app (installable PWA):** map with ring pins, festival badge, filters, a list, a place page, and a freshness label ("公式 · 2日前" / "例年").
 - **Photos:** R's own, the prefecture's photo library (いばらきフォトダウンロード, terms to check), park photos used with permission, and hand-picked Instagram embeds.
 - **Japanese and English.**
@@ -153,7 +153,10 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Decided 2026-11-28 (rule in CLAUDE.md, "Place names"): English names over 16 characters break at a space onto two lines; Japanese stays one line.
     - Why: the old one-line rule existed because MapLibre and the HTML label wrapped differently. Choosing the break in code and giving both the same text removes that, and long English names (up to 28 characters, over 3 pin widths) lost too many collisions on one line. A character count over pixel width because it's deterministic and testable. Shorter line on top so the name widens away from the pin, like its taper.
     - Parked: hand-marked breaks for Japanese names (a schema change), if a real name such as 日立シビックセンター新都市広場 looks bad.
-- [ ] 6.15 Specs that nail down what is a standalone illumination (gets its own "planting"), and what illuminations are merely attached to events (e.g. 花貫渓谷 紅葉ライトアップ). Also the scope of what illuminations to put. The Hitachi Civic Center illumination has no relation to plants or nature. かわちイルミネーション2026 and 第15回 光がつくる“Art”水郷桜イルミネーション are in もみじ谷　ライトアップ is in an actual place where people go for regular 紅葉 viewing.
+- [x] 6.15 Specs that nail down what is a standalone illumination (gets its own "planting"), and what illuminations are merely attached to events (e.g. 花貫渓谷 紅葉ライトアップ). Also the scope of what illuminations to put. The Hitachi Civic Center illumination has no relation to plants or nature. かわちイルミネーション2026 and 第15回 光がつくる“Art”水郷桜イルミネーション are in parks. もみじ谷　ライトアップ is in an actual place where people go for regular 紅葉 viewing.
+    - Decided 2026-11-28 (rules in CLAUDE.md, "What counts as an illumination" and "Illumination scope"): an illumination is a light show whose run outlasts the plants it lights, judged per event; a light-up that ends with its plants is a festival. Only park, garden or natural-site illuminations.
+    - Why: a light-up of plants as an illumination outranks its own planting, so 偕楽園 showed a gold pin whatever the leaves were doing, and its dates move with the colouring, so a countdown would be a guess. As a festival it gets the event dot and the planting keeps the stage ring. Judging the whole event keeps one branded event as one thing (Moonlight Rose Garden's rose part and LED part aren't split). City displays fall outside a map of seasonal nature.
+    - Changes: もみじ谷 ライトアップ → festival `kairakuen-momiji-lightup`; place `hitachi-civic` removed; Flower Park's gap between parts (11/24–27) was already in its closures, so no logic change.
 - [x] 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
 ### Phase 2 – App complete (weeks 4–6)
 
@@ -233,7 +236,7 @@ Not v1 unless a real place needs it.
 
 - **Stages:** per-flower LEAD values; per-species freshness limits; official vs user report conflicts (v2, once user reports exist).
 - **Filters/Menu UI:** Filter by species (drop-down list?), menu, position of language switcher icon
-- **Data:** the 32 `in_v1: no` places; 桜川市総合運動公園 and SAKURAフェスティバル (parked: no plantings); general events via the `kind` field; other prefectures (the folder layout is ready for them).
+- **Data:** the 32 `in_v1: no` places; 桜川市総合運動公園 and SAKURAフェスティバル (parked: no plantings); general events via the `kind` field; city illuminations (streets, plazas, stations: e.g. ヒタチ スターライト, removed 2026-11-28, in git history); other prefectures (the folder layout is ready for them).
 - **Look-ahead**: similar to the debug mode, users can select a date in the future, up to a reasonable limit (couple weeks to a month), to see what's happening on that date. UI will indicate that blooms are predictions.
 - **Platforms:** Android and iOS apps
 - **In-app search function:** As more places get added, it would be handy for users. Search for places, species, event names
