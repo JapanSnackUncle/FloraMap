@@ -15,9 +15,11 @@ hours_ja: "9:30〜17:00（7/21〜8/31は〜18:00、11/1〜2月末は〜16:30）"
 closed_ja: "火曜休（祝日の場合は直後の平日）、12/31・1/1休、2月第1火曜の前日〜直後の金曜休。春期3/26〜5/31・冬期12/25〜30, 1/2〜7は毎日開園"
 fee_ja: "大人450円、65歳以上210円、中学生以下無料（季節により異なる）"
 parking_ja: "約4,350台、普通車1日600円"
+pets: allowed
+pets_note_ja: "リード2m以内、入園口で誓約書に署名。犬は1年以内の狂犬病予防接種が必要。シーサイドトレイン・遊園地内遊戯施設は不可"
 official_urls: ["https://hitachikaihin.jp/guide/schedule.html"]
 checked_against: ["https://rurubu.jp/andmore/spot/80006225", "https://summer.walkerplus.com/odekake/detail/ar0308s47036/data.html"]
-editor_notes: "closed days updated from official schedule page (checked 2026-11-25); ネモフィラ・コキア見頃期は季節料金 +350円（2025年度）\nclosures written out from official schedule page (checked 2026-11-25, 内閣府 holiday list). 2/23(火・祝)→2/24休, 11/3→11/4休; 5/4→5/6 falls inside the spring open period."
+editor_notes: "closed days updated from official schedule page (checked 2026-11-25); ネモフィラ・コキア見頃期は季節料金 +350円（2025年度）\nclosures written out from official schedule page (checked 2026-11-25, 内閣府 holiday list). 2/23(火・祝)→2/24休, 11/3→11/4休; 5/4→5/6 falls inside the spring open period.\npets from official 園内でのお願い page (checked 2026-11-29). accessible_parking left empty: barrier-free, access, FAQ pages and barrier-free map show no dedicated spaces (only free parking for 手帳 holders)."
 photos:
   - file: "300cb7c3a9c475a3076310c309733c99.png"
     credit: "いばらき観光キャンペーン推進協議会"

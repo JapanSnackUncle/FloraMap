@@ -14,9 +14,12 @@ hours_ja: "9:00〜17:00（季節により変動）"
 closed_ja: "火曜休"
 fee_ja: "季節・開花で変動：春は大人1,200〜1,800円・小人400〜600円（バラ見頃が最高額）"
 parking_ja: "1,200台、無料"
+accessible_parking: true
+pets: allowed
+pets_note_ja: "+200円、入口で誓約書に記入、リード着用。建物・温室の中は不可"
 official_urls: ["https://www.flowerpark.or.jp/time-price/"]
 checked_against: ["https://www.walkerplus.com/spot/ar0308s65321/map.html", "https://www.walkerplus.com/event/ar0308e304893/price.html"]
-editor_notes: "closed days from the official 営業日カレンダー, Nov 2026–Mar 2027 (checked 2026-11-25). April–June 2027 show no closed days yet; re-check before valid_until."
+editor_notes: "closed days from the official 営業日カレンダー, Nov 2026–Mar 2027 (checked 2026-11-25). April–June 2027 show no closed days yet; re-check before valid_until.\npets from official FAQ; accessible_parking from access page 「第1駐車場 290台（優先駐車場…あり）」 (checked 2026-11-29)."
 photos:
   - file: "28018560_s.jpg"
     credit: "写真AC"

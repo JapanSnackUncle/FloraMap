@@ -14,9 +14,11 @@ hours_ja: "6:00〜19:00（10月〜2月中旬は7:00〜18:00）"
 closed_ja: "無休"
 fee_ja: "大人320円、小中学生・70歳以上160円（好文亭は別途）"
 parking_ja: "約1,000台、有料・無料あり（梅まつり期間は有料）"
+accessible_parking: true
+pets: not_allowed
 official_urls: ["https://ibaraki-kairakuen.jp/guide/"]
 checked_against: ["https://rurubu.jp/andmore/spot/80005902"]
-editor_notes: "hours and normal fees match official guide (checked 2026-11-25). 梅まつり期間以外は県民無料・開門〜9時は全員無料"
+editor_notes: "hours and normal fees match official guide (checked 2026-11-25). 梅まつり期間以外は県民無料・開門〜9時は全員無料\npets from official guide 禁止事項; accessible_parking from access page (障害者専用: 表門前5台, 好文亭表門11台, 桜山・桜川にも) (checked 2026-11-29)."
 photos:
   - file: "Al1zI4uPoUr22jM.jpg"
     credit: "いばらき観光キャンペーン推進協議会"
