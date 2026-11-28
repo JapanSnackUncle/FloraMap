@@ -311,3 +311,110 @@ button.link {
 .crop-stage img {
   max-height: 52vh;
 }
+
+/* ---------- Pins tab (PinsTool.tsx) */
+.cmp {
+  display: flex;
+  gap: 20px;
+  padding: 16px 20px 40px;
+  align-items: start;
+}
+.cmp-controls {
+  width: 300px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cmp-controls h3 {
+  margin: 4px 0 0;
+}
+.cmp-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cmp-controls label > * {
+  font-weight: 400;
+}
+.cmp-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.cmp-swatches button.on {
+  outline: 2px solid #1c1917;
+}
+.cmp-swatches i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: -1px;
+}
+.cmp-note {
+  font-size: 12px;
+  color: #78716c;
+}
+.cmp-pane h3 {
+  margin: 0 0 6px;
+}
+.cmp-frame {
+  position: relative;
+  height: 760px;
+  border: 1px solid #d6d3d1;
+  overflow: hidden;
+}
+.cmp-map {
+  position: absolute;
+  inset: 0;
+}
+/* The pins sit over the map at fixed spots; drags go through to the map. */
+.cmp-board {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  padding: 8px 10px 24px;
+  pointer-events: none;
+}
+.cmp-row-title,
+.cmp-label {
+  text-shadow:
+    0 0 2px #fff,
+    0 0 2px #fff,
+    0 0 3px #fff;
+}
+.cmp-row-title {
+  font-size: 11px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.cmp-cells {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 2px;
+}
+.cmp-cell {
+  /* Wider than a pin, so the stage names under neighbouring pins don't run together. */
+  min-width: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.cmp-label {
+  font-size: 10px;
+  white-space: nowrap;
+}
+/* The candidate's changes to the app's pin (pin.css). */
+.cmp-frame .pin {
+  --rw: var(--cmp-ring);
+}
+.cmp-frame .pin-fest {
+  background: var(--cmp-fest);
+}

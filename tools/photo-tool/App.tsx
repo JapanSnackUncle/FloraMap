@@ -3,6 +3,7 @@
 //   photo's 2:1 strip should sit (focus_y). Saving rewrites only the `photos` block of
 //   data/places/<path>.yaml via server.ts, then runs the data check.
 // - Species: each species' pin close-up (SpeciesTool.tsx).
+// - Pins: pin colour and style candidates side by side on the map (PinsTool.tsx). Saves nothing.
 // Both tabs stay mounted, so switching keeps unsaved edits.
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
@@ -20,6 +21,7 @@ import {
   MAX_SIDE,
   saveResultText,
   setDimsFor,
+  PINS_HASH,
   SPECIES_HASH,
   startingPair,
   usePairOptions,
@@ -28,19 +30,22 @@ import {
 } from './shared.ts';
 import { CreditLicenseFields, SaveBar } from './fields.tsx';
 import { SpeciesTool } from './SpeciesTool.tsx';
+import { PinsTool } from './PinsTool.tsx';
 
-type Tab = 'places' | 'species';
+type Tab = 'places' | 'species' | 'pins';
+const TAB_NAMES: Record<Tab, string> = { places: 'Places', species: 'Species', pins: 'Pins' };
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>(() =>
-    location.hash.slice(1).split('/')[0] === SPECIES_HASH ? 'species' : 'places',
-  );
+  const [tab, setTab] = useState<Tab>(() => {
+    const head = location.hash.slice(1).split('/')[0];
+    return head === SPECIES_HASH ? 'species' : head === PINS_HASH ? 'pins' : 'places';
+  });
   const tabs = (
     <nav className="tabs">
       <h1>Photo tool</h1>
-      {(['places', 'species'] as const).map((t) => (
+      {(['places', 'species', 'pins'] as const).map((t) => (
         <button key={t} className={t === tab ? 'on' : ''} onClick={() => setTab(t)}>
-          {t === 'places' ? 'Places' : 'Species'}
+          {TAB_NAMES[t]}
         </button>
       ))}
     </nav>
@@ -53,6 +58,8 @@ export default function App() {
       <div hidden={tab !== 'species'}>
         <SpeciesTool tabs={tabs} active={tab === 'species'} />
       </div>
+      {/* Mounted only while showing: its two maps would draw at zero size while hidden. */}
+      {tab === 'pins' && <PinsTool tabs={tabs} />}
     </>
   );
 }
@@ -77,7 +84,8 @@ function PlacesTool({ tabs, active }: { tabs: ReactNode; active: boolean }) {
   const [loadError, setLoadError] = useState('');
   const [path, setPath] = useState(() => {
     const hash = decodeURIComponent(location.hash.slice(1));
-    return hash.split('/')[0] === SPECIES_HASH ? '' : hash;
+    const head = hash.split('/')[0];
+    return head === SPECIES_HASH || head === PINS_HASH ? '' : hash;
   });
   const [drafts, setDrafts] = useState<Record<string, PhotoEntry[]>>({});
   const [selected, setSelected] = useState<string | null>(null);

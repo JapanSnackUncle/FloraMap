@@ -13,6 +13,8 @@ export type Dims = { w: number; h: number };
 
 /** The Species tab's addresses start with this (#species/ume); anything else is a place. */
 export const SPECIES_HASH = 'species';
+/** The Pins tab's address. */
+export const PINS_HASH = 'pins';
 
 /** The credit/license pair last chosen in either tab (new photos start with it). */
 export function readLastPair(): { credit: string; license: string } | null {
