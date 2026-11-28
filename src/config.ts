@@ -60,6 +60,16 @@ export const PIN_TIP_TUCK_PX = 3;
 export const PIN_SELECTED_SCALE = 1.3;
 
 /**
+ * Pin names (CLAUDE.md, "Place names"): the HTML label and the map's invisible collision copy
+ * of it share these, so the copy's box is the label's box. Line height is in ems
+ * (MapLibre's text-line-height; CSS line-height as a number).
+ */
+export const NAME_FONT_PX = 12;
+export const NAME_LINE_HEIGHT = 1.2;
+/** An English name longer than this many characters goes on two lines (labels.ts breakName). */
+export const NAME_BREAK_CHARS = 16;
+
+/**
  * Grouped pins (CLAUDE.md, "Grouped pins"): pins whose centres are closer than this many screen
  * pixels merge into one group pin. A bit under one pin width: pins may overlap slightly before
  * grouping, which keeps groups from forming too early between whole zoom levels (MapLibre only

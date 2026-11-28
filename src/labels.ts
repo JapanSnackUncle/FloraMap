@@ -1,3 +1,4 @@
+import { NAME_BREAK_CHARS } from './config';
 import type { Lang } from './i18n';
 import type { Species } from './lib/schema';
 import {
@@ -53,3 +54,34 @@ export function fullAddress(place: PlaceStatus['place']): string {
 /** The place's display name in the current language. */
 export const placeName = (ps: PlaceStatus, lang: Lang): string =>
   (lang === 'en' && ps.place.name_en) || ps.place.name_ja;
+
+/**
+ * An English name on one or two lines (CLAUDE.md, "Place names"): longer than NAME_BREAK_CHARS,
+ * it breaks at the space that makes the longer line shortest, a tie putting the shorter line on
+ * top. No space: one line.
+ */
+export function breakName(name: string): string {
+  const len = (s: string) => [...s].length;
+  if (len(name) <= NAME_BREAK_CHARS) return name;
+  let best: { top: string; bottom: string } | null = null;
+  for (let i = name.indexOf(' '); i !== -1; i = name.indexOf(' ', i + 1)) {
+    const top = name.slice(0, i);
+    const bottom = name.slice(i + 1);
+    if (!top || !bottom) continue;
+    if (
+      !best ||
+      Math.max(len(top), len(bottom)) < Math.max(len(best.top), len(best.bottom)) ||
+      (Math.max(len(top), len(bottom)) === Math.max(len(best.top), len(best.bottom)) &&
+        len(top) < len(best.top))
+    )
+      best = { top, bottom };
+  }
+  return best ? `${best.top}\n${best.bottom}` : name;
+}
+
+/**
+ * The name under a pin: English names may break onto two lines (breakName); Japanese names,
+ * including the Japanese fallback in English mode, stay on one.
+ */
+export const pinName = (ps: PlaceStatus, lang: Lang): string =>
+  lang === 'en' && ps.place.name_en ? breakName(ps.place.name_en) : ps.place.name_ja;

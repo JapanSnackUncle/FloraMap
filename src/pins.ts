@@ -2,7 +2,14 @@
 // pin; the map only places the element. No status text and no kanji on the pin itself.
 
 import type { CSSProperties } from 'react';
-import { PIN_SELECTED_SCALE, PIN_TIP_TUCK_PX, siteUrl, type PinSize } from './config';
+import {
+  NAME_FONT_PX,
+  NAME_LINE_HEIGHT,
+  PIN_SELECTED_SCALE,
+  PIN_TIP_TUCK_PX,
+  siteUrl,
+  type PinSize,
+} from './config';
 import type { Lang } from './i18n';
 import { stageColor, stageLabel } from './labels';
 import {
@@ -125,5 +132,7 @@ export function pinStyle(pin: PinSize): CSSProperties {
     '--pin-tip-h': `${pin.tipH}px`,
     '--pin-tip-tuck': `${PIN_TIP_TUCK_PX}px`,
     '--pin-selected-scale': String(PIN_SELECTED_SCALE),
+    '--name-font-size': `${NAME_FONT_PX}px`,
+    '--name-line-height': String(NAME_LINE_HEIGHT),
   } as CSSProperties;
 }

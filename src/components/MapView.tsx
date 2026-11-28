@@ -13,6 +13,8 @@ import {
   IBARAKI_BOUNDS,
   JAPANESE_FONTS,
   MAP_ATTRIBUTION,
+  NAME_FONT_PX,
+  NAME_LINE_HEIGHT,
   PAN_MARGIN_PX,
   PHONE_GROUP_RADIUS_PX,
   PHONE_PIN,
@@ -28,6 +30,7 @@ import {
 import type { Feature, Point } from 'geojson';
 import { t, type Lang } from '../i18n';
 import { compareFeatures, type PlaceStatus } from '../lib/status';
+import { pinName } from '../labels';
 import { drawPin, groupLook, pinLook, type PinLook } from '../pins';
 
 // MapLibre reads "pmtiles://..." URLs through this protocol handler. Register it once per page.
@@ -216,7 +219,7 @@ const TEXT_LAYER = 'pin-name-text';
  * the selected pin. MapLibre only decides which names fit, using these two invisible layers on
  * one source, placed top-down: every pin's outline is always placed and blocks names (holes);
  * then each name is dropped if it would collide, better rank first (text). The text layer
- * matches the HTML label (12 px, one line) so its collision box is the label's box.
+ * matches the HTML label (same text, size and line height) so its collision box is the label's.
  */
 function addNameLayers(map: maplibregl.Map) {
   for (const phone of [false, true]) {
@@ -238,10 +241,13 @@ function addNameLayers(map: maplibregl.Map) {
       'symbol-sort-key': ['get', 'sort'],
       'text-field': ['get', 'name'],
       'text-font': ['Noto Sans Medium'],
-      'text-size': 12,
+      'text-size': NAME_FONT_PX,
+      'text-line-height': NAME_LINE_HEIGHT,
+      'text-justify': 'center',
       'text-anchor': 'top',
       'text-offset': [0, 0.3],
-      'text-max-width': 100, // never wrap: the HTML label is one line too
+      // Breaks only at the name's own \n (labels.ts pinName), like the HTML label.
+      'text-max-width': 100,
       'text-padding': 2,
     },
     paint: { 'text-opacity': 0 },
@@ -604,7 +610,7 @@ export default function MapView({
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !loaded) return;
-    const name = (ps: PlaceStatus) => (lang === 'en' && ps.place.name_en) || ps.place.name_ja;
+    const name = (ps: PlaceStatus) => pinName(ps, lang);
     const groupOf = new Map(view.groups.map((g) => [g.leader, g]));
     const shown = new Set([...view.singles, ...groupOf.keys()]);
     if (selectedId) shown.add(selectedId);
