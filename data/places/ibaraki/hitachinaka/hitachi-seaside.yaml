@@ -59,6 +59,7 @@ plantings:
   - id: hitachi-seaside-kochia-green
     kind: bloom
     species: kochia-green
+    featured: true
     windows:
       - start: "08-2"
         end: "09-3"
@@ -69,6 +70,7 @@ plantings:
   - id: hitachi-seaside-kochia-red
     kind: foliage
     species: kochia-red
+    featured: true
     windows:
       - start: "10-1"
         end: "10-3"
@@ -88,6 +90,7 @@ plantings:
   - id: hitachi-seaside-nemophila
     kind: bloom
     species: nemophila
+    featured: true
     windows:
       - start: "04-2"
         end: "05-1"

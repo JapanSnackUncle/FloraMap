@@ -535,7 +535,7 @@ describe('pin choice', () => {
     ...over,
   });
 
-  it('ranks lit illumination > 見頃 > 咲き始め > 見頃過ぎ > まもなく > シーズン外', () => {
+  it('ranks 見頃 = lit illumination > 咲き始め > 見頃過ぎ > まもなく > シーズン外', () => {
     const lit = illuminationState(
       illumination([
         { season: '2026-27', from: '2027-03-01', to: '2027-03-31', dates_announced: true },
@@ -549,7 +549,7 @@ describe('pin choice', () => {
       ps({ id: 'start', level: 1 }),
       ps({ id: 'peak', level: 2 }),
     ];
-    expect(pin([...order, lit]).id).toBe('p-lights');
+    expect(pin([...order, lit]).id).toBe('p-lights'); // same tier as 見頃; announced beats estimate
     expect(pin(order).id).toBe('peak');
     expect(pin(order.slice(0, 4)).id).toBe('start');
     expect(pin(order.slice(0, 3)).id).toBe('past');
@@ -568,24 +568,78 @@ describe('pin choice', () => {
     expect(pin([a, ps({ id: 'c', level: 1, featured: true })]).id).toBe('a');
   });
 
-  it('breaks ties by how much of the stage is still ahead', () => {
+  const report = (over: Partial<PlantingState>) =>
+    ps({ confirmed: true, basis: 'report', freshness: 'fresh', ...over });
+  const litLights = (dates_announced: boolean) =>
+    illuminationState(
+      illumination([{ season: '2026-27', from: '2026-11-07', to: '2026-11-29', dates_announced }]),
+      '2026-11-28',
+    );
+
+  it('puts a confirmed status before an estimate within a tier', () => {
+    expect(pin([ps({ id: 'a' }), report({ id: 'b' })]).id).toBe('b');
+    expect(pin([ps({ id: 'a', level: 1 }), report({ id: 'b', level: 1, bloomPct: 10 })]).id).toBe(
+      'b',
+    );
+    // But never across tiers: a confirmed 咲き始め stays below an estimated 見頃.
+    expect(pin([ps({ id: 'b', level: 2 }), report({ id: 'a', level: 1 })]).id).toBe('b');
+  });
+
+  it('on 2026-11-28 at 偕楽園: announced lights beat the estimated momiji, unannounced ones don’t', () => {
+    const momiji = ps({
+      id: 'kairakuen-momiji',
+      window: { start: '2026-11-11', end: '2026-11-30' },
+    });
+    expect(pin([momiji, litLights(true)]).id).toBe('p-lights');
+    // Both estimates: no featured on either, so the id decides.
+    expect(pin([ps({ id: 'a-momiji' }), litLights(false)]).id).toBe('a-momiji');
+  });
+
+  it('puts fresh before aging; announced dates count as fresh', () => {
+    expect(pin([report({ id: 'a', freshness: 'aging' }), report({ id: 'b' })]).id).toBe('b');
+    expect(pin([report({ id: 'a', freshness: 'aging' }), litLights(true)]).id).toBe('p-lights');
+  });
+
+  it('a fresh report beats announced lights on a tie', () => {
+    expect(pin([litLights(true), report({ id: 'z-momiji' })]).id).toBe('z-momiji');
+  });
+
+  it('ignores end dates: an ending-soon feature neither rises nor sinks', () => {
     const early = { start: '2027-04-01', end: '2027-04-10' };
     const late = { start: '2027-04-01', end: '2027-04-25' };
     expect(
       pin([ps({ id: 'a', level: 2, window: early }), ps({ id: 'b', level: 2, window: late })]).id,
-    ).toBe('b');
-    expect(
-      pin([ps({ id: 'a', level: 1, bloomPct: 30 }), ps({ id: 'b', level: 1, bloomPct: 50 })]).id,
-    ).toBe('b');
-    expect(
-      pin([ps({ id: 'a', level: 3, window: late }), ps({ id: 'b', level: 3, window: early })]).id,
     ).toBe('a');
+    expect(
+      pin([ps({ id: 'a', level: 3, window: early }), ps({ id: 'b', level: 3, window: late })]).id,
+    ).toBe('a');
+  });
+
+  it('puts the higher bloom % first among 咲き始め', () => {
+    expect(
+      pin([
+        report({ id: 'a', level: 1, bloomPct: 30 }),
+        report({ id: 'b', level: 1, bloomPct: 50 }),
+      ]).id,
+    ).toBe('b');
   });
 
   it('puts the sooner start first among まもなく', () => {
     const a = ps({ id: 'a', level: 0, window: { start: '2027-04-10', end: '2027-04-20' } });
     const b = ps({ id: 'b', level: 0, window: { start: '2027-04-05', end: '2027-04-30' } });
     expect(pin([a, b]).id).toBe('b');
+  });
+
+  it('compares plantings and illuminations by start among まもなく', () => {
+    const lights = illuminationState(
+      illumination([
+        { season: '2026-27', from: '2027-04-03', to: '2027-04-30', dates_announced: false },
+      ]),
+      '2027-03-25',
+    );
+    const a = ps({ id: 'a', level: 0, window: { start: '2027-04-10', end: '2027-04-20' } });
+    expect(lights.state).toBe('soon');
+    expect(pin([a, lights]).id).toBe('p-lights');
   });
 });
 

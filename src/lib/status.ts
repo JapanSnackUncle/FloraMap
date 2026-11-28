@@ -514,37 +514,47 @@ export function closuresExpired(place: Pick<PublicPlace, 'closures'>, today: str
 export type FeatureState = PlantingState | IlluminationState;
 
 /**
- * Rank, highest wins: lit illumination 6 > 見頃 5 > 咲き始め 4 > 見頃過ぎ 3 >
+ * Tier, highest wins: 見頃 or lit illumination 5 > 咲き始め 4 > 見頃過ぎ 3 >
  * まもなく 2 (plantings and illuminations before their start) > シーズン外 1.
  */
 export function rank(s: FeatureState): number {
-  if (s.type === 'illumination') return s.state === 'lit' ? 6 : s.state === 'soon' ? 2 : 1;
+  if (s.type === 'illumination') return s.state === 'lit' ? 5 : s.state === 'soon' ? 2 : 1;
   return { 2: 5, 1: 4, 3: 3, 0: 2, 4: 1 }[s.level];
 }
 
+/** Start of a まもなく feature in epoch ms, so plantings and illuminations compare on one scale. */
+function soonStart(s: FeatureState): number | undefined {
+  const start = s.type === 'illumination' ? s.from : s.window?.start;
+  return start === undefined ? undefined : Date.parse(start);
+}
+
 /**
- * Within a rank: featured first, then more of the stage still ahead
- * (見頃: later window end; 咲き始め: higher %; 見頃過ぎ: later window end;
- *  まもなく: sooner start; lit: later end), then id so the result is stable.
+ * The one order for pins, the list, group pins and name collisions (CLAUDE.md, "Pin choice").
+ * Highest wins, key by key: tier; confirmed before estimate (an illumination is confirmed when
+ * its dates are announced); fresh before aging (announced dates count as fresh); a planting with
+ * a report before an illumination; featured; 咲き始め higher %, まもなく sooner start; then id so
+ * the result is stable. End dates play no part.
  */
 export function compareFeatures(a: FeatureState, b: FeatureState): number {
-  const r = rank(b) - rank(a);
-  if (r) return r;
-  if (a.featured !== b.featured) return a.featured ? -1 : 1;
-  // All in epoch ms so plantings and illuminations compare on the same scale.
-  const ahead = (s: FeatureState): number => {
-    if (s.type === 'illumination') {
-      if (s.state === 'lit') return s.to ? Date.parse(s.to) : 0;
-      if (s.state === 'soon') return s.from ? -Date.parse(s.from) : 0;
-      return 0;
-    }
-    if (s.level === STARTING) return s.bloomPct ?? 0;
-    if (s.level === PEAK || s.level === PAST_PEAK) return s.window ? Date.parse(s.window.end) : 0;
-    if (s.level === SOON) return s.window ? -Date.parse(s.window.start) : 0;
-    return 0;
+  const keys = (s: FeatureState): number[] => {
+    const reported = s.type === 'planting' && s.confirmed;
+    let stage = 0;
+    if (s.type === 'planting' && s.level === STARTING) stage = s.bloomPct ?? 0;
+    if (rank(s) === 2) stage = -(soonStart(s) ?? Infinity);
+    return [
+      rank(s),
+      s.confirmed ? 1 : 0,
+      s.type === 'planting' && s.freshness === 'aging' ? 0 : 1,
+      reported ? 1 : 0,
+      s.featured ? 1 : 0,
+      stage,
+    ];
   };
-  const t = ahead(b) - ahead(a);
-  if (t) return t;
+  const ka = keys(a);
+  const kb = keys(b);
+  for (let i = 0; i < ka.length; i++) {
+    if (ka[i] !== kb[i]) return kb[i]! - ka[i]!;
+  }
   return a.id.localeCompare(b.id);
 }
 
