@@ -21,7 +21,7 @@ v1 has to work with zero users and fit around a day job. Everything deferred dep
 - **Ibaraki only, 24 hand-picked places** (32 more are listed in the retired staging sheet with `in_v1: no`): the ones with official status updates, plus the rest showing their usual bloom window.
 - **Bloom stages, semi-automatic:** a script checks the official pages each day and alerts R when one changes; R confirms the stage. No automatic parsing yet.
 - **Festivals and illuminations entered by hand:** festivals for February–May 2027, about 5 illuminations for 2026–27 (park, garden or natural-site light shows only; see 6.15).
-- **Web app (installable PWA):** map with ring pins, festival badge, filters, a list, a place page, and a freshness label ("公式 · 2日前" / "例年").
+- **Web app (installable PWA):** map with ring pins, festival badge, filters, a list, a place page, and a freshness label ("公式 · 2日前" / "例年"), service worker
 - **Photos:** R's own, the prefecture's photo library (いばらきフォトダウンロード, terms to check), park photos used with permission, and hand-picked Instagram embeds.
 - **Japanese and English.**
 
@@ -114,7 +114,8 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Changed 26 Nov, after using it: the list no longer rests at half (to browse it you pull it to full anyway; a place page at half is still useful, since the map shows above it). A page lowered to peek now closes to the list at peek, not to the list's earlier height: lowering it says "I'm looking at the map", so a full list popping up got in the way. Considered and not built yet: keeping the list's scroll position across opening a place (it resets to the top).
     - Also 26 Nov: the page header has room for two buttons, so a page opened from the list shows both 一覧に戻る (left) and 閉じる (right), and the user picks list or map instead of the app guessing; from a pin there's no list to go back to, so only 閉じる. The full list gets 閉じる too (on the count line's row, not a row of its own), since it hides the map and there was no obvious way back to it except dragging. A map tap on an open page now closes to peek: tapping the map means "I'm looking at the map", the same reason as lowering the page.
   - [x] 5.10 English/Japanese language switcher. 
-- [ ] 6. Other to-do items regarding the core app
+    - 2026-11-29 (rule in CLAUDE.md, "Language"): the app starts in the device's language (Japanese first → Japanese, else English) instead of always Japanese; the toggle's choice is remembered in the browser; `<html lang>` and the tab title follow. Why: an English-speaking visitor otherwise had to switch on every visit, and screen readers read English mode with Japanese rules. Not in shared links on purpose: the person opening a link is better served by their own device's language than the sender's.
+- [x] 6. Other to-do items regarding the core app
   - [x] 6.1 List order logic. Ending soon sinks to bottom for everything, which makes sense for blooms. But for fixed events like illuminations, ending soon is a reason to go now. Also, the order does not care about confirmed events vs projections. 11/26: it seems like active illuminations are always on top now, no matter what. 
     - Decided 28 Nov (rule in CLAUDE.md, "Pin choice per place"). The list keeps sharing one order with pin choice, group pins and name collisions, so the list's top row and the map always agree. Reasoning: a visitor wants "worth going now, and can I trust it", so stage comes first and confirmed beats estimate within a stage. A lit illumination is the night-time 見頃, so it shares that tier; in late February a mid-run illumination shouldn't outrank 偕楽園's confirmed ume. End dates were dropped from the order both ways: for blooms they're guesses from the usual window, and for illuminations "ends soon" is better said by a label than by position. Freshness uses the fresh/aging buckets, not exact age (1 vs 2 days means nothing to a visitor); illuminations get no reports, so announced dates count as fresh. A planting with a report beats an illumination on a tie: someone checked the flowers, the illumination is just on schedule (otherwise ID decides, e.g. kairakuen-illumination over kairakuen-momiji only because i < m). Kept: 咲き始め higher % (real report data, matches the ring) and まもなく sooner start ("next up" beats alphabetical).
     - Accepted: while statuses.csv is empty, every announced lit illumination lists above every estimated 見頃, which is the effect noticed on 11/26. It fixes itself as reports come in.
@@ -153,25 +154,19 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
     - Decided 2026-11-28 (rule in CLAUDE.md, "Place names"): English names over 16 characters break at a space onto two lines; Japanese stays one line.
     - Why: the old one-line rule existed because MapLibre and the HTML label wrapped differently. Choosing the break in code and giving both the same text removes that, and long English names (up to 28 characters, over 3 pin widths) lost too many collisions on one line. A character count over pixel width because it's deterministic and testable. Shorter line on top so the name widens away from the pin, like its taper.
     - Parked: hand-marked breaks for Japanese names (a schema change), if a real name such as 日立シビックセンター新都市広場 looks bad.
-- [x] 6.15 Specs that nail down what is a standalone illumination (gets its own "planting"), and what illuminations are merely attached to events (e.g. 花貫渓谷 紅葉ライトアップ). Also the scope of what illuminations to put. The Hitachi Civic Center illumination has no relation to plants or nature. かわちイルミネーション2026 and 第15回 光がつくる“Art”水郷桜イルミネーション are in parks. もみじ谷　ライトアップ is in an actual place where people go for regular 紅葉 viewing.
+  - [x] 6.15 Specs that nail down what is a standalone illumination (gets its own "planting"), and what illuminations are merely attached to events (e.g. 花貫渓谷 紅葉ライトアップ). Also the scope of what illuminations to put. The Hitachi Civic Center illumination has no relation to plants or nature. かわちイルミネーション2026 and 第15回 光がつくる“Art”水郷桜イルミネーション are in parks. もみじ谷　ライトアップ is in an actual place where people go for regular 紅葉 viewing.
     - Decided 2026-11-28 (rules in CLAUDE.md, "What counts as an illumination" and "Illumination scope"): an illumination is a light show whose run outlasts the plants it lights, judged per event; a light-up that ends with its plants is a festival. Only park, garden or natural-site illuminations.
     - Why: a light-up of plants as an illumination outranks its own planting, so 偕楽園 showed a gold pin whatever the leaves were doing, and its dates move with the colouring, so a countdown would be a guess. As a festival it gets the event dot and the planting keeps the stage ring. Judging the whole event keeps one branded event as one thing (Moonlight Rose Garden's rose part and LED part aren't split). City displays fall outside a map of seasonal nature.
     - Changes: もみじ谷 ライトアップ → festival `kairakuen-momiji-lightup`; place `hitachi-civic` removed; Flower Park's gap between parts (11/24–27) was already in its closures, so no logic change.
-- [x] 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
-### Phase 2 – App complete
-
+  - [x] 6.15 6.16 Bug: on reload, the list starts full and automatically gets pulled down, so we see a brief animation. start with list at peek
 - [x] Debug date bar in dev builds, showing why each pin was chosen (done early, in 5.3).
 - [ ] Place page: timeline, freshness label, source link, directions button, photo and Instagram embed.
-- [ ] English/Japanese toggle; installable as a PWA.
 - [x] Self-host the map's label fonts and icons (2026-11-29: `public/basemap/`, see README.md).
-- [ ] Make loading faster
+- [x] Make loading faster
 	- [x] **Start the map without waiting for `places.json`.** Load both at once. This saves roughly 300–400 ms on every visit. It's a small change.
     - [x] **Fetch hints in `index.html`.** Done 2026-11-29 (`preloadHints` in `vite.config.ts`, builds only): MapLibre's worker script and the opening view's two label fonts now download alongside the app's JavaScript. Measured first: on the test site the worker started only after the JavaScript had run, and the fonts only after the first tiles. Not done: `places.json` (about 0.1 s later than it could start; cheap to add the same way). A "preconnect" for the R2 tiles subdomain may help once it exists (Phase 4).
-    - [ ] **A skeleton instead of the white screen.** Put a few lines of CSS and HTML straight into `index.html`: the map's background colour and an empty chip row, or the bottom sheet's grab bar on phones. These show the moment the HTML arrives, before any JavaScript.
-    - [ ] **Put the pins on earlier.** At the moment they wait for MapLibre's `load` event, which fires only after every first tile, the 370 KB railway file and the fonts have arrived. They could go on once the style is ready instead. This one is medium effort.
-    - [ ] **Service worker (already planned for the PWA).** It saves the app's files on the phone, so later visits skip most of the download and open almost instantly. For repeat visitors this matters more than anything above.
 
-### Phase 3 – Status pipeline
+### Phase 2 – Status pipeline
 
 - [ ] Specs for this whole thing, from tracking yaml files for dates to navigating to and searching for,  websites, scraping or interpreting information from the website, writing back to the yaml, keeping a log of everything
 - [ ] Statuses and monitoring behavior for events and illuminations (need to flesh out):
@@ -194,13 +189,13 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Finish translating all Japanese text. It's also something for the pipeline as it needs to handle JA -> EN
 - [ ] New fields that need to be found and written: dogs allowed (yes or blank (not shown)), disabled parking spaces (yes or blank (not shown))
 - [ ] Practical info layout on the place page (施設情報): long values such as ひたち海浜公園's 休業日 run to four dense lines. Decide how hours, closed days and fees are written and laid out once the pipeline writes them. (From 6.10's second pass, 28 Nov.)
-- [ ] Watcher for the official sources on a daily schedule, plus the morning digest.
-- [ ] Watcher checks: flag a status dated outside its planting's season, or one that would go backwards.
+- [ ] Morning digest
+- [ ] Watcher sanity checks: flag a status dated outside its planting's season, or one that would go backwards.
 - [ ] Place page: show whether each feature's status is confirmed or an estimate (the map no longer has an indication: every ring is 3 px since 26 Nov). This is here since there are no confirmed planting statuses now, but after this pipeline is done, there will be.
 - [x] Validation that stages are in the scale (build-data) and display never goes backwards (status.ts).
 - [x] Automatic fallback when a status goes stale (status.ts).
 
-### Phase 4 – Polish and field test 
+### Phase 3 – Polish and field test 
 
 - [ ] **By early January 2027** (about a month of slack before plum season): set up production hosting. Tabled until then on 2026-11-29; the GitHub Pages test site covers testing meanwhile.
     - New Cloudflare account for this project (not the one hosting R's wife's site): separate billing, free-tier limits and API tokens, and the project can be handed on alone.
@@ -211,8 +206,9 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Visit 2–3 places to test on a phone outdoors.
 - [ ] Attribution, source links, disclaimer ("check official site"), privacy policy.
 - [ ] Privacy-friendly analytics (e.g. Plausible or Cloudflare Web Analytics).
+- [ ] PWA implementation
 
-### Phase 5 – Soft launch for plum season (late January / February)
+### Phase 4 – Soft launch for plum season (late January / February)
 
 - [ ] Live for Mito, Tsukuba-san and other plum places; Koga peaches in March.
 - [ ] Social media accounts: X, Instagram
@@ -220,7 +216,7 @@ The numbered items are CLAUDE.md's "Phase 1: first tasks".
 - [ ] Optional: a video to bring in first users.
 - [ ] Email individual places about using photos
 
-### Phase 6 – Spring peak (late March to May)
+### Phase 5 – Spring peak (late March to May)
 
 - [ ] Cherry, nemophila, azalea, roses: the highest-traffic test.
 - [ ] Contact parks with a live product to show (starts the v2 park admin page).

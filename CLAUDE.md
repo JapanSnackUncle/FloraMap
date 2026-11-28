@@ -190,6 +190,8 @@ GLOSSARY.md                   # project terms
 - 見頃のみ shows places with any planting at 見頃, not only where 見頃 fronts the pin.
 - Under 見頃のみ the pin is that 見頃 planting, and under イルミネーション it's the illumination, using the same ranking among just those features (`pinForFilter`). Other filters use the normal pin.
 
+**Language:** the app starts in the language the visitor last chose with the toggle (saved in the browser), else Japanese when the device's first language is Japanese, else English (`initialLang` in `src/i18n.ts`). Not in the address: a shared link opens in the reader's language. `<html lang>` and the tab title follow the current language.
+
 **Debug mode:** keep the prototype's date override in dev builds (date picker, ±1/±7 days, season presets, season offset, simulated scraper outage). It's how R checks behaviour across the year. Don't ship it enabled in production. The GitHub Pages test site also has a debug copy at `/debug/` (`VITE_DEBUG=true`); production builds never set that flag.
 
 ## Source and legal rules (do not break these)
@@ -227,5 +229,5 @@ Later phases (status pipeline, polish, launch) are in `reference/plan.md`.
 - R knows programming in general and version control, but is new to web development (only a small static site before). Skip explaining git or basic programming; do explain web-specific tools, terms and conventions (build steps, npm, bundlers, service workers, CORS, caching…) briefly, in plain terms, the first time they come up.
 - Ask before: adding paid services, changing the bloom scale or schema, renaming IDs, or adding any new data source.
 - When data is uncertain, leave the field empty and list it for R. **Never invent dates, hours, fees or coordinates.**
-- UI strings in both Japanese and English from the start (`ja` default).
+- UI strings in both Japanese and English from the start (starting language: see Language).
 - Keep commits small and described. Don't commit API keys (use Cloudflare/GitHub secrets).

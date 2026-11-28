@@ -10,13 +10,14 @@ import Sheet, { type Snap } from './components/Sheet';
 import { PHONE_PIN, PIN, SHEET_TOP_PX } from './config';
 import { useData } from './data';
 import { DEBUG, useAppDate } from './debugDate';
-import { t, type Lang } from './i18n';
+import { t } from './i18n';
 import { passesFilter, pinForFilter, placeStatus, type Filter } from './lib/status';
 import { legendRows } from './legend';
 import { listCountText, listedPlaces } from './listText';
 import { pinStyle } from './pins';
 import { OPENED_WITH_PLACE, useSelectedPlace } from './selectedPlace';
 import { useIsPhone } from './usePhone';
+import { useLang } from './useLang';
 
 /** Sheet heights: a place page uses peek, half and full; the list skips half (it's for
  *  browsing); the legend rests at its own height (fit, up to half) instead of half. */
@@ -28,7 +29,7 @@ const LEGEND_SNAPS: readonly Snap[] = ['peek', 'fit', 'full'];
 type Tab = 'list' | 'legend';
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('ja');
+  const [lang, setLang] = useLang();
   const { data, error } = useData();
   const { date, isOverride, setDate } = useAppDate();
   // Debug only: the Why panel takes the list's place while it's open.

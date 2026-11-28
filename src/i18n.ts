@@ -60,3 +60,15 @@ export type StringKey = keyof typeof strings;
 export function t(key: StringKey, lang: Lang): string {
   return strings[key][lang];
 }
+
+/**
+ * The language the app starts in (CLAUDE.md, "Language"): the visitor's own choice from the
+ * toggle if one is saved, else Japanese when the device's first language is Japanese
+ * (`navigator.languages`, e.g. "ja-JP"), else English. No device language at all: Japanese.
+ */
+export function initialLang(saved: string | null, deviceLanguages: readonly string[]): Lang {
+  if (saved === 'ja' || saved === 'en') return saved;
+  const first = deviceLanguages[0];
+  if (!first) return 'ja';
+  return first.toLowerCase().split('-')[0] === 'ja' ? 'ja' : 'en';
+}
